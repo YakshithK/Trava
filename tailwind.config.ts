@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// SaathSafar custom colors
+				'saath': {
+					cream: '#FDF6E9',
+					saffron: '#F9C846',
+					green: '#A3D9A5',
+					'light-green': '#E8F5E9',
+					gray: '#333333',
+					'light-gray': '#EFEFEF',
 				}
 			},
 			borderRadius: {
@@ -84,11 +94,27 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.5s ease-out'
+			},
+			fontSize: {
+				'2xl-large': '1.75rem',
+				'3xl-large': '2rem',
+				'4xl-large': '2.5rem',
 			}
 		}
 	},
