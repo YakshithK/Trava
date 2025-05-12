@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import VoiceHelp from "@/components/VoiceHelp";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ArrowLeft, Camera, User } from "lucide-react";
+import { supabase } from "@/config/supabase";
 
 const onboardingTexts = {
   en: {
@@ -21,6 +22,10 @@ const onboardingTexts = {
     languageLabel: "Preferred Language",
     phoneLabel: "Contact Number",
     phonePlaceholder: "Enter your phone number",
+    emailLabel: "Email",
+    emailPlaceholder: "Enter your email",
+    passwordLabel: "Password",
+    passwordPlaceholder: "Enter your password",
     photoLabel: "Profile Photo",
     photoButton: "Take Photo or Upload",
     continue: "Continue",
@@ -37,6 +42,10 @@ const onboardingTexts = {
     languageLabel: "पसंदीदा भाषा",
     phoneLabel: "संपर्क नंबर",
     phonePlaceholder: "अपना फ़ोन नंबर दर्ज करें",
+    emailLabel: "ईमेल",
+    emailPlaceholder: "अपना ईमेल दर्ज करें",
+    passwordLabel: "पासवर्ड",
+    passwordPlaceholder: "अपना पासवर्ड दर्ज करें",
     photoLabel: "प्रोफ़ाइल फोटो",
     photoButton: "फोटो लें या अपलोड करें",
     continue: "जारी रखें",
@@ -53,6 +62,10 @@ const onboardingTexts = {
     languageLabel: "ప్రాధాన్య భాష",
     phoneLabel: "సంప్రదించు నంబర్",
     phonePlaceholder: "మీ ఫోన్ నంబర్‌ని నమోదు చేయండి",
+    emailLabel: "ఇమెయిల్",
+    emailPlaceholder: "మీ ఇమెయిల్‌ని నమోదు చేయండి",
+    passwordLabel: "పాస్వర్డ్",
+    passwordPlaceholder: "మీ పాస్వర్డ్‌ని నమోదు చేయండి",
     photoLabel: "ప్రొఫైల్ ఫోటో",
     photoButton: "ఫోటో తీసుకోండి లేదా అప్‌లోడ్ చేయండి",
     continue: "కొనసాగించండి",
@@ -63,8 +76,16 @@ const onboardingTexts = {
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState<"en" | "hi" | "te">("en");
+
+
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [language, setLanguage] = useState<"en" | "hi" | "te">("en");
   const text = onboardingTexts[language];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,10 +100,29 @@ const Onboarding = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would submit the form data to the backend
-    // For now, just navigate to the next page
+    
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+    });
+
+    await supabase.from("users").insert({
+      id: data?.user?.id,
+      name,
+      age: parseInt(age),
+      language,
+      contact_number: contactNumber,
+      email,
+      photo: photoPreview,
+    });
+    
+    if (error) {
+      console.error("Error signing up:", error);
+      return;
+    }
+
     navigate("/trip-posting");
   };
 
@@ -120,6 +160,7 @@ const Onboarding = () => {
                 placeholder={text.namePlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
 
@@ -135,6 +176,7 @@ const Onboarding = () => {
                 min="50"
                 max="100"
                 required
+                onChange={(e) => setAge(e.target.value)}
               />
             </div>
 
@@ -160,6 +202,33 @@ const Onboarding = () => {
                 placeholder={text.phonePlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
+                onChange={(e) => setContactNumber(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-xl">
+                {text.emailLabel}
+              </Label>
+              <Input
+                id="name"
+                placeholder={text.emailPlaceholder}
+                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-xl">
+                {text.passwordLabel}
+              </Label>
+              <Input
+                id="name"
+                placeholder={text.passwordPlaceholder}
+                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
+                required
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
