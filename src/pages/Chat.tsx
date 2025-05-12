@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,7 @@ const chatTexts = {
 };
 
 // Mock data for the chat
-const mockMatchInfo = {
+const mockMatchInfo: Record<number, { name: string; photoUrl: string | undefined }> = {
   1: {
     name: "Ramesh Patel",
     photoUrl: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
@@ -89,9 +88,10 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const text = chatTexts[language];
 
-  // Get match info based on the matchId
-  const matchInfo = matchId && mockMatchInfo[matchId as keyof typeof mockMatchInfo] 
-    ? mockMatchInfo[matchId as keyof typeof mockMatchInfo]
+  // Fixed: Convert matchId string to number for type safety when accessing mockMatchInfo
+  const numericMatchId = matchId ? parseInt(matchId) : null;
+  const matchInfo = numericMatchId && mockMatchInfo[numericMatchId]
+    ? mockMatchInfo[numericMatchId]
     : { name: "Unknown", photoUrl: undefined };
 
   useEffect(() => {
