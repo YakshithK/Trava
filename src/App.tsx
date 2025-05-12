@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,10 @@ import Matches from "./pages/Matches";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Requests from "./pages/Requests";
+import Profile from "./pages/Profile";
+import Layout from "./components/layout/Layout";
 import { AuthProvider } from "./context/authContext";
 import ProtectedRoute from "./components/protectedRoute";
 
@@ -30,10 +35,22 @@ const App = () => (
 
             {/* Protected Routes */}
             <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/trip-posting"
               element={
                 <ProtectedRoute>
-                  <TripPosting />
+                  <Layout>
+                    <TripPosting />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
@@ -41,15 +58,39 @@ const App = () => (
               path="/matches"
               element={
                 <ProtectedRoute>
-                  <Matches />
+                  <Layout>
+                    <Matches />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/chat/:matchId"
+              path="/requests"
               element={
                 <ProtectedRoute>
-                  <Chat />
+                  <Layout>
+                    <Requests />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:matchId?"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Chat />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Profile />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
