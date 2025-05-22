@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import VoiceHelp from "@/components/VoiceHelp";
-import LanguageSelector from "@/components/LanguageSelector";
 import { ArrowLeft, Camera, User } from "lucide-react";
 import { supabase } from "@/config/supabase";
 
@@ -32,46 +30,6 @@ const onboardingTexts = {
     back: "Back",
     voiceHelp: "Welcome to the profile creation page. Please enter your full name, age, preferred language, and contact number. You can also upload a profile photo. Click Continue when you're done.",
   },
-  hi: {
-    title: "अपना प्रोफ़ाइल बनाएं",
-    subtitle: "हमें अपने बारे में बताएं",
-    nameLabel: "पूरा नाम",
-    namePlaceholder: "अपना पूरा नाम दर्ज करें",
-    ageLabel: "आयु",
-    agePlaceholder: "अपनी आयु दर्ज करें",
-    languageLabel: "पसंदीदा भाषा",
-    phoneLabel: "संपर्क नंबर",
-    phonePlaceholder: "अपना फ़ोन नंबर दर्ज करें",
-    emailLabel: "ईमेल",
-    emailPlaceholder: "अपना ईमेल दर्ज करें",
-    passwordLabel: "पासवर्ड",
-    passwordPlaceholder: "अपना पासवर्ड दर्ज करें",
-    photoLabel: "प्रोफ़ाइल फोटो",
-    photoButton: "फोटो लें या अपलोड करें",
-    continue: "जारी रखें",
-    back: "वापस",
-    voiceHelp: "प्रोफ़ाइल बनाने के पृष्ठ पर आपका स्वागत है। कृपया अपना पूरा नाम, आयु, पसंदीदा भाषा और संपर्क नंबर दर्ज करें। आप प्रोफ़ाइल फोटो भी अपलोड कर सकते हैं। जब आप पूरा कर लें, तो जारी रखें पर क्लिक करें।",
-  },
-  te: {
-    title: "మీ ప్రొఫైల్‌ని సృష్టించండి",
-    subtitle: "మీ గురించి మాకు చెప్పండి",
-    nameLabel: "పూర్తి పేరు",
-    namePlaceholder: "మీ పూర్తి పేరు నమోదు చేయండి",
-    ageLabel: "వయస్సు",
-    agePlaceholder: "మీ వయస్సు నమోదు చేయండి",
-    languageLabel: "ప్రాధాన్య భాష",
-    phoneLabel: "సంప్రదించు నంబర్",
-    phonePlaceholder: "మీ ఫోన్ నంబర్‌ని నమోదు చేయండి",
-    emailLabel: "ఇమెయిల్",
-    emailPlaceholder: "మీ ఇమెయిల్‌ని నమోదు చేయండి",
-    passwordLabel: "పాస్వర్డ్",
-    passwordPlaceholder: "మీ పాస్వర్డ్‌ని నమోదు చేయండి",
-    photoLabel: "ప్రొఫైల్ ఫోటో",
-    photoButton: "ఫోటో తీసుకోండి లేదా అప్‌లోడ్ చేయండి",
-    continue: "కొనసాగించండి",
-    back: "వెనుకకు",
-    voiceHelp: "ప్రొఫైల్ సృష్టి పేజీకి స్వాగతం. దయచేసి మీ పూర్తి పేరు, వయస్సు, ప్రాధాన్య భాష మరియు సంప్రదింపు సంఖ్యను నమోదు చేయండి. మీరు ప్రొఫైల్ ఫోటోను కూడా అప్‌లోడ్ చేయవచ్చు. పూర్తయినప్పుడు కొనసాగించండి క్లిక్ చేయండి.",
-  }
 };
 
 const Onboarding = () => {
@@ -85,8 +43,7 @@ const Onboarding = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [language, setLanguage] = useState<"en" | "hi" | "te">("en");
-  const text = onboardingTexts[language];
+  const text = onboardingTexts.en;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -112,7 +69,6 @@ const Onboarding = () => {
       id: data?.user?.id,
       name,
       age: parseInt(age),
-      language,
       contact_number: contactNumber,
       email,
       photo: photoPreview,
@@ -137,10 +93,6 @@ const Onboarding = () => {
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <LanguageSelector
-          onChange={(lang) => setLanguage(lang as "en" | "hi" | "te")}
-          defaultLanguage={language}
-        />
       </header>
 
       <main className="page-container">
@@ -185,10 +137,6 @@ const Onboarding = () => {
                 {text.languageLabel}
               </Label>
               <div className="mt-2">
-                <LanguageSelector
-                  onChange={(lang) => setLanguage(lang as "en" | "hi" | "te")}
-                  defaultLanguage={language}
-                />
               </div>
             </div>
 
@@ -279,7 +227,7 @@ const Onboarding = () => {
         </Card>
 
         <div className="mt-6 flex justify-center">
-          <VoiceHelp text={text.voiceHelp} language={language} />
+          <VoiceHelp text={text.voiceHelp} />
         </div>
       </main>
     </div>

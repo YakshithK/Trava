@@ -80,7 +80,7 @@ const Sidebar = () => {
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center space-x-2">
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-green-500">
-              SaathSafar
+              Trava
             </span>
           </Link>
         </div>

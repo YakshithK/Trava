@@ -1,33 +1,17 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import VoiceHelp from "@/components/VoiceHelp";
-import LanguageSelector from "@/components/LanguageSelector";
 
 const welcomeTexts = {
   en: {
-    title: "Welcome to SaathSafar",
+    title: "Welcome to Trava",
     subtitle: "Find a travel companion for your international journey",
     login: "Log In",
     create: "Create Account",
-    voiceHelp: "Welcome to SaathSafar - your companion for international travel. Here you can find travel partners for your journey. Click on Login if you already have an account, or Create Account to get started.",
+    voiceHelp: "Welcome to Trava - your companion for international travel. Here you can find travel partners for your journey. Click on Login if you already have an account, or Create Account to get started.",
   },
-  hi: {
-    title: "सात सफर में आपका स्वागत है",
-    subtitle: "अपनी अंतर्राष्ट्रीय यात्रा के लिए एक यात्रा साथी पाएं",
-    login: "लॉग इन",
-    create: "खाता बनाएं",
-    voiceHelp: "सात सफर में आपका स्वागत है - अंतर्राष्ट्रीय यात्रा के लिए आपका साथी। यहां आप अपनी यात्रा के लिए यात्रा साथी पा सकते हैं। यदि आपका पहले से खाता है तो लॉगिन पर क्लिक करें, या आरंभ करने के लिए खाता बनाएं पर क्लिक करें।",
-  },
-  te: {
-    title: "సాత్ సఫర్‌కి స్వాగతం",
-    subtitle: "మీ అంతర్జాతీయ ప్రయాణానికి ఒక ప్రయాణ సహచరుడిని కనుగొనండి",
-    login: "లాగిన్",
-    create: "ఖాతా సృష్టించండి",
-    voiceHelp: "సాత్ సఫర్‌కి స్వాగతం - మీ అంతర్జాతీయ ప్రయాణానికి మీ సహచరుడు. ఇక్కడ మీరు మీ ప్రయాణానికి ప్రయాణ భాగస్వాములను కనుగొనవచ్చు. మీకు ఇప్పటికే ఖాతా ఉంటే లాగిన్ క్లిక్ చేయండి లేదా ప్రారంభించడానికి ఖాతా సృష్టించండి క్లిక్ చేయండి.",
-  }
 };
 
 const Welcome = () => {
@@ -37,11 +21,7 @@ const Welcome = () => {
   return (
     <div className="min-h-screen bg-saath-cream flex flex-col">
       <header className="p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">SaathSafar</h1>
-        <LanguageSelector
-          onChange={(lang) => setLanguage(lang as "en" | "hi" | "te")}
-          defaultLanguage={language}
-        />
+        <h1 className="text-2xl font-bold">Trava</h1>
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 pb-8 relative">

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,7 +62,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// SaathSafar custom colors
+				// Trava custom colors
 				'saath': {
 					cream: '#FDF6E9',
 					saffron: '#F9C846',
