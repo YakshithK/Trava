@@ -1,77 +1,129 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/config/supabase";
 
-// Mock data for incoming requests
-const incomingRequests = [
-  {
-    id: 1,
-    name: "Anita Sharma",
-    age: 65,
-    from: "Delhi",
-    to: "London",
-    date: "2025-06-10",
-    language: "Hindi",
-    photoUrl: ""
-  },
-  {
-    id: 2,
-    name: "Mohan Kumar",
-    age: 70,
-    from: "Chennai",
-    to: "Sydney",
-    date: "2025-07-22",
-    language: "Tamil",
-    photoUrl: ""
-  }
-];
-
-// Mock data for outgoing requests
-const outgoingRequests = [
-  {
-    id: 3,
-    name: "Rajesh Patel",
-    age: 68,
-    from: "Hyderabad",
-    to: "Toronto",
-    date: "2025-06-15",
-    language: "Telugu",
-    status: "pending",
-    photoUrl: ""
-  },
-  {
-    id: 4,
-    name: "Priya Singh",
-    age: 72,
-    from: "Mumbai",
-    to: "New York",
-    date: "2025-08-05",
-    language: "Hindi",
-    status: "accepted",
-    photoUrl: ""
-  },
-  {
-    id: 5,
-    name: "Venkat Rao",
-    age: 67,
-    from: "Bangalore",
-    to: "Berlin",
-    date: "2025-09-12",
-    language: "Kannada",
-    status: "rejected",
-    photoUrl: ""
-  }
-];
+type Request = {
+  id: number;
+  name: string;
+  age: number;
+  from: string;
+  to: string;
+  date: string;
+  language: string;
+  photoUrl: string;
+  status?: string; // only for outgoing
+};
 
 const Requests = () => {
-  const [incoming] = useState(incomingRequests);
-  const [outgoing] = useState(outgoingRequests);
+  const [incoming, setIncoming] = useState<Request[]>([]);
+  const [outgoing, setOutgoing] = useState<Request[]>([]);
 
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchRequests = async () => {
+    setLoading(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Fetch incoming requests: matches where current user is to_user
+      const { data: incomingMatches, error: incomingError } = await supabase
+        .from("matches")
+        .select("id, from_user, trip_id, status")
+        .eq("to_user", user.id);
+
+      if (incomingError) throw incomingError;
+
+      // Fetch outgoing requests: matches where current user is from_user
+      const { data: outgoingMatches, error: outgoingError } = await supabase
+        .from("matches")
+        .select("id, to_user, trip_id, status")
+        .eq("from_user", user.id);
+
+      if (outgoingError) throw outgoingError;
+
+      // Helper to fetch enriched request data
+      const enrichRequests = async (
+        matches: any[],
+        isIncoming: boolean
+      ): Promise<Request[]> => {
+        if (!matches || matches.length === 0) return [];
+
+        // Collect user IDs for profiles:
+        // For incoming requests, other user is from_user
+        // For outgoing requests, other user is to_user
+        const otherUserIds = matches.map((m) =>
+          isIncoming ? m.from_user : m.to_user
+        );
+
+        // Fetch user profiles
+        const { data: profiles, error: profileError } = await supabase
+          .from("users")
+          .select("id, name, age, language, photo")
+          .in("id", otherUserIds);
+
+        if (profileError) throw profileError;
+
+        // Fetch trips for these requests
+        const tripIds = matches.map((m) => m.trip_id);
+        const { data: trips, error: tripsError } = await supabase
+          .from("trips")
+          .select("id, from, to, date")
+          .in("id", tripIds);
+
+        if (tripsError) throw tripsError;
+
+        // Map enriched data
+        return matches.map((m) => {
+          const otherUserId = isIncoming ? m.from_user : m.to_user;
+          const profile = profiles.find((p) => p.id === otherUserId);
+          const trip = trips.find((t) => t.id === m.trip_id);
+
+          return {
+            id: m.id,
+            name: profile?.name || "Unknown",
+            age: profile?.age || 0,
+            language: profile?.language || "Unknown",
+            photoUrl: profile?.photo || "",
+            from: trip?.from || "",
+            to: trip?.to || "",
+            date: trip?.date || "",
+            status: m.status,
+          };
+        });
+      };
+
+      const enrichedIncoming = await enrichRequests(incomingMatches, true);
+      const enrichedOutgoing = await enrichRequests(outgoingMatches, false);
+
+      setIncoming(enrichedIncoming);
+      setOutgoing(enrichedOutgoing);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchRequests();
+}, []);
+
+  console.log("Incoming Requests:", incoming);
+  console.log("Outgoing Requests:", outgoing);
   // Format date to be more readable
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { 

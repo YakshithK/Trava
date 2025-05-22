@@ -148,7 +148,6 @@ const Matches = () => {
     fetchMatches();
   }, []);
 
-
   const handleContactRequest = async (matchUserId: string, tripId: number) => {
     const {
       data: { user },
