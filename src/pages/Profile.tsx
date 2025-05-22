@@ -1,291 +1,170 @@
+"use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, User } from "lucide-react";
-import { useAuth } from "@/context/authContext";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { supabase } from "@/config/supabase";
 
 const profileFormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  phoneNumber: z.string().min(10, {
-    message: "Phone number must be at least 10 digits.",
-  }),
-  age: z.string().min(1, {
-    message: "Age is required.",
-  }),
-  language: z.string().min(1, {
-    message: "Please select a language.",
-  }),
-  emergencyContactName: z.string().min(2, {
-    message: "Emergency contact name is required.",
-  }),
-  emergencyContactPhone: z.string().min(10, {
-    message: "Emergency contact phone is required.",
-  }),
-  bio: z.string().optional(),
+  name: z.string().min(1, { message: "Name is required" }),
+  phoneNumber: z.string(),
+  age: z.string(),
+  language: z.string(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-// Mock initial values for profile form
-const defaultValues: ProfileFormValues = {
-  name: "Ramesh Patel",
-  phoneNumber: "9876543210",
-  age: "65",
-  language: "Hindi",
-  emergencyContactName: "Suresh Patel",
-  emergencyContactPhone: "9876543211",
-  bio: "Retired teacher from Hyderabad. Love traveling and meeting new people.",
-};
-
-const Profile = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [photoUrl, setPhotoUrl] = useState<string>("");
-  
+export default function Profile() {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: {
+      name: "",
+      phoneNumber: "",
+      age: "",
+      language: "",
+    },
   });
 
-  function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been successfully updated.",
-    });
-    console.log(data);
-  }
+  const [photoData, setPhotoData] = useState<string | null>(null);
 
-  // Get initials for avatar fallback
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  const fetchData = async () => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data: userStats, error } = await supabase
+        .from("users")
+        .select("name, age, language, contact_number, photo")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user data:", error.message);
+        return;
+      }
+
+      form.reset({
+        name: userStats.name || "",
+        phoneNumber: userStats.contact_number || "",
+        age: userStats.age ? String(userStats.age) : "",
+        language: userStats.language || "",
+      });
+
+      setPhotoData(userStats.photo || null);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // In a real app, upload to storage and get URL
-      // For now, just create a local object URL
-      const objectUrl = URL.createObjectURL(file);
-      setPhotoUrl(objectUrl);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoData(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onSubmit = async (data: ProfileFormValues) => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { error } = await supabase
+        .from("users")
+        .update({
+          name: data.name,
+          contact_number: data.phoneNumber,
+          age: Number(data.age),
+          language: data.language,
+          photo: photoData,
+        })
+        .eq("id", user.id);
+
+      if (error) throw new Error(error.message);
+
       toast({
-        title: "Photo uploaded",
-        description: "Your profile photo has been updated.",
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
       });
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">
-          Manage your personal information and preferences.
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-[1fr_2fr]">
-        {/* Profile Photo Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Photo</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center space-y-4">
-            <Avatar className="h-32 w-32">
-              <AvatarImage src={photoUrl} />
-              <AvatarFallback className="text-3xl">
-                {getInitials(form.watch("name") || "User")}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex flex-col items-center">
-              <label htmlFor="photo-upload" className="cursor-pointer">
-                <div className="flex items-center space-x-2 bg-muted hover:bg-muted/80 text-muted-foreground py-2 px-4 rounded-md">
-                  <Upload className="h-4 w-4" />
-                  <span>Upload Photo</span>
-                </div>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
+    
+    <div className="p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+          <CardDescription>Update your personal information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="flex flex-col items-center space-y-2">
+              {photoData && (
+                <img
+                  src={photoData}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover"
                 />
-              </label>
-              <p className="text-xs text-muted-foreground mt-2">
-                JPG, PNG or GIF. Max 2MB.
-              </p>
+              )}
+              <Input type="file" accept="image/*" onChange={handlePhotoChange} />
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Profile Information Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" {...form.register("name")} />
+            </div>
 
-                  <FormField
-                    control={form.control}
-                    name="phoneNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter phone number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <div>
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input id="phoneNumber" {...form.register("phoneNumber")} />
+            </div>
 
-                  <FormField
-                    control={form.control}
-                    name="age"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Age</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Your age" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <div>
+              <Label htmlFor="age">Age</Label>
+              <Input id="age" type="number" {...form.register("age")} />
+            </div>
 
-                  <FormField
-                    control={form.control}
-                    name="language"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Preferred Language</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select language" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="English">English</SelectItem>
-                            <SelectItem value="Hindi">Hindi</SelectItem>
-                            <SelectItem value="Telugu">Telugu</SelectItem>
-                            <SelectItem value="Tamil">Tamil</SelectItem>
-                            <SelectItem value="Kannada">Kannada</SelectItem>
-                            <SelectItem value="Malayalam">Malayalam</SelectItem>
-                            <SelectItem value="Punjabi">Punjabi</SelectItem>
-                            <SelectItem value="Bengali">Bengali</SelectItem>
-                            <SelectItem value="Gujarati">Gujarati</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+            <div>
+              <Label htmlFor="language">Language</Label>
+              <Input id="language" {...form.register("language")} />
+            </div>
 
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bio</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Tell us a little about yourself"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Share details that might help potential travel companions learn about you.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Emergency Contact</h3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="emergencyContactName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Emergency contact name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="emergencyContactPhone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Phone</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Emergency contact phone" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full md:w-auto">Save Changes</Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+            <Button type="submit">Save</Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default Profile;
+}

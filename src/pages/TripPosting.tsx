@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ import { CalendarIcon, ArrowLeft, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
 import VoiceHelp from "@/components/VoiceHelp";
 import LanguageSelector from "@/components/LanguageSelector";
+import { supabase } from "@/config/supabase";
+import { error } from "console";
 
 const tripTexts = {
   en: {
@@ -73,15 +75,50 @@ const tripTexts = {
 };
 
 const TripPosting = () => {
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [airline, setAirline] = useState("");
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [notes, setNotes] = useState(""); 
+
   const navigate = useNavigate();
   const [language, setLanguage] = useState<"en" | "hi" | "te">("en");
-  const [date, setDate] = useState<Date | undefined>(undefined);
   const text = tripTexts[language];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching session:", error);
+      }
+    };
+    fetchData();
+  }
+  , []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would submit the form data to the backend
-    // For now, just navigate to the next page
+    
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("Error fetching user data:", userError);
+      return;
+    }
+
+    const { error: insertError } = await supabase.from("trips").insert({
+      user_id: userData?.user?.id,
+      from,
+      to,
+      date: date ? date.toISOString() : null,
+      airline,
+      notes
+    });
+    
+    if (insertError) {
+      console.error("Error inserting trip:", insertError);
+      return;
+    }
+
     navigate("/matches");
   };
 
@@ -119,6 +156,7 @@ const TripPosting = () => {
                 placeholder={text.fromPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
+                onChange={(e) => setFrom(e.target.value)}
               />
             </div>
 
@@ -131,6 +169,7 @@ const TripPosting = () => {
                 placeholder={text.toPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
+                onChange={(e) => setTo(e.target.value)}
               />
             </div>
 
@@ -143,6 +182,7 @@ const TripPosting = () => {
                 placeholder={text.airlinePlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
+                onChange={(e) => setAirline(e.target.value)}
               />
             </div>
 
@@ -184,6 +224,7 @@ const TripPosting = () => {
                 id="notes"
                 placeholder={text.notesPlaceholder}
                 className="min-h-[100px] text-lg rounded-xl border-2 border-saath-light-gray"
+                onChange={(e) => setNotes(e.target.value)}
               />
             </div>
 

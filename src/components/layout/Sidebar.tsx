@@ -1,15 +1,14 @@
-
-import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { 
-  Home, 
-  PlusCircle, 
-  Users, 
-  MessageSquare, 
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Home,
+  PlusCircle,
+  Users,
+  MessageSquare,
   User,
   Mail
 } from "lucide-react";
-import { 
+import {
   Sidebar as ShadcnSidebar,
   SidebarContent,
   SidebarHeader,
@@ -22,7 +21,6 @@ import {
 import { useAuth } from "@/context/authContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/config/supabase";
 
 const navigationItems = [
@@ -38,6 +36,7 @@ const Sidebar = () => {
   const location = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<{ first_name: string; avatar_url: string } | null>(null);
 
   const handleSignOut = async () => {
     try {
@@ -48,10 +47,32 @@ const Sidebar = () => {
     }
   };
 
-  // Get user initials for avatar fallback
   const getUserInitials = () => {
-    return user?.email?.substring(0, 2).toUpperCase() || "U";
+    return profile?.first_name?.substring(0, 2).toUpperCase() || "U";
   };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from("users")
+        .select("name, photo")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user profile:", error);
+      } else {
+        setProfile({
+          first_name: data.name,
+          avatar_url: data.photo,
+        });
+      }
+    };
+
+    fetchProfile();
+  }, [user?.id]);
 
   return (
     <ShadcnSidebar>
@@ -65,15 +86,17 @@ const Sidebar = () => {
         </div>
         <SidebarTrigger />
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarMenu>
           {navigationItems.map((item) => (
             <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 asChild
-                isActive={location.pathname === item.path || 
-                  (item.path === "/chat" && location.pathname.includes("/chat/"))}
+                isActive={
+                  location.pathname === item.path ||
+                  (item.path === "/chat" && location.pathname.includes("/chat/"))
+                }
                 tooltip={item.name}
               >
                 <Link to={item.path}>
@@ -85,23 +108,21 @@ const Sidebar = () => {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      
+
       <SidebarFooter className="p-4 border-t">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Avatar>
-              <AvatarImage src="" />
+              <AvatarImage src={profile?.avatar_url || ""} />
               <AvatarFallback>{getUserInitials()}</AvatarFallback>
             </Avatar>
             <div className="space-y-0.5">
-              <p className="text-sm font-medium">{user?.email}</p>
+              <p className="text-sm font-medium">
+                {profile?.first_name || "Loading..."}
+              </p>
             </div>
           </div>
-          <Button 
-            onClick={handleSignOut} 
-            variant="ghost" 
-            size="sm"
-          >
+          <Button onClick={handleSignOut} variant="ghost" size="sm">
             Log out
           </Button>
         </div>

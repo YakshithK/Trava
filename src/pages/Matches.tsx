@@ -1,22 +1,30 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, MessageSquare, User } from "lucide-react";
+import { ArrowLeft, MessageSquare, Send, User } from "lucide-react";
 import VoiceHelp from "@/components/VoiceHelp";
 import LanguageSelector from "@/components/LanguageSelector";
+import { supabase } from "@/config/supabase";
 
 interface TravelMatch {
-  id: number;
+  user_id: string;
+  trip_id: number;
   name: string;
   age: number;
   language: string;
-  from: string;
-  to: string;
+  from_city: string;
+  to_city: string;
   date: string;
-  photoUrl?: string;
+  photo_url?: string;
 }
+
+const languageNames: Record<string, string> = {
+  en: "English",
+  hi: "Hindi",
+  te: "Telugu",
+};
+
 
 const matchTexts = {
   en: {
@@ -27,7 +35,8 @@ const matchTexts = {
     route: "Route",
     contactButton: "Request to Travel Together",
     noMatches: "No matches found. Check back later!",
-    voiceHelp: "This page shows potential travel companions matching your trip. Each card shows the traveler's name, age, language, and travel route. Click on 'Request to Travel Together' to connect with someone.",
+    voiceHelp:
+      "This page shows potential travel companions matching your trip. Each card shows the traveler's name, age, language, and travel route. Click on 'Request to Travel Together' to connect with someone.",
   },
   hi: {
     title: "संभावित यात्रा साथी",
@@ -37,7 +46,8 @@ const matchTexts = {
     route: "मार्ग",
     contactButton: "एक साथ यात्रा करने का अनुरोध करें",
     noMatches: "कोई मिलान नहीं मिला। बाद में फिर से जांचें!",
-    voiceHelp: "यह पेज आपकी यात्रा से मेल खाने वाले संभावित यात्रा साथियों को दिखाता है। प्रत्येक कार्ड यात्री का नाम, उम्र, भाषा और यात्रा मार्ग दिखाता है। किसी से संपर्क करने के लिए 'एक साथ यात्रा करने का अनुरोध करें' पर क्लिक करें।",
+    voiceHelp:
+      "यह पेज आपकी यात्रा से मेल खाने वाले संभावित यात्रा साथियों को दिखाता है। प्रत्येक कार्ड यात्री का नाम, उम्र, भाषा और यात्रा मार्ग दिखाता है। किसी से संपर्क करने के लिए 'एक साथ यात्रा करने का अनुरोध करें' पर क्लिक करें।",
   },
   te: {
     title: "సంభావ్య ప్రయాణ సహచరులు",
@@ -47,53 +57,122 @@ const matchTexts = {
     route: "మార్గం",
     contactButton: "కలిసి ప్రయాణించడానికి అభ్యర్థన",
     noMatches: "మ్యాచ్‌లు కనుగొనబడలేదు. తర్వాత మళ్లీ తనిఖీ చేయండి!",
-    voiceHelp: "ఈ పేజీ మీ ప్రయాణానికి సరిపోయే సంభావ్య ప్రయాణ సహచరులను చూపుతుంది. ప్రతి కార్డు ప్రయాణికుని పేరు, వయస్సు, భాష మరియు ప్రయాణ మార్గాన్ని చూపుతుంది. ఎవరితోనైనా కనెక్ట్ అవ్వడానికి 'కలిసి ప్రయాణించడానికి అభ్యర్థన' క్లిక్ చేయండి.",
-  }
+    voiceHelp:
+      "ఈ పేజీ మీ ప్రయాణానికి సరిపోయే సంభావ్య ప్రయాణ సహచరులను చూపుతుంది. ప్రతి కార్డు ప్రయాణికుని పేరు, వయస్సు, భాష మరియు ప్రయాణ మార్గాన్ని చూపుతుంది. ఎవరితోనైనా కనెక్ట్ అవ్వడానికి 'కలిసి ప్రయాణించడానికి అభ్యర్థన' క్లిక్ చేయండి.",
+  },
 };
-
-// Mock data for travel matches
-const mockMatches: TravelMatch[] = [
-  {
-    id: 1,
-    name: "Ramesh Patel",
-    age: 68,
-    language: "Hindi, English",
-    from: "Hyderabad",
-    to: "Toronto",
-    date: "May 20, 2025",
-    photoUrl: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-  },
-  {
-    id: 2,
-    name: "Lakshmi Reddy",
-    age: 65,
-    language: "Telugu, English",
-    from: "Hyderabad",
-    to: "Toronto",
-    date: "May 22, 2025",
-    photoUrl: "https://images.unsplash.com/photo-1551863863-e01bbf274ef6?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-  },
-  {
-    id: 3,
-    name: "Prabhu Sharma",
-    age: 70,
-    language: "Hindi, English",
-    from: "Delhi",
-    to: "Toronto",
-    date: "May 21, 2025",
-  },
-];
 
 const Matches = () => {
   const navigate = useNavigate();
   const [language, setLanguage] = useState<"en" | "hi" | "te">("en");
   const text = matchTexts[language];
 
-  const handleContactRequest = (matchId: number) => {
-    // In a real app, we would send a request to the backend
-    // For now, just navigate to the chat page
-    navigate(`/chat/${matchId}`);
+  const [matches, setMatches] = useState<TravelMatch[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      setLoading(true);
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      // Get the current user's trip
+      const { data: myTrips, error: tripError } = await supabase
+        .from("trips")
+        .select("*")
+        .eq("user_id", user.id)
+        .limit(1);
+
+      if (tripError || !myTrips || myTrips.length === 0) {
+        console.error("No trip found for current user.");
+        setLoading(false);
+        return;
+      }
+
+      const myTrip = myTrips[0];
+
+      // Find matching trips (same from, to, and date)
+      const { data: rawMatches, error: matchError } = await supabase
+        .from("trips")
+        .select("*")
+        .eq("from", myTrip.from)
+        .eq("to", myTrip.to)
+        .eq("date", myTrip.date)
+        .eq("airline", myTrip.airline)
+        .neq("user_id", user.id);
+
+      if (matchError) {
+        console.error("Error fetching matches:", matchError);
+        setLoading(false);
+        return;
+      }
+
+      // Get user profiles for each match
+      const userIds = rawMatches.map((trip) => trip.user_id);
+
+      const { data: profiles, error: profileError } = await supabase
+        .from("users")
+        .select("id, name, age, language, photo")
+        .in("id", userIds);
+
+      if (profileError) {
+        console.error("Error fetching profiles:", profileError);
+        setLoading(false);
+        return;
+      }
+
+      // Join trips + profiles
+      const enrichedMatches: TravelMatch[] = rawMatches.map((trip) => {
+        const userProfile = profiles.find((p) => p.id === trip.user_id);
+        return {
+          user_id: trip.user_id,
+          trip_id: trip.id,
+          name: userProfile?.name || "Unknown",
+          age: userProfile?.age || 0,
+          language: userProfile?.language || "Unknown",
+          from_city: trip.from,
+          to_city: trip.to,
+          date: trip.date,
+          photo_url: userProfile?.photo || undefined,
+        };
+      });
+
+      setMatches(enrichedMatches);
+      setLoading(false);
+    };
+
+    fetchMatches();
+  }, []);
+
+
+  const handleContactRequest = async (matchUserId: string, tripId: number) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error } = await supabase.from("matches").insert([
+      {
+        from_user: user.id,
+        to_user: matchUserId,
+        trip_id: tripId,
+        status: "pending", // optional
+      },
+    ]);
+
+    if (error) {
+      console.error("Error sending match request:", error);
+      alert("Failed to send request.");
+    } else {
+      alert("Request sent successfully!");
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-saath-cream">
@@ -118,18 +197,20 @@ const Matches = () => {
           <p className="text-gray-600">{text.subtitle}</p>
         </div>
 
-        {mockMatches.length > 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-500">Loading matches...</p>
+        ) : matches.length > 0 ? (
           <div className="space-y-6">
-            {mockMatches.map((match) => (
+            {matches.map((match) => (
               <Card
-                key={match.id}
+                key={match.trip_id}
                 className="bg-white p-6 rounded-3xl shadow-md border-none overflow-hidden"
               >
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="h-24 w-24 rounded-full flex-shrink-0 overflow-hidden bg-saath-light-gray">
-                    {match.photoUrl ? (
+                    {match.photo_url ? (
                       <img
-                        src={match.photoUrl}
+                        src={match.photo_url}
                         alt={match.name}
                         className="h-full w-full object-cover"
                       />
@@ -140,28 +221,31 @@ const Matches = () => {
                     )}
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-2xl font-semibold mb-2">{match.name}</h3>
+                    <h3 className="text-2xl font-semibold mb-2">
+                      {match.name}
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-lg">
                       <div>
-                        <span className="font-medium">{text.age}:</span> {match.age}
+                        <span className="font-medium">{text.age}:</span>{" "}
+                        {match.age}
                       </div>
                       <div>
                         <span className="font-medium">{text.language}:</span>{" "}
-                        {match.language}
+                        {languageNames[match.language] || match.language}
                       </div>
                       <div className="md:col-span-2">
                         <span className="font-medium">{text.route}:</span>{" "}
-                        {match.from} → {match.to} ({match.date})
+                        {match.from_city} → {match.to_city} ({match.date})
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="mt-6 flex justify-center md:justify-end">
                   <Button
-                    onClick={() => handleContactRequest(match.id)}
+                    onClick={() => handleContactRequest(match.user_id, match.trip_id)}
                     className="large-button bg-saath-green hover:bg-saath-green/90 text-black flex gap-2 items-center"
                   >
-                    <MessageSquare className="h-5 w-5" />
+                    <Send className="h-5 w-5" />
                     {text.contactButton}
                   </Button>
                 </div>

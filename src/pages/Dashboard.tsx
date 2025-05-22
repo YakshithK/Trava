@@ -1,29 +1,11 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/authContext";
-
-// Mock data for upcoming trips
-const mockTrips = [
-  {
-    id: 1,
-    from: "Hyderabad",
-    to: "Toronto",
-    date: "2025-06-15",
-    language: "Telugu"
-  },
-  {
-    id: 2,
-    from: "Mumbai",
-    to: "New York",
-    date: "2025-07-22",
-    language: "Hindi"
-  }
-];
+import { supabase } from "@/config/supabase";
 
 // Mock data for requests
 const mockRequests = [
@@ -39,8 +21,35 @@ const mockRequests = [
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [trips] = useState(mockTrips);
-  const [requests] = useState(mockRequests);
+  const [trips, setTrips] = useState<any[]>([]);
+  const [requests] = useState(mockRequests); // keep mockRequests or replace with real data if needed
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        // Fetch trips from Supabase
+        const { data, error } = await supabase
+          .from("trips")
+          .select("*")
+          .eq("user_id", user?.id); // Assuming each trip is associated with a user via user_id
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        setTrips(data || []); // Set the trips data to state
+      } catch (error) {
+        console.error("Error fetching trips:", error);
+      } finally {
+        setLoading(false); // Stop the loading state once data is fetched
+      }
+    };
+
+    if (user) {
+      fetchTrips();
+    }
+  }, [user]);
 
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -51,6 +60,14 @@ const Dashboard = () => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center">
+        <p>Loading your trips...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -91,7 +108,7 @@ const Dashboard = () => {
             <Link to="/trip-posting">Add Trip</Link>
           </Button>
         </div>
-        
+
         {trips.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {trips.map((trip) => (
@@ -134,7 +151,7 @@ const Dashboard = () => {
             <Badge className="bg-amber-500">{requests.length} New</Badge>
           )}
         </div>
-        
+
         {requests.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {requests.map((request) => (
