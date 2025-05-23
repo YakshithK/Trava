@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,13 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/config/supabase";
 
 type Request = {
+  from_user: string;
+  to_user: string;
   id: number;
   name: string;
   age: number;
   from: string;
   to: string;
   date: string;
-  language: string;
   photoUrl: string;
   status?: string; // only for outgoing
 };
@@ -43,8 +43,9 @@ useEffect(() => {
       // Fetch incoming requests: matches where current user is to_user
       const { data: incomingMatches, error: incomingError } = await supabase
         .from("matches")
-        .select("id, from_user, trip_id, status")
-        .eq("to_user", user.id);
+        .select("id, from_user, to_user, trip_id, status")
+        .eq("to_user", user.id)
+        .eq("status", "pending");
 
       if (incomingError) throw incomingError;
 
@@ -52,7 +53,8 @@ useEffect(() => {
       const { data: outgoingMatches, error: outgoingError } = await supabase
         .from("matches")
         .select("id, to_user, trip_id, status")
-        .eq("from_user", user.id);
+        .eq("from_user", user.id)
+        .eq("status", "pending");
 
       if (outgoingError) throw outgoingError;
 
@@ -73,7 +75,7 @@ useEffect(() => {
         // Fetch user profiles
         const { data: profiles, error: profileError } = await supabase
           .from("users")
-          .select("id, name, age, language, photo")
+          .select("id, name, age, photo")
           .in("id", otherUserIds);
 
         if (profileError) throw profileError;
@@ -95,9 +97,10 @@ useEffect(() => {
 
           return {
             id: m.id,
+            from_user: m.from_user,
+            to_user: m.to_user,
             name: profile?.name || "Unknown",
             age: profile?.age || 0,
-            language: profile?.language || "Unknown",
             photoUrl: profile?.photo || "",
             from: trip?.from || "",
             to: trip?.to || "",
@@ -122,8 +125,6 @@ useEffect(() => {
   fetchRequests();
 }, []);
 
-  console.log("Incoming Requests:", incoming);
-  console.log("Outgoing Requests:", outgoing);
   // Format date to be more readable
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { 
@@ -148,6 +149,56 @@ useEffect(() => {
       default: return "";
     }
   };
+
+  const handleCancelRequest = async (requestId: number) => {
+    try {
+      const { error } = await supabase
+        .from("matches")
+        .delete()
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      setOutgoing(prevOutgoing => prevOutgoing.filter(request => request.id !== requestId));
+    } catch (error) {
+      console.error("Error canceling request:", error);
+    }
+  };
+
+  const handleAcceptRequest = async (sender_id: string, recipient_id: string, requestId: number) => {
+
+    try {
+      // 1. Accept match
+      const { error: matchError } = await supabase
+        .from("matches")
+        .update({ status: "accepted" })
+        .eq("id", requestId);
+  
+      if (matchError) throw matchError;
+  
+      // 2. Create connection
+      const { error: connectionError } = await supabase
+        .from("connections")
+        .insert([
+          {
+            request_id: requestId,
+            user1_id: sender_id,
+            user2_id: recipient_id,
+            status: "accepted", // optional if default
+          },
+        ]);
+  
+      if (connectionError) throw connectionError;
+  
+      // 3. Update local state
+      setIncoming(prevIncoming =>
+        prevIncoming.filter(request => request.id !== requestId)
+      );
+    } catch (error) {
+      console.error("Error handling accept request:", error);
+    }
+  };
+  
 
   return (
     <div className="space-y-6">
@@ -188,7 +239,7 @@ useEffect(() => {
                       <CardTitle>{request.name}</CardTitle>
                       <CardDescription className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        <span>{request.age} • {request.language}</span>
+                        <span>{request.age}</span>
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -203,8 +254,8 @@ useEffect(() => {
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between gap-2">
-                    <Button variant="outline" className="w-full">Decline</Button>
-                    <Button className="w-full">Accept</Button>
+                    <Button variant="outline" className="w-full" onClick={() => handleCancelRequest(request.id)}>Decline</Button>
+                    <Button className="w-full" onClick={() => handleAcceptRequest(request.from_user, request.to_user, request.id)}>Accept</Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -237,7 +288,7 @@ useEffect(() => {
                       </div>
                       <CardDescription className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        <span>{request.age} • {request.language}</span>
+                        <span>{request.age}</span>
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -257,7 +308,7 @@ useEffect(() => {
                         <a href={`/chat/${request.id}`}>Start Chat</a>
                       </Button>
                     ) : request.status === "pending" ? (
-                      <Button variant="outline" className="w-full">Cancel Request</Button>
+                      <Button variant="outline" className="w-full" onClick={() => handleCancelRequest(request.id)}>Cancel Request</Button>
                     ) : (
                       <Button variant="outline" className="w-full">Remove</Button>
                     )}

@@ -21,13 +21,12 @@ const matchTexts = {
   en: {
     title: "Potential Travel Companions",
     subtitle: "These travelers have similar plans",
-    language: "Language",
     age: "Age",
     route: "Route",
     contactButton: "Request to Travel Together",
     noMatches: "No matches found. Check back later!",
     voiceHelp:
-      "This page shows potential travel companions matching your trip. Each card shows the traveler's name, age, language, and travel route. Click on 'Request to Travel Together' to connect with someone.",
+      "This page shows potential travel companions matching your trip. Each card shows the traveler's name, age, and travel route. Click on 'Request to Travel Together' to connect with someone.",
   },
 };
 
