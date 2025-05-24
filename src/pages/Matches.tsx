@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare, Send, User } from "lucide-react";
 import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 interface TravelMatch {
   user_id: string;
@@ -33,6 +34,7 @@ const matchTexts = {
 const Matches = () => {
   const navigate = useNavigate();
   const text = matchTexts.en;
+  const { toast } = useToast();
 
   const [matches, setMatches] = useState<TravelMatch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,12 +134,18 @@ const Matches = () => {
 
     if (error) {
       console.error("Error sending match request:", error);
-      alert("Failed to send request.");
+      toast({
+        title: "Request Failed",
+        description: "Failed to send travel request. Please try again.",
+        variant: "destructive",
+      });
     } else {
-      alert("Request sent successfully!");
+      toast({
+        title: "Request Sent!",
+        description: "Your travel request has been sent successfully.",
+      });
     }
   };
-
 
   return (
     <div className="min-h-screen bg-saath-cream">
