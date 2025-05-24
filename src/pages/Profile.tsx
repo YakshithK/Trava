@@ -21,7 +21,6 @@ const profileFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   phoneNumber: z.string(),
   age: z.string(),
-  language: z.string(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -33,7 +32,6 @@ export default function Profile() {
       name: "",
       phoneNumber: "",
       age: "",
-      language: "",
     },
   });
 
@@ -49,7 +47,7 @@ export default function Profile() {
 
       const { data: userStats, error } = await supabase
         .from("users")
-        .select("name, age, language, contact_number, photo")
+        .select("name, age, contact_number, photo")
         .eq("id", user.id)
         .single();
 
@@ -62,7 +60,6 @@ export default function Profile() {
         name: userStats.name || "",
         phoneNumber: userStats.contact_number || "",
         age: userStats.age ? String(userStats.age) : "",
-        language: userStats.language || "",
       });
 
       setPhotoData(userStats.photo || null);
@@ -100,7 +97,6 @@ export default function Profile() {
           name: data.name,
           contact_number: data.phoneNumber,
           age: Number(data.age),
-          language: data.language,
           photo: photoData,
         })
         .eq("id", user.id);
@@ -154,11 +150,6 @@ export default function Profile() {
             <div>
               <Label htmlFor="age">Age</Label>
               <Input id="age" type="number" {...form.register("age")} />
-            </div>
-
-            <div>
-              <Label htmlFor="language">Language</Label>
-              <Input id="language" {...form.register("language")} />
             </div>
 
             <Button type="submit">Save</Button>

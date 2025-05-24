@@ -120,13 +120,11 @@ const Onboarding = () => {
               <Label htmlFor="age" className="text-xl">
                 {text.ageLabel}
               </Label>
-              <Input
+              <Input 
                 id="age"
                 type="number"
                 placeholder={text.agePlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                min="50"
-                max="100"
                 required
                 onChange={(e) => setAge(e.target.value)}
               />
@@ -173,6 +171,7 @@ const Onboarding = () => {
               </Label>
               <Input
                 id="name"
+                type="password"
                 placeholder={text.passwordPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required

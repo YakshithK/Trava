@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, User } from "lucide-react";
 import VoiceHelp from "@/components/VoiceHelp";
+import { supabase } from "@/config/supabase";
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface Message {
   id: number;
@@ -15,7 +16,8 @@ interface Message {
 }
 
 interface Connection {
-  id: number;
+  id: string;
+  user_id: string;
   name: string;
   photoUrl?: string;
   lastMessage?: string;
@@ -33,34 +35,6 @@ const chatTexts = {
     voiceHelp: "This is your messaging center. Select a connection from the left sidebar to start chatting. Type your message in the text box at the bottom and press send.",
   },
 };
-
-// Mock connections data
-const mockConnections: Connection[] = [
-  {
-    id: 1,
-    name: "Ramesh Patel",
-    photoUrl: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-    lastMessage: "Hello! I saw that we're both traveling to Toronto...",
-    lastMessageTime: new Date(Date.now() - 3600000),
-    isOnline: true,
-  },
-  {
-    id: 2,
-    name: "Lakshmi Reddy",
-    photoUrl: "https://images.unsplash.com/photo-1551863863-e01bbf274ef6?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-    lastMessage: "Namaste! I noticed we're both traveling from Hyderabad...",
-    lastMessageTime: new Date(Date.now() - 7200000),
-    isOnline: false,
-  },
-  {
-    id: 3,
-    name: "Prabhu Sharma",
-    photoUrl: undefined,
-    lastMessage: "Hi there! I'm also traveling to Toronto soon...",
-    lastMessageTime: new Date(Date.now() - 10800000),
-    isOnline: true,
-  },
-];
 
 // Initial mock messages for each connection
 const initialMessages: Record<number, Message[]> = {
@@ -91,34 +65,104 @@ const initialMessages: Record<number, Message[]> = {
 };
 
 const Chat = () => {
+  const [connections, setConnections] = useState<Connection[]>([]);
   const navigate = useNavigate();
   const { matchId } = useParams<{ matchId: string }>();
   const [messageText, setMessageText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const text = chatTexts.en;
 
-  // Convert matchId to number and find the connection
-  const numericMatchId = matchId ? parseInt(matchId) : null;
 
   useEffect(() => {
-    if (numericMatchId) {
-      const connection = mockConnections.find(c => c.id === numericMatchId);
-      if (connection) {
-        setSelectedConnection(connection);
-        setMessages(initialMessages[numericMatchId] || []);
+    const fetchConnections = async () => {
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setUser(user)
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+      .from("connections")
+      .select("*")
+      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+    
+      if (error) {
+        console.error("Error fetching connections:", error);
       }
-    } else {
-      setSelectedConnection(null);
-      setMessages([]);
-    }
-  }, [numericMatchId]);
+
+      const userIds = data.map((profile) => (user.id === profile.user1_id ? profile.user2_id : profile.user1_id));
+
+      const { data: profiles, error: profileError } = await supabase
+        .from("users")
+        .select("id, name, age, photo")
+        .in("id", userIds);
+
+
+      const enrichedConnections: Connection[] = data.map((connection) => {
+        const userProfile = profiles.find((p) => p.id === (user.id === connection.user1_id ? connection.user2_id : connection.user1_id));
+        return {
+          id: connection.id,
+          user_id: userProfile.id,
+          name: userProfile?.name || "Unknown",
+          photoUrl: userProfile?.photo || undefined,
+          lastMessage: connection.lastMessage || "No messages yet",
+          lastMessageTime: connection.lastMessageTime || new Date(),
+          isOnline: connection.isOnline || false,
+        };
+      });
+
+      setConnections(enrichedConnections);
+    };
+
+    fetchConnections();
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    console.log("matchid", matchId)
+    if (matchId) {
+      const connection = connections.find(c => c.id === matchId);
+      if (connection) {
+        setSelectedConnection(connection);
+
+        const fetchMessages = async () => {
+          const { data, error } = await supabase
+            .from("messages")
+            .select("*")
+            .eq("connection_id", matchId)
+            .order("timestamp", { ascending: false });
+
+          if (error) {
+            console.error("Error fetching messages:", error);
+          } else {
+            setMessages(
+              data.map((msg) => ({
+                id: msg.id,
+                text: msg.text,
+                sender: msg.sender_id === user?.id ? "user" : "match",
+                timestamp: new Date(msg.timestamp),
+              }))
+            );
+          }
+        };
+        fetchMessages()
+      }
+    } else {
+      setSelectedConnection(null);
+      setMessages([]);
+    }
+  }, [matchId, connections, user?.id])
+
+  
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -132,7 +176,7 @@ const Chat = () => {
     return date.toLocaleDateString();
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (messageText.trim() === "" || !selectedConnection) return;
 
@@ -142,24 +186,24 @@ const Chat = () => {
       sender: "user",
       timestamp: new Date(),
     };
+    
+
+    console.log("selected", selectedConnection.user_id)
+    await supabase.from("messages").insert({
+      connection_id: selectedConnection.id,
+      sender_id: user.id,
+      receiver_id: selectedConnection.user_id,
+      text: messageText,
+      timestamp: new Date().toISOString()
+    })
 
     setMessages([...messages, newMessage]);
     setMessageText("");
-
-    // Simulate a response after a short delay
-    setTimeout(() => {
-      const responseMessage: Message = {
-        id: messages.length + 2,
-        text: `Thank you for your message. I'm looking forward to traveling together!`,
-        sender: "match",
-        timestamp: new Date(),
-      };
-      setMessages((prevMessages) => [...prevMessages, responseMessage]);
-    }, 2000);
   };
 
   const handleConnectionSelect = (connection: Connection) => {
     navigate(`/chat/${connection.id}`);
+    console.log(selectedConnection)
   };
 
   return (
@@ -170,7 +214,7 @@ const Chat = () => {
           <h2 className="text-lg font-semibold">{text.connectionsTitle}</h2>
         </div>
         <div className="overflow-y-auto">
-          {mockConnections.map((connection) => (
+          {connections.map((connection) => (
             <div
               key={connection.id}
               className={`p-4 border-b border-border cursor-pointer hover:bg-accent transition-colors ${

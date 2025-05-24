@@ -91,6 +91,7 @@ const Login = () => {
               </Label>
               <Input
                 id="name"
+                type="password"
                 placeholder={text.passwordPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
