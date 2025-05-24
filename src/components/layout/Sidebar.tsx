@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -6,7 +7,8 @@ import {
   Users,
   MessageSquare,
   User,
-  Mail
+  Mail,
+  Sparkles
 } from "lucide-react";
 import {
   Sidebar as ShadcnSidebar,
@@ -75,20 +77,24 @@ const Sidebar = () => {
   }, [user?.id]);
 
   return (
-    <ShadcnSidebar>
-      <SidebarHeader className="flex items-center justify-between p-4">
+    <ShadcnSidebar className="border-r border-border/50 glass-effect">
+      <SidebarHeader className="flex items-center justify-between p-6 border-b border-border/50">
         <div className="flex items-center">
-          <Link to="/dashboard" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-green-500">
+          <Link to="/dashboard" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <Sparkles className="h-8 w-8 text-primary animate-pulse-glow" />
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-md"></div>
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
               Trava
             </span>
           </Link>
         </div>
-        <SidebarTrigger />
+        <SidebarTrigger className="hover:bg-accent/50 transition-colors" />
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarMenu>
+      <SidebarContent className="px-4 py-6">
+        <SidebarMenu className="space-y-2">
           {navigationItems.map((item) => (
             <SidebarMenuItem key={item.path}>
               <SidebarMenuButton
@@ -97,11 +103,18 @@ const Sidebar = () => {
                   location.pathname === item.path ||
                   (item.path === "/chat" && location.pathname.includes("/chat/"))
                 }
-                tooltip={item.name}
+                className="w-full justify-start h-12 rounded-xl hover:bg-accent/50 transition-all duration-200 group"
               >
-                <Link to={item.path}>
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.name}</span>
+                <Link to={item.path} className="flex items-center space-x-3">
+                  <div className={`p-2 rounded-lg transition-all duration-200 ${
+                    location.pathname === item.path ||
+                    (item.path === "/chat" && location.pathname.includes("/chat/"))
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "bg-accent/30 text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                  }`}>
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">{item.name}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -109,20 +122,28 @@ const Sidebar = () => {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t">
+      <SidebarFooter className="p-6 border-t border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar>
+            <Avatar className="h-10 w-10 ring-2 ring-primary/20">
               <AvatarImage src={profile?.avatar_url || ""} />
-              <AvatarFallback>{getUserInitials()}</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-100">
+                {getUserInitials()}
+              </AvatarFallback>
             </Avatar>
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               <p className="text-sm font-medium">
                 {profile?.first_name || "Loading..."}
               </p>
+              <p className="text-xs text-muted-foreground">Premium User</p>
             </div>
           </div>
-          <Button onClick={handleSignOut} variant="ghost" size="sm">
+          <Button 
+            onClick={handleSignOut} 
+            variant="ghost" 
+            size="sm"
+            className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
             Log out
           </Button>
         </div>

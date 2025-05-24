@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Send, User, Circle } from "lucide-react";
+import { Send, User, Circle, MessageCircle, Sparkles } from "lucide-react";
 import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { User as SupabaseUser } from '@supabase/supabase-js';
@@ -34,34 +34,6 @@ const chatTexts = {
     connectionsTitle: "Your Connections",
     voiceHelp: "This is your messaging center. Select a connection from the left sidebar to start chatting. Type your message in the text box at the bottom and press send.",
   },
-};
-
-// Initial mock messages for each connection
-const initialMessages: Record<number, Message[]> = {
-  1: [
-    {
-      id: 1,
-      text: "Hello! I saw that we're both traveling to Toronto around the same time.",
-      sender: "match",
-      timestamp: new Date(Date.now() - 3600000),
-    },
-  ],
-  2: [
-    {
-      id: 1,
-      text: "Namaste! I noticed we're both traveling from Hyderabad to Toronto.",
-      sender: "match",
-      timestamp: new Date(Date.now() - 7200000),
-    },
-  ],
-  3: [
-    {
-      id: 1,
-      text: "Hi there! I'm also traveling to Toronto soon. Would be nice to have company!",
-      sender: "match",
-      timestamp: new Date(Date.now() - 10800000),
-    },
-  ],
 };
 
 const Chat = () => {
@@ -206,27 +178,38 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-saath-cream to-white">
+    <div className="flex h-screen bg-gradient-to-br from-background via-purple-50/30 to-blue-50/30 overflow-hidden">
       {/* Enhanced Connections Sidebar */}
-      <div className="w-80 border-r border-gray-200 bg-white shadow-lg">
-        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-saath-saffron/10 to-saath-green/10">
-          <h2 className="text-xl font-bold text-gray-800">{text.connectionsTitle}</h2>
-          <p className="text-sm text-gray-600 mt-1">{connections.length} connections</p>
+      <div className="w-80 border-r border-border/50 glass-effect backdrop-blur-md">
+        <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-purple-100/20">
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <MessageCircle className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground">{text.connectionsTitle}</h2>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">{connections.length} connections</p>
+            <div className="flex items-center space-x-1">
+              <Circle className="h-2 w-2 fill-green-500 text-green-500" />
+              <span className="text-xs text-muted-foreground">Online</span>
+            </div>
+          </div>
         </div>
         <div className="overflow-y-auto h-full">
           {connections.map((connection) => (
             <div
               key={connection.id}
-              className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gradient-to-r hover:from-saath-green/5 hover:to-saath-saffron/5 transition-all duration-200 ${
+              className={`p-4 border-b border-border/30 cursor-pointer hover:bg-accent/30 transition-all duration-300 ${
                 selectedConnection?.id === connection.id 
-                  ? "bg-gradient-to-r from-saath-green/10 to-saath-saffron/10 border-l-4 border-l-saath-green" 
-                  : ""
+                  ? "bg-primary/10 border-l-4 border-l-primary shadow-sm" 
+                  : "hover:shadow-sm"
               }`}
               onClick={() => handleConnectionSelect(connection)}
             >
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="h-14 w-14 rounded-full overflow-hidden bg-gradient-to-br from-saath-green/20 to-saath-saffron/20 ring-2 ring-white shadow-md">
+                  <div className="h-14 w-14 rounded-full overflow-hidden bg-gradient-to-br from-primary/20 to-purple-100 ring-2 ring-white shadow-md">
                     {connection.photoUrl ? (
                       <img
                         src={connection.photoUrl}
@@ -234,8 +217,8 @@ const Chat = () => {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full bg-gradient-to-br from-saath-green/30 to-saath-saffron/30 flex items-center justify-center">
-                        <User className="h-7 w-7 text-gray-600" />
+                      <div className="h-full w-full bg-gradient-to-br from-primary/30 to-purple-200 flex items-center justify-center">
+                        <User className="h-7 w-7 text-primary/70" />
                       </div>
                     )}
                   </div>
@@ -246,24 +229,24 @@ const Chat = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-800 truncate text-lg">{connection.name}</h3>
+                  <h3 className="font-semibold text-foreground truncate text-lg">{connection.name}</h3>
                   {connection.lastMessage && (
-                    <p className="text-sm text-gray-500 truncate mt-1">
+                    <p className="text-sm text-muted-foreground truncate mt-1">
                       {connection.lastMessage}
                     </p>
                   )}
-                  <div className="flex items-center mt-1">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
+                  <div className="flex items-center mt-2">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                       connection.isOnline 
-                        ? "bg-green-100 text-green-700" 
-                        : "bg-gray-100 text-gray-500"
+                        ? "bg-green-100 text-green-700 border border-green-200" 
+                        : "bg-gray-100 text-gray-500 border border-gray-200"
                     }`}>
                       {connection.isOnline ? "Online" : "Offline"}
                     </span>
                   </div>
                 </div>
                 {connection.lastMessageTime && (
-                  <div className="text-xs text-gray-400 font-medium">
+                  <div className="text-xs text-muted-foreground font-medium">
                     {formatLastMessageTime(connection.lastMessageTime)}
                   </div>
                 )}
@@ -274,14 +257,14 @@ const Chat = () => {
       </div>
 
       {/* Enhanced Chat Area */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-white/70 backdrop-blur-sm">
         {selectedConnection ? (
           <>
             {/* Enhanced Chat Header */}
-            <header className="p-6 border-b border-gray-200 bg-gradient-to-r from-white to-saath-cream/30 shadow-sm">
+            <header className="p-6 border-b border-border/50 glass-effect backdrop-blur-md">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-saath-green/20 to-saath-saffron/20 ring-2 ring-white shadow-md">
+                  <div className="h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-primary/20 to-purple-100 ring-2 ring-white shadow-md">
                     {selectedConnection.photoUrl ? (
                       <img
                         src={selectedConnection.photoUrl}
@@ -289,8 +272,8 @@ const Chat = () => {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full bg-gradient-to-br from-saath-green/30 to-saath-saffron/30 flex items-center justify-center">
-                        <User className="h-6 w-6 text-gray-600" />
+                      <div className="h-full w-full bg-gradient-to-br from-primary/30 to-purple-200 flex items-center justify-center">
+                        <User className="h-6 w-6 text-primary/70" />
                       </div>
                     )}
                   </div>
@@ -299,29 +282,35 @@ const Chat = () => {
                   )}
                 </div>
                 <div>
-                  <h2 className="font-bold text-xl text-gray-800">{selectedConnection.name}</h2>
-                  <p className={`text-sm font-medium ${
-                    selectedConnection.isOnline ? "text-green-600" : "text-gray-500"
+                  <h2 className="font-bold text-xl text-foreground">{selectedConnection.name}</h2>
+                  <p className={`text-sm font-medium flex items-center ${
+                    selectedConnection.isOnline ? "text-green-600" : "text-muted-foreground"
                   }`}>
-                    {selectedConnection.isOnline ? "🟢 Online" : "⚫ Offline"}
+                    <Circle className={`h-2 w-2 mr-2 ${
+                      selectedConnection.isOnline ? "fill-green-500 text-green-500" : "fill-gray-400 text-gray-400"
+                    }`} />
+                    {selectedConnection.isOnline ? "Online" : "Offline"}
                   </p>
+                </div>
+                <div className="ml-auto">
+                  <Sparkles className="h-5 w-5 text-primary/60" />
                 </div>
               </div>
             </header>
 
             {/* Enhanced Messages */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-gray-50/50 to-white">
+            <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-white/80">
               {messages.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center h-full">
-                  <Card className="text-center p-8 max-w-md mx-auto shadow-lg border-0 bg-gradient-to-br from-saath-cream to-white">
+                  <Card className="text-center p-8 max-w-md mx-auto shadow-xl border-0 glass-effect backdrop-blur-md">
                     <div className="mb-6">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-saath-green/20 to-saath-saffron/20 rounded-full flex items-center justify-center">
-                        <User className="w-8 h-8 text-gray-600" />
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-purple-100 rounded-full flex items-center justify-center shadow-lg">
+                        <MessageCircle className="w-8 h-8 text-primary" />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">No messages yet</h3>
-                      <p className="text-gray-600">Start the conversation with {selectedConnection.name}</p>
+                      <h3 className="text-xl font-semibold text-foreground mb-2">No messages yet</h3>
+                      <p className="text-muted-foreground">Start the conversation with {selectedConnection.name}</p>
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-muted-foreground">
                       Send a message to begin your chat journey together
                     </div>
                   </Card>
@@ -331,21 +320,21 @@ const Chat = () => {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                      className={`flex animate-fade-in-up ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[75%] px-6 py-4 rounded-3xl shadow-md ${
+                        className={`max-w-[75%] px-6 py-4 rounded-2xl shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg ${
                           message.sender === "user"
-                            ? "bg-gradient-to-r from-saath-green to-saath-green/90 text-white rounded-br-lg"
-                            : "bg-white border border-gray-200 text-gray-800 rounded-bl-lg"
+                            ? "bg-gradient-to-r from-primary to-purple-600 text-primary-foreground rounded-br-lg glow-effect"
+                            : "bg-white/90 border border-border/30 text-foreground rounded-bl-lg"
                         }`}
                       >
                         <p className="text-base leading-relaxed">{message.text}</p>
                         <div
                           className={`text-xs mt-3 font-medium ${
                             message.sender === "user" 
-                              ? "text-white/80" 
-                              : "text-gray-500"
+                              ? "text-primary-foreground/80" 
+                              : "text-muted-foreground"
                           }`}
                         >
                           {formatTime(message.timestamp)}
@@ -359,20 +348,20 @@ const Chat = () => {
             </div>
 
             {/* Enhanced Message Input */}
-            <div className="p-6 border-t border-gray-200 bg-white shadow-lg">
+            <div className="p-6 border-t border-border/50 glass-effect backdrop-blur-md">
               <form onSubmit={handleSendMessage} className="flex items-center gap-4 max-w-4xl mx-auto">
                 <div className="flex-1 relative">
                   <Input
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
                     placeholder={text.inputPlaceholder}
-                    className="h-14 text-base rounded-2xl border-2 border-gray-200 bg-gray-50 focus:bg-white focus:border-saath-green transition-all duration-200 pr-4 pl-6"
+                    className="h-14 text-base rounded-xl border-2 border-border/30 bg-white/80 backdrop-blur-sm focus:bg-white focus:border-primary transition-all duration-200 pr-4 pl-6 shadow-sm"
                   />
                 </div>
                 <Button 
                   type="submit" 
                   size="icon"
-                  className="h-14 w-14 rounded-2xl bg-gradient-to-r from-saath-green to-saath-green/90 hover:from-saath-green/90 hover:to-saath-green shadow-lg transition-all duration-200 hover:scale-105"
+                  className="h-14 w-14 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg transition-all duration-200 hover:scale-105 glow-effect"
                 >
                   <Send className="h-5 w-5" />
                 </Button>
@@ -380,16 +369,16 @@ const Chat = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
-            <Card className="text-center p-12 max-w-lg mx-auto shadow-xl border-0 bg-gradient-to-br from-saath-cream to-white">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-background/50 to-white/80">
+            <Card className="text-center p-12 max-w-lg mx-auto shadow-xl border-0 glass-effect backdrop-blur-md">
               <div className="mb-8">
-                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-saath-green/20 to-saath-saffron/20 rounded-full flex items-center justify-center">
-                  <User className="w-12 h-12 text-gray-600" />
+                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-purple-100 rounded-full flex items-center justify-center shadow-lg">
+                  <MessageCircle className="w-12 h-12 text-primary" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">{text.noConnectionSelected}</h3>
-                <p className="text-gray-600 text-lg">Choose a connection from the sidebar to start messaging</p>
+                <h3 className="text-2xl font-bold text-foreground mb-3">{text.noConnectionSelected}</h3>
+                <p className="text-muted-foreground text-lg">Choose a connection from the sidebar to start messaging</p>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 Your conversations will appear here once you select a connection
               </div>
             </Card>

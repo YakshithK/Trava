@@ -13,11 +13,13 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="flex w-full min-h-screen bg-background">
+      <div className="flex w-full min-h-screen gradient-bg">
         <Sidebar />
         <main className="flex-1 overflow-auto">
-          <div className="container p-4 md:p-6 max-w-7xl mx-auto">
-            {children}
+          <div className="container p-6 md:p-8 max-w-7xl mx-auto">
+            <div className="animate-fade-in-up">
+              {children}
+            </div>
           </div>
         </main>
       </div>

@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,15 +62,6 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				},
-				// Trava custom colors
-				'saath': {
-					cream: '#FDF6E9',
-					saffron: '#F9C846',
-					green: '#A3D9A5',
-					'light-green': '#E8F5E9',
-					gray: '#333333',
-					'light-gray': '#EFEFEF',
 				}
 			},
 			borderRadius: {
@@ -103,17 +95,27 @@ export default {
 						opacity: '1',
 						transform: 'translateY(0)'
 					}
+				},
+				'pulse-glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px rgba(124, 58, 237, 0.4)'
+					},
+					'50%': {
+						boxShadow: '0 0 40px rgba(124, 58, 237, 0.6)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.5s ease-out'
+				'fade-in': 'fade-in 0.5s ease-out',
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite'
 			},
-			fontSize: {
-				'2xl-large': '1.75rem',
-				'3xl-large': '2rem',
-				'4xl-large': '2.5rem',
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+			},
+			backdropBlur: {
+				xs: '2px',
 			}
 		}
 	},
