@@ -62,7 +62,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom Trava color palette
+				trava: {
+					'dark-green': '#507255',
+					'forest': '#488E49',
+					'emerald': '#4AAD52',
+					'mint': '#6EB257',
+					'lime': '#C5E063'
+				},
+				// Legacy saath colors for backward compatibility
+				'saath-cream': '#FFF8F0',
+				'saath-saffron': '#F4A261',
+				'saath-green': '#4AAD52',
+				'saath-gray': '#6C757D',
+				'saath-light-gray': '#F8F9FA'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -98,10 +112,10 @@ export default {
 				},
 				'pulse-glow': {
 					'0%, 100%': {
-						boxShadow: '0 0 20px rgba(124, 58, 237, 0.4)'
+						boxShadow: '0 0 20px rgba(74, 173, 82, 0.4)'
 					},
 					'50%': {
-						boxShadow: '0 0 40px rgba(124, 58, 237, 0.6)'
+						boxShadow: '0 0 40px rgba(74, 173, 82, 0.6)'
 					}
 				}
 			},
