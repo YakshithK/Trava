@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -81,10 +80,11 @@ const Sidebar = () => {
       <SidebarHeader className="flex items-center justify-between p-6 border-b border-border/50">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <Sparkles className="h-8 w-8 text-primary animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-md"></div>
-            </div>
+            <img
+              src="/trava-high-resolution-logo-only-transparent.png"
+              alt="Trava Logo"
+              className="h-14 w-14 object-contain drop-shadow-lg"
+            />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
               Trava
             </span>
