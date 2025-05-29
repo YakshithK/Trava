@@ -18,6 +18,8 @@ import Layout from "./components/layout/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./context/authContext";
 import ProtectedRoute from "./components/protectedRoute";
+import { ThemeProvider } from "next-themes";
+import Verify from "./pages/Verify";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,88 +41,89 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Welcome />}/>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/verify" element={<Verify />} />
+                <Route path="/" element={<Welcome />}/>
 
-              {/* Protected Routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/trip-posting"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TripPosting />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/matches"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Matches />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/requests"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Requests />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/chat/:matchId?"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Chat />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Profile />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected Routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Dashboard />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/trip-posting"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <TripPosting />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/matches"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Matches />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/requests"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Requests />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/chat/:matchId?"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Chat />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Profile />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-          <Analytics />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+                {/* Catch-all */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+            <Analytics />
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
   </ErrorBoundary>
 );
 

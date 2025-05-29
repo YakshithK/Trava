@@ -1,0 +1,24 @@
+general:
+    - add a better navigation system
+    - reset password    
+    - input validation
+    - dark mode / mode switching
+    - multi language
+    - mobile app? (expo?)
+    - sidebar button reclick
+
+chat:
+    - typing indicators
+    - read receipts
+    - image sharing
+
+matches: 
+    - rating others / giving review to each other
+
+trips:
+    - delete trips
+    - full directory of all trips
+    - adding enhanced airport choosing (to/from)
+    - same with airlines ^
+    - flight number?
+    - you upload borading pass / ticket and it autofills

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import VoiceHelp from "@/components/VoiceHelp";
 import { ArrowLeft, Camera, User } from "lucide-react";
 import { supabase } from "@/config/supabase";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const onboardingTexts = {
   en: {
@@ -43,6 +44,8 @@ const Onboarding = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const text = onboardingTexts.en;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,27 +62,52 @@ const Onboarding = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
     
-    const { data, error } = await supabase.auth.signUp({
+    try {
+      // First, sign up the user
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-    });
+      });
 
-    await supabase.from("users").insert({
-      id: data?.user?.id,
-      name,
-      age: parseInt(age),
-      contact_number: contactNumber,
-      email,
-      photo: photoPreview,
-    });
-    
-    if (error) {
-      console.error("Error signing up:", error);
-      return;
+      if (signUpError) {
+        console.error("Error signing up:", signUpError);
+        setError("Failed to create account. Please try again.");
+        return;
+      }
+
+      if (!data.user) {
+        console.error("No user data received after signup");
+        setError("Failed to create account. Please try again.");
+        return;
+      }
+
+      // Then, insert the user data into the users table
+      const { error: insertError } = await supabase.from("users").insert({
+        id: data.user.id,
+        name,
+        age: parseInt(age),
+        contact_number: contactNumber,
+        email,
+        photo: photoPreview,
+      });
+
+      if (insertError) {
+        console.error("Error inserting user data:", insertError);
+        setError("Failed to save profile information. Please try again.");
+        return;
+      }
+
+      // If everything is successful, navigate to verify page
+      navigate("/verify");
+    } catch (error) {
+      console.error("Unexpected error during signup:", error);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    navigate("/trip-posting");
   };
 
   return (
@@ -90,6 +118,7 @@ const Onboarding = () => {
           size="icon"
           className="text-saath-gray"
           onClick={() => navigate(-1)}
+          disabled={isLoading}
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
@@ -100,6 +129,12 @@ const Onboarding = () => {
           <h1 className="mb-2">{text.title}</h1>
           <p className="text-gray-600">{text.subtitle}</p>
         </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <Card className="bg-white p-6 rounded-3xl shadow-md border-none">
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -218,8 +253,16 @@ const Onboarding = () => {
               <Button
                 type="submit"
                 className="w-full large-button bg-saath-green hover:bg-saath-green/90 text-black"
+                disabled={isLoading}
               >
-                {text.continue}
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating account...
+                  </>
+                ) : (
+                  text.continue
+                )}
               </Button>
             </div>
           </form>
