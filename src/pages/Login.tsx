@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -86,7 +85,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-saath-cream">
+    <div className="min-h-screen bg-background">
       <header className="p-4 flex justify-between items-center">
         <Button
           variant="ghost"
@@ -102,7 +101,7 @@ const Login = () => {
       <main className="page-container">
         <div className="mb-8 text-center">
           <h1 className="mb-2">{text.title}</h1>
-          <p className="text-gray-600">{text.subtitle}</p>
+          <p className="text-muted-foreground">{text.subtitle}</p>
         </div>
 
         {error && (
@@ -112,7 +111,7 @@ const Login = () => {
           </Alert>
         )}
 
-        <Card className="bg-white p-6 rounded-3xl shadow-md border-none">
+        <Card className="p-6 rounded-3xl shadow-md">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xl">
@@ -149,7 +148,7 @@ const Login = () => {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="w-full large-button bg-saath-green hover:bg-saath-green/90 text-black"
+                className="w-full large-button bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={isLoading}
               >
                 {isLoading ? (

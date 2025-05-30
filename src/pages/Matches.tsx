@@ -148,7 +148,7 @@ const Matches = () => {
   };
 
   return (
-    <div className="min-h-screen bg-saath-cream">
+    <div className="min-h-screen bg-background">
       <header className="p-4 flex justify-between items-center">
         <Button
           variant="ghost"
@@ -173,7 +173,7 @@ const Matches = () => {
             {matches.map((match) => (
               <Card
                 key={match.trip_id}
-                className="bg-white p-6 rounded-3xl shadow-md border-none overflow-hidden"
+                className="bg-card p-6 rounded-3xl shadow-md border overflow-hidden"
               >
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="h-24 w-24 rounded-full flex-shrink-0 overflow-hidden bg-saath-light-gray">
@@ -214,7 +214,7 @@ const Matches = () => {
             ))}
           </div>
         ) : (
-          <Card className="bg-white p-8 rounded-3xl shadow-md border-none text-center">
+          <Card className="bg-card p-8 rounded-3xl shadow-md border text-center">
             <p className="text-xl text-gray-600">{text.noMatches}</p>
           </Card>
         )}

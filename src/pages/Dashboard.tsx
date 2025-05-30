@@ -177,7 +177,7 @@ const Dashboard = () => {
       </div>
 
       {/* Post Trip CTA */}
-      <Card className="bg-gradient-to-br from-amber-50 to-green-50 border-amber-200">
+      <Card className="bg-card border-border">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="space-y-2">

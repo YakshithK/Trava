@@ -36,7 +36,7 @@ const Verify = () => {
   };
 
   return (
-    <div className="min-h-screen bg-saath-cream">
+    <div className="min-h-screen bg-background">
       <header className="p-4 flex justify-between items-center">
         <Button
           variant="ghost"
@@ -50,7 +50,7 @@ const Verify = () => {
       <main className="page-container">
         <div className="mb-8 text-center">
           <h1 className="mb-2">Verify Your Email</h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             We've sent you a verification email. Please check your inbox and click the verification link to continue.
           </p>
         </div>
@@ -64,21 +64,21 @@ const Verify = () => {
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
-        <Card className="bg-white p-6 rounded-3xl shadow-md border-none">
+        <Card className="p-6 rounded-3xl shadow-md">
           <div className="flex flex-col items-center space-y-6">
-            <div className="w-16 h-16 bg-saath-saffron/10 rounded-full flex items-center justify-center">
-              <Mail className="w-8 h-8 text-saath-saffron" />
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+              <Mail className="w-8 h-8 text-primary" />
             </div>
             <div className="text-center space-y-2">
               <h2 className="text-xl font-semibold">Check Your Email</h2>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 We've sent a verification link to your email address. Please check your inbox and spam folder.
               </p>
             </div>
             <div className="w-full space-y-4">
               <Button
                 onClick={handleResendVerification}
-                className="w-full large-button bg-saath-saffron hover:bg-saath-saffron/90 text-black"
+                className="w-full large-button bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={isResending}
               >
                 {isResending ? (

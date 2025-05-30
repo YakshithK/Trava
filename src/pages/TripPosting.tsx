@@ -86,7 +86,7 @@ const TripPosting = () => {
   };
 
   return (
-    <div className="min-h-screen bg-saath-cream">
+    <div className="min-h-screen bg-background">
       <header className="p-4 flex justify-between items-center">
         <Button
           variant="ghost"
@@ -104,7 +104,7 @@ const TripPosting = () => {
           <p className="text-gray-600">{text.subtitle}</p>
         </div>
 
-        <Card className="bg-white p-6 rounded-3xl shadow-md border-none">
+        <Card className="bg-card p-6 rounded-3xl shadow-md border">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="from" className="text-xl">
