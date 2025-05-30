@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -39,6 +38,7 @@ export default function Profile() {
   });
 
   const [photoData, setPhotoData] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function Profile() {
         console.error("No authenticated user found");
         return;
       }
-
+      setUser(user)
       const { data: userStats, error } = await supabase
         .from("users")
         .select("name, age, contact_number, photo")
@@ -86,6 +86,26 @@ export default function Profile() {
       setError("An unexpected error occurred while loading your profile.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setError(null);
+    setSuccess(null);
+    setIsLoading(true);
+
+    try {
+      const {error} = await supabase.auth.resetPasswordForEmail(user.email);
+
+      if (error) {
+        setError(`Failed to senpassword reset emailL ${error.message}`);
+      } else {
+        setSuccess(`Password reset email sent to to ${user.email}. Please check your inbox.`);
+      }
+    } catch (err: any) {
+      setError(`Unexpected error: ${err.message || "Please try again. "}`);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -245,6 +265,13 @@ export default function Profile() {
                   {form.formState.errors.name.message}
                 </p>
               )}
+            </div>
+
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <div onClick={handleForgotPassword} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                <span className="text-muted-foreground">Click here to reset password</span>
+              </div>
             </div>
 
             <div>

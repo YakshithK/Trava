@@ -4,10 +4,8 @@ general:
     - input validation
     - better eroor handling
     - keep which screen mode selected to remember
-    - dark mode / mode switching
     - multi language
     - mobile app? (expo?)
-    - sidebar button reclick
 
 chat:
     - typing indicators
