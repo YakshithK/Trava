@@ -18,6 +18,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/config/supabase";
 import { AlertTriangle } from "lucide-react";
+import { validatePhoneNumber } from "@/lib/validation";
 
 const profileFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -42,6 +43,29 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+
+  const formatPhoneNumber = (phone: string): string => {
+    const digitsOnly = phone.replace(/\D/g, '');
+  
+    // Check if the number has more than 10 digits (i.e., has a country code)
+    if (digitsOnly.length > 10) {
+      const countryCode = digitsOnly.slice(0, digitsOnly.length - 10);
+      const areaCode = digitsOnly.slice(-10, -7);
+      const prefix = digitsOnly.slice(-7, -4);
+      const lineNumber = digitsOnly.slice(-4);
+      return `+${countryCode} (${areaCode}) ${prefix}-${lineNumber}`;
+    }
+  
+    // Fallback: assume US-style local number if exactly 10 digits
+    const match = digitsOnly.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+  
+    // If none of the above match, return original
+    return phone;
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -120,31 +144,58 @@ export default function Profile() {
     // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError("Photo size must be less than 5MB");
-      console.error("Photo file too large:", file.size);
+      e.target.value = ''; // Clear the file input
       return;
     }
 
     // Check file type
     if (!file.type.startsWith('image/')) {
-      setError("Please select a valid image file");
-      console.error("Invalid file type:", file.type);
+      setError("Please select a valid image file (JPEG, PNG, etc.)");
+      e.target.value = ''; // Clear the file input
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhotoData(reader.result as string);
-      setError(null);
-      console.log("Photo uploaded successfully");
+    // Check image dimensions
+    const img = new Image();
+    img.onload = () => {
+      if (img.width > 2000 || img.height > 2000) {
+        setError("Image dimensions should not exceed 2000x2000 pixels");
+        e.target.value = ''; // Clear the file input
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoData(reader.result as string);
+        setError(null);
+      };
+      reader.onerror = () => {
+        setError("Failed to read the image file");
+        e.target.value = ''; // Clear the file input
+      };
+      reader.readAsDataURL(file);
     };
-    reader.onerror = () => {
-      setError("Failed to read the image file");
-      console.error("FileReader error");
+    img.onerror = () => {
+      setError("Failed to load image. Please try another file.");
+      e.target.value = ''; // Clear the file input
     };
-    reader.readAsDataURL(file);
+    img.src = URL.createObjectURL(file);
   };
 
   const onSubmit = async (data: ProfileFormValues) => {
+    // Check for any validation errors before proceeding
+    if (phoneError) {
+      setError("Please fix the phone number format before saving");
+      return;
+    }
+
+    // Validate age
+    const ageNum = Number(data.age);
+    if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
+      setError("Please enter a valid age between 0 and 120");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setSuccess(null);
@@ -276,11 +327,21 @@ export default function Profile() {
 
             <div>
               <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input 
+              <Input
                 id="phoneNumber" 
-                {...form.register("phoneNumber")}
+                {...form.register("phoneNumber", {
+                  onChange: (e) => {
+                    const formattedNumber = formatPhoneNumber(e.target.value);
+                    e.target.value = formattedNumber;
+                    setPhoneError(validatePhoneNumber(formattedNumber));
+                  }
+                })}
                 disabled={isLoading}
+                placeholder="(123) 456-7890"
               />
+              {phoneError && (
+                <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+              )} 
             </div>
 
             <div>
@@ -288,9 +349,17 @@ export default function Profile() {
               <Input 
                 id="age" 
                 type="number" 
-                {...form.register("age")}
+                {...form.register("age", {
+                  min: { value: 0, message: "Age must be at least 0" },
+                  max: { value: 120, message: "Age must be less than 120" }
+                })}
                 disabled={isLoading}
               />
+              {form.formState.errors.age && (
+                <p className="text-sm text-destructive mt-1">
+                  {form.formState.errors.age.message}
+                </p>
+              )}
             </div>
 
             <Button 

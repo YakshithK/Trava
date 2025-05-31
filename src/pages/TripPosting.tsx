@@ -17,6 +17,19 @@ import { cn } from "@/lib/utils";
 import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { error } from "console";
+import Papa from "papaparse"
+
+type Airport = {
+  iata_code: string,
+  name: string,
+  municipality: string,
+  iso_country: string
+}
+
+type Airline = {
+  code: string,
+  name: string
+}
 
 const tripTexts = {
   en: {
@@ -44,6 +57,8 @@ const TripPosting = () => {
   const [airline, setAirline] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [notes, setNotes] = useState(""); 
+  const [airportList, setAirportList] = useState<Airport[]>([])
+  const [airlineList, setAirlineList] = useState<Airline[]>([])
 
   const navigate = useNavigate();
   const text = tripTexts.en;
@@ -55,9 +70,43 @@ const TripPosting = () => {
         console.error("Error fetching session:", error);
       }
     };
-    fetchData();
-  }
-  , []);
+
+    const fetchAirports = async () => {
+      fetch("/data/airports-short.csv")
+      .then((res) => res.text())
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            setAirportList(results.data)
+          }
+        })
+      })
+    }
+
+    const fetchAirlines = async () => {
+      fetch("/data/airlines-short.csv")
+      .then((res) => res.text())
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const airlines = results.data.map((airline: any) => ({
+              code: airline.code,
+              name: airline.name
+            }));
+            setAirlineList(airlines);
+          }
+        })
+      })
+    }
+
+    fetchData()
+    fetchAirports()
+    fetchAirlines()
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,41 +157,60 @@ const TripPosting = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="from" className="text-xl">
-                {text.fromLabel}
+                {text.toLabel}
               </Label>
-              <Input
-                id="from"
-                placeholder={text.fromPlaceholder}
-                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                required
-                onChange={(e) => setFrom(e.target.value)}
-              />
+              <select
+                  id="from"
+                  className="h-14 text-lg rounded-xl border-2 border-saath-light-gray w-full"
+                  required
+                  onChange={(e) => setTo(e.target.value)}
+                >
+                <option value="">Select departure airport</option>
+                {airportList.map((airport, index) => (
+                  <option key={index} value={airport.iata_code}>
+                    {airport.name} ({airport.iata_code}) - {airport.municipality}, {airport.iso_country}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="to" className="text-xl">
-                {text.toLabel}
+              <Label htmlFor="from" className="text-xl">
+                {text.fromLabel}
               </Label>
-              <Input
-                id="to"
-                placeholder={text.toPlaceholder}
-                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                required
-                onChange={(e) => setTo(e.target.value)}
-              />
+              <select
+                  id="from"
+                  className="h-14 text-lg rounded-xl border-2 border-saath-light-gray w-full"
+                  required
+                  onChange={(e) => setFrom(e.target.value)}
+                >
+                <option value="">Select departure airport</option>
+                {airportList.map((airport, index) => (
+                  <option key={index} value={airport.iata_code}>
+                    {airport.name} ({airport.iata_code}) - {airport.municipality}, {airport.iso_country}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="airline" className="text-xl">
                 {text.airlineLabel}
               </Label>
-              <Input
+              <select
                 id="airline"
-                placeholder={text.airlinePlaceholder}
-                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
+                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray w-full"
                 required
+                value={airline}
                 onChange={(e) => setAirline(e.target.value)}
-              />
+              >
+                <option value="">Select airline</option>
+                {airlineList.map((airline, index) => (
+                  <option key={index} value={airline.code}>
+                    {airline.name} ({airline.code})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">

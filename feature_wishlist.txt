@@ -1,7 +1,8 @@
 general:
+    - chatting goes top to bottom instead of vice versa?
+    - resend verification system
+    - area coding
     - add a better navigation system
-    - reset password    
-    - input validation
     - better eroor handling
     - keep which screen mode selected to remember
     - multi language

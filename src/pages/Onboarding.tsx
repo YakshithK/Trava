@@ -9,6 +9,7 @@ import VoiceHelp from "@/components/VoiceHelp";
 import { ArrowLeft, Camera, User } from "lucide-react";
 import { supabase } from "@/config/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { validateEmail, validatePhoneNumber,  validatePassword, validateConfirmPassword} from "@/lib/validation";
 
 const onboardingTexts = {
   en: {
@@ -36,7 +37,10 @@ const onboardingTexts = {
 const Onboarding = () => {
   const navigate = useNavigate();
 
-
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null)
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [contactNumber, setContactNumber] = useState("");
@@ -47,6 +51,29 @@ const Onboarding = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const text = onboardingTexts.en;
+
+  const formatPhoneNumber = (phone: string): string => {
+    const digitsOnly = phone.replace(/\D/g, '');
+  
+    // Check if the number has more than 10 digits (i.e., has a country code)
+    if (digitsOnly.length > 10) {
+      const countryCode = digitsOnly.slice(0, digitsOnly.length - 10);
+      const areaCode = digitsOnly.slice(-10, -7);
+      const prefix = digitsOnly.slice(-7, -4);
+      const lineNumber = digitsOnly.slice(-4);
+      return `+${countryCode} (${areaCode}) ${prefix}-${lineNumber}`;
+    }
+  
+    // Fallback: assume US-style local number if exactly 10 digits
+    const match = digitsOnly.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+  
+    // If none of the above match, return original
+    return phone;
+  };
+  
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -64,11 +91,46 @@ const Onboarding = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    // Validate all fields
+    const emailValidationError = validateEmail(email);
+    const phoneValidationError = validatePhoneNumber(contactNumber);
+    const passwordValidationError = validatePassword(password);
+    const confirmPasswordValidationError = validateConfirmPassword(password, confirmPassword);
+    
+    // Set all errors
+    setEmailError(emailValidationError);
+    setPhoneError(phoneValidationError);
+    setPasswordError(passwordValidationError);
+    setConfirmPasswordError(confirmPasswordValidationError);
+
+    // Check if there are any validation errors
+    if (emailValidationError || phoneValidationError || 
+        passwordValidationError || confirmPasswordValidationError) {
+      setIsLoading(false);
+      setError("Please fix all validation errors before creating your account");
+      return;
+    }
+
+    // Validate name and age
+    if (!name.trim()) {
+      setIsLoading(false);
+      setError("Please enter your name");
+      return;
+    }
+
+    const ageNum = Number(age);
+    if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
+      setIsLoading(false);
+      setError("Please enter a valid age between 0 and 120");
+      return;
+    }
     
     try {
       // First, sign up the user
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
+        phone: contactNumber,
         password,
       });
 
@@ -166,14 +228,6 @@ const Onboarding = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="language-preference" className="text-xl">
-                {text.languageLabel}
-              </Label>
-              <div className="mt-2">
-              </div>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="phone" className="text-xl">
                 {text.phoneLabel}
               </Label>
@@ -182,9 +236,15 @@ const Onboarding = () => {
                 type="tel"
                 placeholder={text.phonePlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                required
-                onChange={(e) => setContactNumber(e.target.value)}
+                value={contactNumber}
+                onChange={(e) => {
+                  setContactNumber(formatPhoneNumber(e.target.value));
+                  setPhoneError(validatePhoneNumber(e.target.value));
+                }}
               />
+              {phoneError && (
+                <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -196,8 +256,18 @@ const Onboarding = () => {
                 placeholder={text.emailPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  const newEmail = e.target.value
+                  setEmail(newEmail)
+                  setEmailError(validateEmail(newEmail))
+                }}
+                onBlur={(e) => {
+                  setEmailError(validateEmail(e.target.value))
+                }}
               />
+              {emailError && (
+                <p className="text-sm text-red-500 mt-1">{emailError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -210,8 +280,52 @@ const Onboarding = () => {
                 placeholder={text.passwordPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 required
-                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                onChange={(e) => {
+                  const newPassword = e.target.value;
+                  setPassword(newPassword);
+                  setPasswordError(validatePassword(newPassword));
+
+                  if (confirmPassword) {
+                    setConfirmPasswordError(validateConfirmPassword(newPassword, confirmPassword))
+                  }
+                }}
+                onBlur={(e) => {
+                  setPasswordError(validatePassword(e.target.value));
+                }}
               />
+              {passwordError && (
+                <ul className="text-sm text-red-500 mt-1 list-disc pl-5">
+                  {passwordError.split("\n").map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-xl">
+                Confirm Password
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
+                required
+                value={confirmPassword}
+                onChange={(e) => {
+                  const newConfirmPassword = e.target.value;
+                  setConfirmPassword(newConfirmPassword);
+                  setConfirmPasswordError(validateConfirmPassword(password, newConfirmPassword));
+                }}
+                onBlur={(e) => {
+                  setConfirmPasswordError(validateConfirmPassword(password, e.target.value));
+                }}
+              />
+              {confirmPasswordError && (
+                <p className="text-sm text-red-500 mt-1">{confirmPasswordError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
