@@ -45,6 +45,8 @@ const Chat = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const text = chatTexts.en;
 
   useEffect(() => {
@@ -158,9 +160,28 @@ const Chat = () => {
     }
   }, [user]);
 
+  // Add scroll event listener to detect manual scrolling
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const messagesContainer = messagesContainerRef.current;
+    if (!messagesContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+      // If user scrolls up more than 100px from bottom, disable auto-scroll
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShouldAutoScroll(isNearBottom);
+    };
+
+    messagesContainer.addEventListener('scroll', handleScroll);
+    return () => messagesContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (shouldAutoScroll && messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages, shouldAutoScroll]);
 
   useEffect(() => {
     console.log("matchid", matchId)
@@ -395,7 +416,11 @@ const Chat = () => {
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-white/80">
+            <div 
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-white/80" 
+              style={{ height: 'calc(100vh - 180px)' }}
+            >
               {messages.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center h-full">
                   <Card className="text-center p-8 max-w-md mx-auto shadow-xl border-0 glass-effect backdrop-blur-md">
