@@ -1,11 +1,23 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, MapPin, Plus } from "lucide-react";
+import { Calendar, MapPin, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/authContext";
 import { supabase } from "@/config/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for requests
 const mockRequests = [
@@ -31,6 +43,7 @@ type Request = {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [trips, setTrips] = useState<any[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,6 +170,34 @@ const Dashboard = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const handleDeleteTrip = async (tripId: string) => {
+    try {
+      const { error } = await supabase
+        .from("trips")
+        .delete()
+        .eq("id", tripId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Remove the trip from the local state
+      setTrips(trips.filter(trip => trip.id !== tripId));
+      
+      toast({
+        title: "Trip deleted",
+        description: "Your trip has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error("Error deleting trip:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete trip. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center">
@@ -212,7 +253,38 @@ const Dashboard = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{trip.from} to {trip.to}</span>
-                    <Badge>{trip.language}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge>{trip.language}</Badge>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Trip</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this trip from {trip.from} to {trip.to}? 
+                              This action cannot be undone and will also remove any associated matches.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteTrip(trip.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete Trip
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </CardTitle>
                   <CardDescription className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
