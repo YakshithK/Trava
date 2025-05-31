@@ -49,7 +49,6 @@ const Chat = () => {
 
   useEffect(() => {
     const fetchConnections = async () => {
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -92,7 +91,72 @@ const Chat = () => {
     };
 
     fetchConnections();
-  }, []);
+
+    if (user) {
+      const subscription = supabase
+        .channel('connections')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'connections',
+            filter: `user1_id=eq.${user.id},user2_id=eq.${user.id}`,
+          },
+          async (payload) => {
+
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (!currentUser) return;
+
+            const { data, error } = await supabase
+              .from("connections")
+              .select("*")
+              .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
+
+            if (error) {
+              console.error("Error fetching connections:", error);
+              return;
+            }
+
+            const userIds = data.map((profile) => 
+              currentUser.id === profile.user1_id ? profile.user2_id : profile.user1_id
+            );
+
+            const { data: profiles, error: profileError } = await supabase
+              .from("users")
+              .select("id, name, age, photo")
+              .in("id", userIds);
+
+            if (profileError) {
+              console.error("Error fetching profiles:", profileError);
+              return;
+            }
+
+            const enrichedConnections: Connection[] = data.map((connection) => {
+              const userProfile = profiles.find((p) => 
+                p.id === (currentUser.id === connection.user1_id ? connection.user2_id : connection.user1_id)
+              );
+              return {
+                id: connection.id,
+                user_id: userProfile.id,
+                name: userProfile?.name || "Unknown",
+                photoUrl: userProfile?.photo || undefined,
+                lastMessage: connection.lastMessage || "No messages yet",
+                lastMessageTime: connection.lastMessageTime || new Date(),
+                isOnline: connection.isOnline || false,
+              };
+            });
+
+            setConnections(enrichedConnections);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -125,15 +189,44 @@ const Chat = () => {
             );
           }
         };
-        fetchMessages()
+        fetchMessages();
+
+        // Subscribe to new messages for this connection
+        const subscription = supabase
+          .channel(`messages:${matchId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'messages',
+              filter: `connection_id=eq.${matchId}`,
+            },
+            (payload) => {
+              const newMessage = payload.new;
+              setMessages((currentMessages) => [
+                ...currentMessages,
+                {
+                  id: newMessage.id,
+                  text: newMessage.text,
+                  sender: newMessage.sender_id === user?.id ? "user" : "match",
+                  timestamp: new Date(newMessage.timestamp),
+                },
+              ]);
+            }
+          )
+          .subscribe();
+
+        return () => {
+          subscription.unsubscribe();
+        };
       }
     } else {
       setSelectedConnection(null);
       setMessages([]);
     }
-  }, [matchId, connections, user?.id])
+  }, [matchId, connections, user?.id]);
 
-  
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -151,25 +244,31 @@ const Chat = () => {
     e.preventDefault();
     if (messageText.trim() === "" || !selectedConnection) return;
 
-    const newMessage: Message = {
-      id: messages.length + 1,
-      text: messageText,
-      sender: "user",
-      timestamp: new Date(),
-    };
-    
+    try {
+      const { error: messageError } = await supabase.from("messages").insert({
+        connection_id: selectedConnection.id,
+        sender_id: user.id,
+        receiver_id: selectedConnection.user_id,
+        text: messageText,
+        timestamp: new Date().toISOString()
+      });
 
-    console.log("selected", selectedConnection.user_id)
-    await supabase.from("messages").insert({
-      connection_id: selectedConnection.id,
-      sender_id: user.id,
-      receiver_id: selectedConnection.user_id,
-      text: messageText,
-      timestamp: new Date().toISOString()
-    })
+      if (messageError) throw messageError;
 
-    setMessages([...messages, newMessage]);
-    setMessageText("");
+      const { error: connectionError } = await supabase
+        .from("connections")
+        .update({
+          lastMessage: messageText,
+          lastMessageTime: new Date().toISOString()
+        })
+        .eq("id", selectedConnection.id);
+
+      if (connectionError) throw connectionError;
+
+      setMessageText("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
 
   const handleConnectionSelect = (connection: Connection) => {
@@ -179,7 +278,6 @@ const Chat = () => {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-background via-purple-50/30 to-blue-50/30 overflow-hidden">
-      {/* Enhanced Connections Sidebar */}
       <div className="w-80 border-r border-border/50 glass-effect backdrop-blur-md">
         <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-purple-100/20">
           <div className="flex items-center space-x-3 mb-2">
@@ -256,11 +354,10 @@ const Chat = () => {
         </div>
       </div>
 
-      {/* Enhanced Chat Area */}
       <div className="flex-1 flex flex-col bg-white/70 backdrop-blur-sm">
         {selectedConnection ? (
           <>
-            {/* Enhanced Chat Header */}
+
             <header className="p-6 border-b border-border/50 glass-effect backdrop-blur-md">
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -298,7 +395,6 @@ const Chat = () => {
               </div>
             </header>
 
-            {/* Enhanced Messages */}
             <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-white/80">
               {messages.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center h-full">
@@ -347,7 +443,6 @@ const Chat = () => {
               )}
             </div>
 
-            {/* Enhanced Message Input */}
             <div className="p-6 border-t border-border/50 glass-effect backdrop-blur-md">
               <form onSubmit={handleSendMessage} className="flex items-center gap-4 max-w-4xl mx-auto">
                 <div className="flex-1 relative">
@@ -386,7 +481,6 @@ const Chat = () => {
         )}
       </div>
 
-      {/* Voice Help */}
       <div className="absolute bottom-6 left-6">
         <VoiceHelp text={text.voiceHelp} />
       </div>
