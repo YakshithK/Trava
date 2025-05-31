@@ -162,7 +162,11 @@ const Onboarding = () => {
         return;
       }
 
-      // If everything is successful, navigate to verify page
+      localStorage.setItem("onboardingData", JSON.stringify({
+        email,
+        phone: contactNumber,
+        password
+      }))
       navigate("/verify");
     } catch (error) {
       console.error("Unexpected error during signup:", error);

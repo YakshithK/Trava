@@ -12,24 +12,33 @@ const Verify = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const onboardingData = JSON.parse(localStorage.getItem("onboardingData")|| "{}")
+
   const handleResendVerification = async () => {
     setIsResending(true);
     setError(null);
     setSuccess(null);
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError("No user found. Please log in again.");
-        return;
-      }
-      const { error } = await supabase.auth.resend({ type: 'signup', email: user.email });
-      if (error) {
-        setError("Failed to resend verification email.");
+
+      const {data, error: resendError} = await supabase.auth.signUp({
+        email: onboardingData.email,
+        phone: onboardingData.phone,
+        password: onboardingData.password
+      })
+      
+      if (resendError) {
+        if (resendError.message.includes("User already registered")) {
+          setSuccess("Verification email resent! Please check your inbox.");
+        } else {
+          setError("Failed to resend verification email: " + resendError.message);
+        }
       } else {
         setSuccess("Verification email resent! Please check your inbox.");
       }
     } catch (err: any) {
-      setError("Failed to resend verification email.");
+      console.error(err);
+      setError("Unexpected error occurred.");
     } finally {
       setIsResending(false);
     }
