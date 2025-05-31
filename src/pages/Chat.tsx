@@ -326,15 +326,15 @@ const Chat = () => {
                         className={`max-w-[75%] px-6 py-4 rounded-2xl shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg ${
                           message.sender === "user"
                             ? "bg-gradient-to-r from-primary to-purple-600 !text-white rounded-br-lg glow-effect"
-                            : "bg-white/90 border border-border/30 text-foreground rounded-bl-lg"
+                            : "bg-white/90 border border-border/30 text-gray-600 rounded-bl-lg"
                         }`}
                       >
-                        <p className="text-base leading-relaxed !text-white">{message.text}</p>
+                        <p className={`text-base leading-relaxed ${message.sender === "user" ? "!text-white" : "text-gray-600"}`}>{message.text}</p>
                         <div
                           className={`text-xs mt-3 font-medium ${
                             message.sender === "user" 
                               ? "!text-white/80" 
-                              : "text-muted-foreground"
+                              : "text-gray-500"
                           }`}
                         >
                           {formatTime(message.timestamp)}

@@ -8,6 +8,8 @@ general:
     - mobile app? (expo?)
 
 chat:
+    - on top it shows user id instead of user name
+    - reloading issue, chats should flow
     - dark mode issue
     - notifications
     - typing indicators
