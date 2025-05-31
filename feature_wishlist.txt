@@ -1,5 +1,4 @@
 general:
-    - chatting goes top to bottom instead of vice versa?
     - resend verification system
     - area coding
     - add a better navigation system
@@ -9,6 +8,8 @@ general:
     - mobile app? (expo?)
 
 chat:
+    - dark mode issue
+    - notifications
     - typing indicators
     - read receipts
     - image sharing

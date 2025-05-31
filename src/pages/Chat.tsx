@@ -110,7 +110,7 @@ const Chat = () => {
             .from("messages")
             .select("*")
             .eq("connection_id", matchId)
-            .order("timestamp", { ascending: false });
+            .order("timestamp", { ascending: true });
 
           if (error) {
             console.error("Error fetching messages:", error);
@@ -325,15 +325,15 @@ const Chat = () => {
                       <div
                         className={`max-w-[75%] px-6 py-4 rounded-2xl shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg ${
                           message.sender === "user"
-                            ? "bg-gradient-to-r from-primary to-purple-600 text-primary-foreground rounded-br-lg glow-effect"
+                            ? "bg-gradient-to-r from-primary to-purple-600 !text-white rounded-br-lg glow-effect"
                             : "bg-white/90 border border-border/30 text-foreground rounded-bl-lg"
                         }`}
                       >
-                        <p className="text-base leading-relaxed">{message.text}</p>
+                        <p className="text-base leading-relaxed !text-white">{message.text}</p>
                         <div
                           className={`text-xs mt-3 font-medium ${
                             message.sender === "user" 
-                              ? "text-primary-foreground/80" 
+                              ? "!text-white/80" 
                               : "text-muted-foreground"
                           }`}
                         >
