@@ -152,10 +152,10 @@ const Chat = () => {
           console.log('Real-time message update:', payload);
           
           if (payload.eventType === 'INSERT') {
-            const newMessage = {
+            const newMessage: Message = {
               id: payload.new.id,
               text: payload.new.text,
-              sender: payload.new.sender_id === user.id ? "user" : "match",
+              sender: payload.new.sender_id === user.id ? "user" as const : "match" as const,
               timestamp: new Date(payload.new.timestamp),
             };
             
@@ -200,7 +200,7 @@ const Chat = () => {
     const optimisticMessage: Message = {
       id: tempId,
       text: messageToSend,
-      sender: "user",
+      sender: "user" as const,
       timestamp: new Date(),
     };
 
