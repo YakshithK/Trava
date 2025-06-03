@@ -41,6 +41,8 @@ const tripTexts = {
     toPlaceholder: "e.g., Toronto",
     airlineLabel: "Airline",
     airlinePlaceholder: "e.g., Air India",
+    flightNumber: "Flight Number",
+    flightNumberPlaceholder: "e.g., AC056",
     dateLabel: "Date of Travel",
     datePlaceholder: "Select your travel date",
     notesLabel: "Additional Notes",
@@ -56,6 +58,7 @@ const TripPosting = () => {
   const [to, setTo] = useState("");
   const [airline, setAirline] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [flightNumber, setFlightNumber] = useState("")
   const [notes, setNotes] = useState(""); 
   const [airportList, setAirportList] = useState<Airport[]>([])
   const [airlineList, setAirlineList] = useState<Airline[]>([])
@@ -123,6 +126,7 @@ const TripPosting = () => {
       to,
       date: date ? date.toISOString() : null,
       airline,
+      flight_number: flightNumber,
       notes
     });
     
@@ -241,6 +245,18 @@ const TripPosting = () => {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="text-xl">
+                {text.flightNumber}
+              </Label>
+              <Input
+                id="flight-number"
+                placeholder={text.flightNumberPlaceholder}
+                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
+                onChange={(e) => setNotes(e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
