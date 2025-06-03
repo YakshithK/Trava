@@ -142,42 +142,34 @@ const Chat = () => {
   useEffect(() => {
     if (!selectedConnection || !user) return;
 
-    // Unsubscribe from any previous channel
     let channel: any;
-    const subscribe = () => {
-      channel = supabase
-        .channel(`messages:${selectedConnection.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'messages',
-            filter: `connection_id=eq.${selectedConnection.id}`
-          },
-          (payload) => {
-            if (!payload.new) return;
-            const newMessage: Message = {
-              id: payload.new.id,
-              text: payload.new.text,
-              sender: payload.new.sender_id === user.id ? "user" : "match",
-              timestamp: new Date(payload.new.timestamp),
-            };
-            console.log("New message received:", newMessage);
-            setMessages(prev => {
-              // Remove optimistic message with same text and sender if exists
-              const filtered = prev.filter(
-                msg => !(msg.text === newMessage.text && msg.sender === newMessage.sender && msg.id < 0)
-              );
-              // Only add if this message ID doesn't already exist
-              if (filtered.some(msg => msg.id === newMessage.id)) return filtered;
-              return [...filtered, newMessage];
-            });
-          }
-        )
-        .subscribe();
-    };
-    subscribe();
+    channel = supabase
+      .channel(`messages:${selectedConnection.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `connection_id=eq.${selectedConnection.id}`
+        },
+        (payload) => {
+          if (!payload.new) return;
+          const newMessage: Message = {
+            id: payload.new.id,
+            text: payload.new.text,
+            sender: payload.new.sender_id === user.id ? "user" : "match",
+            timestamp: new Date(payload.new.timestamp),
+          };
+          setMessages(prev => {
+            // Only add if this message ID doesn't already exist
+            if (prev.some(msg => msg.id === newMessage.id)) return prev;
+            return [...prev, newMessage];
+          });
+        }
+      )
+      .subscribe();
+
     return () => {
       if (channel) supabase.removeChannel(channel);
     };

@@ -1,15 +1,10 @@
 general:
-    - resend verification system
+    - rls
     - area coding
-    - add a better navigation system
-    - better eroor handling
-    - keep which screen mode selected to remember
     - multi language
     - mobile app? (expo?)
 
 chat:
-    - on top it shows user id instead of user name
-    - reloading issue, chats should flow
     - dark mode issue
     - notifications
     - typing indicators
@@ -20,9 +15,5 @@ matches:
     - rating others / giving review to each other
 
 trips:
-    - delete trips
     - full directory of all trips
-    - adding enhanced airport choosing (to/from)
-    - same with airlines ^
-    - flight number?
     - you upload borading pass / ticket and it autofills
