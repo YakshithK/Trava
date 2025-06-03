@@ -97,7 +97,11 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest"
+    });
   }, [messages]);
 
   useEffect(() => {
@@ -354,7 +358,7 @@ const Chat = () => {
             </header>
 
             {/* Enhanced Messages */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-white/80">
+            <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-white/80" style={{ scrollBehavior: 'smooth' }}>
               {messages.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center h-full">
                   <Card className="text-center p-8 max-w-md mx-auto shadow-xl border-0 glass-effect backdrop-blur-md">
