@@ -105,7 +105,7 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-    console.log("matchid", matchId)
+    console.log("matchid", messages)
     if (matchId) {
       const connection = connections.find(c => c.id === matchId);
       if (connection) {
@@ -142,40 +142,46 @@ const Chat = () => {
   useEffect(() => {
     if (!selectedConnection || !user) return;
 
-    const channel = supabase
-      .channel(`messages:${selectedConnection.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages',
-          filter: `connection_id=eq.${selectedConnection.id}`
-        },
-        (payload) => {
-          console.log('Real-time message update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
+    // Unsubscribe from any previous channel
+    let channel: any;
+    const subscribe = () => {
+      channel = supabase
+        .channel(`messages:${selectedConnection.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `connection_id=eq.${selectedConnection.id}`
+          },
+          (payload) => {
+            if (!payload.new) return;
             const newMessage: Message = {
               id: payload.new.id,
               text: payload.new.text,
-              sender: payload.new.sender_id === user.id ? "user" as const : "match" as const,
+              sender: payload.new.sender_id === user.id ? "user" : "match",
               timestamp: new Date(payload.new.timestamp),
             };
-            
-            // Only add if it's not from the current user (to avoid duplicates from optimistic updates)
-            if (payload.new.sender_id !== user.id) {
-              setMessages(prev => [...prev, newMessage]);
-            }
+            console.log("New message received:", newMessage);
+            setMessages(prev => {
+              // Remove optimistic message with same text and sender if exists
+              const filtered = prev.filter(
+                msg => !(msg.text === newMessage.text && msg.sender === newMessage.sender && msg.id < 0)
+              );
+              // Only add if this message ID doesn't already exist
+              if (filtered.some(msg => msg.id === newMessage.id)) return filtered;
+              return [...filtered, newMessage];
+            });
           }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+        )
+        .subscribe();
     };
-  }, [selectedConnection, user]);
+    subscribe();
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [selectedConnection?.id, user?.id]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
