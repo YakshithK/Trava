@@ -7,6 +7,7 @@ import { Send, User, Circle, MessageCircle, Sparkles } from "lucide-react";
 import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: number;
@@ -46,6 +47,7 @@ const Chat = () => {
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const text = chatTexts.en;
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -133,7 +135,44 @@ const Chat = () => {
     }
   }, [matchId, connections, user?.id])
 
-  
+  useEffect(() => {
+    if (!selectedConnection || !user) return;
+
+    const channel = supabase
+      .channel(`messages:${selectedConnection.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `connection_id=eq.${selectedConnection.id}`
+        },
+        (payload) => {
+          console.log('Real-time message update:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            const newMessage = {
+              id: payload.new.id,
+              text: payload.new.text,
+              sender: payload.new.sender_id === user.id ? "user" : "match",
+              timestamp: new Date(payload.new.timestamp),
+            };
+            
+            // Only add if it's not from the current user (to avoid duplicates from optimistic updates)
+            if (payload.new.sender_id !== user.id) {
+              setMessages(prev => [...prev, newMessage]);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConnection, user]);
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -149,27 +188,43 @@ const Chat = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (messageText.trim() === "" || !selectedConnection) return;
+    if (messageText.trim() === "" || !selectedConnection || !user) return;
 
-    const newMessage: Message = {
-      id: messages.length + 1,
-      text: messageText,
+    const messageToSend = messageText.trim();
+    const tempId = Date.now(); // Temporary ID for optimistic update
+    
+    // Clear textbox immediately
+    setMessageText("");
+
+    // Add message optimistically to UI with animation
+    const optimisticMessage: Message = {
+      id: tempId,
+      text: messageToSend,
       sender: "user",
       timestamp: new Date(),
     };
-    
 
-    console.log("selected", selectedConnection.user_id)
-    await supabase.from("messages").insert({
-      connection_id: selectedConnection.id,
-      sender_id: user.id,
-      receiver_id: selectedConnection.user_id,
-      text: messageText,
-      timestamp: new Date().toISOString()
-    })
+    setMessages(prev => [...prev, optimisticMessage]);
 
-    setMessages([...messages, newMessage]);
-    setMessageText("");
+    // Try to send to Supabase in background
+    try {
+      const { error } = await supabase.from("messages").insert({
+        connection_id: selectedConnection.id,
+        sender_id: user.id,
+        receiver_id: selectedConnection.user_id,
+        text: messageToSend,
+        timestamp: new Date().toISOString()
+      });
+
+      if (error) {
+        console.error("Failed to send message to database:", error);
+        // Optionally show a subtle indicator that the message failed to send
+        // but keep it in the UI since it's already shown
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      // Message stays in UI regardless of database success/failure
+    }
   };
 
   const handleConnectionSelect = (connection: Connection) => {
