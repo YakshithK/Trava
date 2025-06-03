@@ -64,11 +64,11 @@ const Chat = () => {
       .from("connections")
       .select("*")
       .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-    
+      
       if (error) {
         console.error("Error fetching connections:", error);
       }
-
+      console.log("connections", data)
       const userIds = data.map((profile) => (user.id === profile.user1_id ? profile.user2_id : profile.user1_id));
 
       const { data: profiles, error: profileError } = await supabase

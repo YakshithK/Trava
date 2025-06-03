@@ -17,9 +17,44 @@ import Requests from "./pages/Requests";
 import Profile from "./pages/Profile";
 import Layout from "./components/layout/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { AuthProvider } from "./context/authContext";
+import { AuthProvider, useAuth } from "./context/authContext";
 import ProtectedRoute from "./components/protectedRoute";
 import Verify from "./pages/Verify";
+import { useToast } from "./hooks/use-toast";
+import { useEffect, useState } from "react";
+import { supabase } from "./config/supabase";
+
+function GlobalMessageListener() {
+  const {toast} = useToast()
+  const {user} = useAuth();
+  const [subscribed, setSubscribed] = useState(false);
+
+  useEffect(() => {
+    if (subscribed || !user) return;
+
+    let channel: any;
+    channel = supabase
+      .channel(`messages{user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('New message received:', payload);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, []);
+  return null;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +88,7 @@ const App = () => (
           <Sonner />
           <AuthProvider>
             <BrowserRouter>
+              <GlobalMessageListener />
               <Routes>
                 {/* Public Routes */}
                 <Route path="/onboarding" element={<Onboarding />} />
