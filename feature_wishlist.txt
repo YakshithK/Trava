@@ -4,19 +4,19 @@ general:
     - mobile app? (expo?)
 
 chat:
+    - no spam
     - latest chat showing
     - online / offline
     - latest chat always on top
     - dark mode issue
-    - notifications
+    - notifcations stack on each other
     - typing indicators
-    - read receipts
     - image sharing
 
 matches: 
-    - notifications
+    - notifications 
     - rating others / giving review to each other
 
 trips:
     - full directory of all trips
-    - you upload borading pass / ticket and it autofills
+    - you upload borading pass / ticket and it autofills 

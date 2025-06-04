@@ -14,6 +14,7 @@ interface Message {
   text: string;
   sender: "user" | "match";
   timestamp: Date;
+  read: boolean; // Optional, defaults to false
 }
 
 interface Connection {
@@ -126,6 +127,7 @@ const Chat = () => {
                 id: msg.id,
                 text: msg.text,
                 sender: msg.sender_id === user?.id ? "user" : "match",
+                read: msg.read ? true : false,
                 timestamp: new Date(msg.timestamp),
               }))
             );
@@ -160,6 +162,7 @@ const Chat = () => {
             text: payload.new.text,
             sender: payload.new.sender_id === user.id ? "user" : "match",
             timestamp: new Date(payload.new.timestamp),
+            read: payload.new.read ? true : false,
           };
           setMessages(prev => {
             // Only add if this message ID doesn't already exist
@@ -174,6 +177,25 @@ const Chat = () => {
       if (channel) supabase.removeChannel(channel);
     };
   }, [selectedConnection?.id, user?.id]);
+
+  // Mark all unread messages as read for the current chat
+  const markMessagesAsRead = async () => {
+    if (!selectedConnection || !user) return;
+    await supabase
+      .from("messages")
+      .update({ read: true })
+      .eq("connection_id", selectedConnection.id)
+      .eq("receiver_id", user.id)
+      .eq("read", false);
+  };
+
+  useEffect(() => {
+    // Mark as read when messages are loaded or updated
+    if (messages.length > 0) {
+      markMessagesAsRead();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, selectedConnection]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -204,6 +226,7 @@ const Chat = () => {
       text: messageToSend,
       sender: "user" as const,
       timestamp: new Date(),
+      read: false, // Optimistically assume the message is unread
     };
 
     setMessages(prev => [...prev, optimisticMessage]);
@@ -386,7 +409,14 @@ const Chat = () => {
                             : "bg-white/90 border border-border/30 text-gray-600 rounded-bl-lg"
                         }`}
                       >
-                        <p className={`text-base leading-relaxed ${message.sender === "user" ? "!text-white" : "text-gray-600"}`}>{message.text}</p>
+                        <div className="flex items-center gap-2">
+                          <p className={`text-base leading-relaxed ${message.sender === "user" ? "!text-white" : "text-gray-600"}`}>{message.text}</p>
+                          {message.sender === "user" && (
+                            <span className={`ml-2 text-xs font-semibold ${message.read ? "text-green-600" : "text-gray-400"}`}>
+                              {message.read ? "Read" : "Unread"}
+                            </span>
+                          )}
+                        </div>
                         <div
                           className={`text-xs mt-3 font-medium ${
                             message.sender === "user" 
