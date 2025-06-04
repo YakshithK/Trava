@@ -150,25 +150,35 @@ const Chat = () => {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'messages',
           filter: `connection_id=eq.${selectedConnection.id}`
         },
         (payload) => {
           if (!payload.new) return;
-          const newMessage: Message = {
-            id: payload.new.id,
-            text: payload.new.text,
-            sender: payload.new.sender_id === user.id ? "user" : "match",
-            timestamp: new Date(payload.new.timestamp),
-            read: payload.new.read ? true : false,
-          };
-          setMessages(prev => {
-            // Only add if this message ID doesn't already exist
-            if (prev.some(msg => msg.id === newMessage.id)) return prev;
-            return [...prev, newMessage];
-          });
+          // If it's an INSERT, add the new message if not present
+          if (payload.eventType === 'INSERT') {
+            const newMessage: Message = {
+              id: payload.new.id,
+              text: payload.new.text,
+              sender: payload.new.sender_id === user.id ? "user" : "match",
+              timestamp: new Date(payload.new.timestamp),
+              read: payload.new.read ? true : false,
+            };
+            setMessages(prev => {
+              if (prev.some(msg => msg.id === newMessage.id)) return prev;
+              return [...prev, newMessage];
+            });
+          }
+
+          if (payload.eventType === 'UPDATE') {
+            setMessages(prev => prev.map(msg =>
+              msg.id === payload.new.id
+                ? { ...msg, read: payload.new.read ? true : false }
+                : msg
+            ));
+          }
         }
       )
       .subscribe();
@@ -215,23 +225,9 @@ const Chat = () => {
     if (messageText.trim() === "" || !selectedConnection || !user) return;
 
     const messageToSend = messageText.trim();
-    const tempId = Date.now(); // Temporary ID for optimistic update
-    
-    // Clear textbox immediately
     setMessageText("");
 
-    // Add message optimistically to UI with animation
-    const optimisticMessage: Message = {
-      id: tempId,
-      text: messageToSend,
-      sender: "user" as const,
-      timestamp: new Date(),
-      read: false, // Optimistically assume the message is unread
-    };
-
-    setMessages(prev => [...prev, optimisticMessage]);
-
-    // Try to send to Supabase in background
+    // Only send to Supabase, do not add to UI optimistically
     try {
       const { error } = await supabase.from("messages").insert({
         connection_id: selectedConnection.id,
@@ -244,11 +240,9 @@ const Chat = () => {
       if (error) {
         console.error("Failed to send message to database:", error);
         // Optionally show a subtle indicator that the message failed to send
-        // but keep it in the UI since it's already shown
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      // Message stays in UI regardless of database success/failure
     }
   };
 
