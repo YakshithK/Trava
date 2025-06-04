@@ -23,11 +23,13 @@ import Verify from "./pages/Verify";
 import { useToast } from "./hooks/use-toast";
 import { useEffect, useState } from "react";
 import { supabase } from "./config/supabase";
+import { useLocation } from "react-router-dom";
 
 function GlobalMessageListener() {
-  const {toast} = useToast()
-  const {user} = useAuth();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [subscribed, setSubscribed] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (subscribed || !user) return;
@@ -44,7 +46,9 @@ function GlobalMessageListener() {
           filter: `receiver_id=eq.${user.id}`
         },
         async (payload) => {
-          if (!payload.new) return; 
+          if (!payload.new) return;
+          // Only show toast if not on chat page
+          if (location.pathname.startsWith('/chat')) return;
           const text = payload.new.text;
           const senderId = payload.new.sender_id;
 
@@ -54,7 +58,7 @@ function GlobalMessageListener() {
             .select("name, photo")
             .eq("id", senderId)
             .single();
-          
+
           if (userError) {
             console.error("Error fetching user data:", userError);
             return;
@@ -92,7 +96,7 @@ function GlobalMessageListener() {
     return () => {
       if (channel) supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, location.pathname]);
   return null;
 }
 
