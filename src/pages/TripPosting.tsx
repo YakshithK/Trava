@@ -18,6 +18,7 @@ import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { error } from "console";
 import Papa from "papaparse"
+import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 
 type Airport = {
   iata_code: string,
@@ -283,9 +284,7 @@ const TripPosting = () => {
           </form>
         </Card>
 
-        <div className="mt-6 flex justify-center">
-          <VoiceHelp text={text.voiceHelp} />
-        </div>
+        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );

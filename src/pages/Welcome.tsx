@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import VoiceHelp from "@/components/VoiceHelp";
+import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 
 const welcomeTexts = {
   en: {
@@ -55,9 +56,7 @@ const Welcome = () => {
           </div>
         </Card>
 
-        <div className="mt-6">
-          <VoiceHelp text={text.voiceHelp} language={language} />
-        </div>
+        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );

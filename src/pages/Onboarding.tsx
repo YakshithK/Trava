@@ -10,6 +10,7 @@ import { ArrowLeft, Camera, User } from "lucide-react";
 import { supabase } from "@/config/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { validateEmail, validatePhoneNumber,  validatePassword, validateConfirmPassword} from "@/lib/validation";
+import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 
 const onboardingTexts = {
   en: {
@@ -386,9 +387,7 @@ const Onboarding = () => {
           </form>
         </Card>
 
-        <div className="mt-6 flex justify-center">
-          <VoiceHelp text={text.voiceHelp} />
-        </div>
+        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );

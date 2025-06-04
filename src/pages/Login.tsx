@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import VoiceHelp from "@/components/VoiceHelp";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { supabase } from "@/config/supabase";
+import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 
 const onboardingTexts = {
   en: {
@@ -164,9 +165,7 @@ const Login = () => {
           </form>
         </Card>
 
-        <div className="mt-6 flex justify-center">
-          <VoiceHelp text={text.voiceHelp} />
-        </div>
+        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );

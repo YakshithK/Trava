@@ -3,9 +3,10 @@ general:
     - area coding
     - multi language
     - mobile app? (expo?)
+    - organize code
 
 chat:
-    - organize code
+    - organize code and add in types for functions and compoenents
     - no spam
     - latest chat showing
     - online / offline
