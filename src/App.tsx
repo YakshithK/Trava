@@ -34,7 +34,7 @@ function GlobalMessageListener() {
 
     let channel: any;
     channel = supabase
-      .channel(`messages{user.id}`)
+      .channel(`messages`)
       .on(
         'postgres_changes',
         {
@@ -43,8 +43,48 @@ function GlobalMessageListener() {
           table: 'messages',
           filter: `receiver_id=eq.${user.id}`
         },
-        (payload) => {
-          console.log('New message received:', payload);
+        async (payload) => {
+          if (!payload.new) return; 
+          const text = payload.new.text;
+          const senderId = payload.new.sender_id;
+
+          // Await the Supabase query
+          const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("name, photo")
+            .eq("id", senderId)
+            .single();
+          
+          if (userError) {
+            console.error("Error fetching user data:", userError);
+            return;
+          }
+
+          toast({
+            title: "New Message",
+            description: (
+              <div className="flex items-center gap-2">
+                <img
+                  src={userData.photo}
+                  alt={userData.name}
+                  className="w-8 h-8 rounded-full object-cover border"
+                  style={{ display: userData.photo ? "block" : "none" }}
+                />
+                <span>{userData.name}: {text}</span>
+              </div>
+            ),
+            variant: "default",
+            action: (
+              <button
+                onClick={() => {
+                  window.location.href = `/chat/${payload.new.connection_id}`;
+                }}
+                className="underline text-primary"
+              >
+                Open
+              </button>
+            ),
+          });
         }
       )
       .subscribe();
