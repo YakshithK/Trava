@@ -8,6 +8,7 @@ import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useToast } from "@/hooks/use-toast";
+import { set } from "date-fns";
 
 interface Message {
   id: number;
@@ -44,11 +45,56 @@ const Chat = () => {
   const { matchId } = useParams<{ matchId: string }>();
   const [messageText, setMessageText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const text = chatTexts.en;
-  const { toast } = useToast();
+  
+  const typingChannel = useRef<any>(null)
+
+  useEffect(() => {
+    if (!selectedConnection) return;
+
+    typingChannel.current = supabase.channel(`typing:${selectedConnection.id}`)
+    typingChannel.current.subscribe()
+
+    return () => {
+      if (typingChannel.current) supabase.removeChannel(typingChannel.current);
+    }
+  }, [selectedConnection]);
+
+  const handleTyping = () => {
+    if (!typingChannel.current || !user) return
+    typingChannel.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: {
+        userId: user.id,
+        name: user.user_metadata?.name || "User",
+      },
+    })
+
+  }
+
+  useEffect(() => {
+    if (!typingChannel.current || !user) return;
+
+    const channel = typingChannel.current;
+
+    channel.on("broadcast", {event: "typing"}, (payload) => {
+      if (payload.payload.userId !== user.id) {
+        setIsOtherTyping(true);
+        setTimeout(() => {
+          setIsOtherTyping(false);
+        }, 3000); // Hide typing indicator after 3 seconds
+      }
+    })
+
+    return () => {
+      setIsOtherTyping(false);
+    }
+  }, [selectedConnection, user])
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -424,6 +470,9 @@ const Chat = () => {
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
+                  {isOtherTyping && (
+                    <div className="text-sm text-muted-foreground mt-2 animate-pulse pl-2">{`${selectedConnection?.name} is typing...`}</div>
+                  )}
                 </div>
               )}
             </div>
@@ -434,7 +483,10 @@ const Chat = () => {
                 <div className="flex-1 relative">
                   <Input
                     value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
+                    onChange={(e) => {
+                      setMessageText(e.target.value)
+                      handleTyping();
+                    }}
                     placeholder={text.inputPlaceholder}
                     className="h-14 text-base rounded-xl border-2 border-border/30 bg-white/80 backdrop-blur-sm focus:bg-white focus:border-primary transition-all duration-200 pr-4 pl-6 shadow-sm"
                   />

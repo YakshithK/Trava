@@ -1,9 +1,11 @@
 general:
+    - if logged in, redirect to dashboard
     - area coding
     - multi language
     - mobile app? (expo?)
 
 chat:
+    - organize code
     - no spam
     - latest chat showing
     - online / offline
