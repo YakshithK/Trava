@@ -92,7 +92,7 @@ function GlobalMessageListener() {
     return () => {
       if (channel) supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user]);
   return null;
 }
 
