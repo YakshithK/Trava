@@ -9,7 +9,7 @@ import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import TripPosting from "./pages/TripPosting";
 import Matches from "./pages/Matches";
-import Chat from "./pages/Chat";
+import Chat from "./pages/chat/Chat";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";

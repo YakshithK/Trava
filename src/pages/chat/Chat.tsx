@@ -9,24 +9,8 @@ import { supabase } from "@/config/supabase";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useToast } from "@/hooks/use-toast";
 import { set } from "date-fns";
-
-interface Message {
-  id: number;
-  text: string;
-  sender: "user" | "match";
-  timestamp: Date;
-  read: boolean; // Optional, defaults to false
-}
-
-interface Connection {
-  id: string;
-  user_id: string;
-  name: string;
-  photoUrl?: string;
-  lastMessage?: string;
-  lastMessageTime?: Date;
-  isOnline?: boolean;
-}
+import { Connection, Message } from "./types";
+import { formatLastMessageTime, formatTime, handleSendMessage, markMessagesAsRead } from "./functions";
 
 const chatTexts = {
   en: {
@@ -74,7 +58,6 @@ const Chat = () => {
         name: user.user_metadata?.name || "User",
       },
     })
-
   }
 
   useEffect(() => {
@@ -234,63 +217,14 @@ const Chat = () => {
     };
   }, [selectedConnection?.id, user?.id]);
 
-  // Mark all unread messages as read for the current chat
-  const markMessagesAsRead = async () => {
-    if (!selectedConnection || !user) return;
-    await supabase
-      .from("messages")
-      .update({ read: true })
-      .eq("connection_id", selectedConnection.id)
-      .eq("receiver_id", user.id)
-      .eq("read", false);
-  };
 
   useEffect(() => {
     // Mark as read when messages are loaded or updated
     if (messages.length > 0) {
-      markMessagesAsRead();
+      markMessagesAsRead(selectedConnection, user);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, selectedConnection]);
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const formatLastMessageTime = (date: Date) => {
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    return date.toLocaleDateString();
-  };
-
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (messageText.trim() === "" || !selectedConnection || !user) return;
-
-    const messageToSend = messageText.trim();
-    setMessageText("");
-
-    // Only send to Supabase, do not add to UI optimistically
-    try {
-      const { error } = await supabase.from("messages").insert({
-        connection_id: selectedConnection.id,
-        sender_id: user.id,
-        receiver_id: selectedConnection.user_id,
-        text: messageToSend,
-        timestamp: new Date().toISOString()
-      });
-
-      if (error) {
-        console.error("Failed to send message to database:", error);
-        // Optionally show a subtle indicator that the message failed to send
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
 
   const handleConnectionSelect = (connection: Connection) => {
     navigate(`/chat/${connection.id}`);
@@ -479,7 +413,13 @@ const Chat = () => {
 
             {/* Enhanced Message Input */}
             <div className="p-6 border-t border-border/50 glass-effect backdrop-blur-md">
-              <form onSubmit={handleSendMessage} className="flex items-center gap-4 max-w-4xl mx-auto">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  await handleSendMessage(e, messageText, setMessageText, selectedConnection, user);
+                }}
+                className="flex items-center gap-4 max-w-4xl mx-auto"
+              >
                 <div className="flex-1 relative">
                   <Input
                     value={messageText}

@@ -12,7 +12,6 @@ chat:
     - latest chat always on top
     - dark mode issue
     - notifcations stack on each other
-    - typing indicators
     - image sharing
 
 matches: 
