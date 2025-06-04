@@ -1,6 +1,14 @@
 import { formatTime } from "./functions";
+import { Connection, Message } from "./types";
 
-export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConnection}) => (
+interface MessageProps {
+  messages: Message[];
+    messagesEndRef: React.RefObject<HTMLDivElement>;
+    isOtherTyping: boolean;
+    selectedConnection: Connection | null;
+}
+
+export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConnection}: MessageProps) => (
 <div className="space-y-6 max-w-4xl mx-auto">
         {messages.map((message) => (
         <div

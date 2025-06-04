@@ -1,7 +1,14 @@
 import { supabase } from "@/config/supabase";
-import { Connection } from "./types";
+import { Connection, Message } from "./types";
+import { User as SupabaseUser } from '@supabase/supabase-js';
+import { RealtimeChannel } from '@supabase/supabase-js';
+import React from "react";
+import { NavigateFunction } from "react-router-dom";
 
-export const markMessagesAsRead = async (selectedConnection, user) => {
+
+export const markMessagesAsRead = async (
+  selectedConnection: Connection | null, user: SupabaseUser | null
+  ) => {
     if (!selectedConnection || !user) return;
     await supabase
       .from("messages")
@@ -11,7 +18,7 @@ export const markMessagesAsRead = async (selectedConnection, user) => {
       .eq("read", false);
   };
 
-export const handleTyping = (typingChannel, user) => {
+export const handleTyping = (typingChannel : React.MutableRefObject<RealtimeChannel | null>, user: SupabaseUser | null) => {
     if (!typingChannel.current || !user) return
     typingChannel.current.send({
       type: "broadcast",
@@ -36,7 +43,11 @@ export const formatLastMessageTime = (date: Date) => {
     return date.toLocaleDateString();
   };
 
-export const handleSendMessage = async (e: React.FormEvent, messageText, setMessageText, selectedConnection, user) => {
+export const handleSendMessage = async (e: React.FormEvent, 
+  messageText: string, 
+  setMessageText: React.Dispatch<React.SetStateAction<string>>, 
+  selectedConnection: Connection | null, 
+  user: SupabaseUser | null) => {
     e.preventDefault();
     if (messageText.trim() === "" || !selectedConnection || !user) return;
 
@@ -62,7 +73,8 @@ export const handleSendMessage = async (e: React.FormEvent, messageText, setMess
     }
   };
 
-export const fetchConnections = async (setUser, setConnections ) => {
+export const fetchConnections = async (setUser: React.Dispatch<React.SetStateAction<SupabaseUser | null>>, 
+  setConnections: React.Dispatch<React.SetStateAction<Connection[] | null>> ) => {
 
       const {
         data: { user },
@@ -105,7 +117,9 @@ export const fetchConnections = async (setUser, setConnections ) => {
       setConnections(enrichedConnections);
     };
 
-export const fetchMessages = async (matchId, setMessages, user) => {
+export const fetchMessages = async (matchId: string, 
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>, 
+  user: SupabaseUser | null) => {
           const { data, error } = await supabase
             .from("messages")
             .select("*")
@@ -127,7 +141,9 @@ export const fetchMessages = async (matchId, setMessages, user) => {
           }
         };
 
-export const handleConnectionSelect = (connection: Connection, selectedConnection, navigate) => {
+export const handleConnectionSelect = (connection: Connection, 
+  selectedConnection: Connection | null, 
+  navigate: NavigateFunction) => {
     navigate(`/chat/${connection.id}`);
     console.log(selectedConnection)
   };

@@ -1,7 +1,19 @@
 import { Circle, User } from "lucide-react";
 import { formatLastMessageTime } from "./functions";
+import { Connection } from "./types";
 
-export const FullConnections = ({connections, selectedConnection, handleConnectionSelect, navigate}) => (
+interface FullConnectionsProps {
+  connections: Connection[];
+  selectedConnection: Connection | null;
+  handleConnectionSelect: (
+    connection: Connection,
+    selectedConnection: Connection | null,
+    navigate: any
+  ) => void;
+  navigate: any;
+}
+
+export const FullConnections = ({connections, selectedConnection, handleConnectionSelect, navigate}: FullConnectionsProps) => (
     <div className="overflow-y-auto h-full">
         {connections.map((connection) => (
         <div

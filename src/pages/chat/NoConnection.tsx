@@ -1,7 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
 
-export const NoConnection = ({text}) => (
+interface NoConnection {
+  text: string;
+}
+
+export const NoConnection = ({text}: NoConnection) => (
 
     <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-background/50 to-white/80">
         <Card className="text-center p-12 max-w-lg mx-auto shadow-xl border-0 glass-effect backdrop-blur-md">
