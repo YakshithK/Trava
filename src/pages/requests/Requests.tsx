@@ -13,12 +13,12 @@ type Request = {
   id: number;
   name: string;
   age: number;
-  from: string;
+  from: string;  
   to: string;
   date: string;
   photoUrl: string;
-  status?: string; // only for outgoing
-};
+  status?: string; 
+};  
 
 const Requests = () => {
   const [incoming, setIncoming] = useState<Request[]>([]);

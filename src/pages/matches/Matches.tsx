@@ -6,17 +6,8 @@ import { ArrowLeft, MessageSquare, Send, User } from "lucide-react";
 import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { useToast } from "@/hooks/use-toast";
-
-interface TravelMatch {
-  user_id: string;
-  trip_id: number;
-  name: string;
-  age: number;
-  from_city: string;
-  to_city: string;
-  date: string;
-  photo_url?: string;
-}
+import { TravelMatch } from "./types"; 
+import { fetchMatches, handleContactRequest } from "./functions";
 
 const matchTexts = {
   en: {
@@ -40,112 +31,8 @@ const Matches = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMatches = async () => {
-      setLoading(true);
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return;
-
-      // Get the current user's trip
-      const { data: myTrips, error: tripError } = await supabase
-        .from("trips")
-        .select("*")
-        .eq("user_id", user.id)
-        .limit(1);
-
-      if (tripError || !myTrips || myTrips.length === 0) {
-        console.error("No trip found for current user.");
-        setLoading(false);
-        return;
-      }
-
-      const myTrip = myTrips[0];
-
-      // Find matching trips (same from, to, and date)
-      const { data: rawMatches, error: matchError } = await supabase
-        .from("trips")
-        .select("*")
-        .eq("from", myTrip.from)
-        .eq("to", myTrip.to)
-        .eq("date", myTrip.date)
-        .eq("airline", myTrip.airline)
-        .neq("user_id", user.id);
-
-      if (matchError) {
-        console.error("Error fetching matches:", matchError);
-        setLoading(false);
-        return;
-      }
-
-      // Get user profiles for each match
-      const userIds = rawMatches.map((trip) => trip.user_id);
-
-      const { data: profiles, error: profileError } = await supabase
-        .from("users")
-        .select("id, name, age, photo")
-        .in("id", userIds);
-
-      if (profileError) {
-        console.error("Error fetching profiles:", profileError);
-        setLoading(false);
-        return;
-      }
-
-      // Join trips + profiles
-      const enrichedMatches: TravelMatch[] = rawMatches.map((trip) => {
-        const userProfile = profiles.find((p) => p.id === trip.user_id);
-        return {
-          user_id: trip.user_id,
-          trip_id: trip.id,
-          name: userProfile?.name || "Unknown",
-          age: userProfile?.age || 0,
-          from_city: trip.from,
-          to_city: trip.to,
-          date: trip.date,
-          photo_url: userProfile?.photo || undefined,
-        };
-      });
-
-      setMatches(enrichedMatches);
-      setLoading(false);
-    };
-
-    fetchMatches();
+    fetchMatches(setLoading, setMatches);
   }, []);
-
-  const handleContactRequest = async (matchUserId: string, tripId: number) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return;
-
-    const { error } = await supabase.from("matches").insert([
-      {
-        from_user: user.id,
-        to_user: matchUserId,
-        trip_id: tripId,
-        status: "pending", // optional
-      },
-    ]);
-
-    if (error) {
-      console.error("Error sending match request:", error);
-      toast({
-        title: "Request Failed",
-        description: "Failed to send travel request. Please try again.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Request Sent!",
-        description: "Your travel request has been sent successfully.",
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -203,7 +90,7 @@ const Matches = () => {
                 </div>
                 <div className="mt-6 flex justify-center md:justify-end">
                   <Button
-                    onClick={() => handleContactRequest(match.user_id, match.trip_id)}
+                    onClick={() => handleContactRequest(match.user_id, match.trip_id, toast)}
                     className="large-button bg-saath-green hover:bg-saath-green/90 text-black flex gap-2 items-center"
                   >
                     <Send className="h-5 w-5" />

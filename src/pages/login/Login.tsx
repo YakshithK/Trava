@@ -9,6 +9,7 @@ import VoiceHelp from "@/components/VoiceHelp";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { supabase } from "@/config/supabase";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
+import { handleSubmit } from "./functions";
 
 const onboardingTexts = {
   en: {
@@ -32,58 +33,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const text = onboardingTexts.en;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      console.log("Attempting to sign in user:", email);
-
-      if (!email.trim() || !password.trim()) {
-        setError("Please enter both email and password");
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-
-      console.log("Sign in response:", { data, error });
-
-      if (error) {
-        console.error("Sign in error:", error.message);
-        
-        // Provide user-friendly error messages
-        let userMessage = "Login failed. Please try again.";
-        if (error.message.includes("Invalid login credentials")) {
-          userMessage = "Invalid email or password. Please check your credentials and try again.";
-        } else if (error.message.includes("Email not confirmed")) {
-          userMessage = "Please check your email and confirm your account before logging in.";
-        } else if (error.message.includes("Too many requests")) {
-          userMessage = "Too many login attempts. Please wait a few minutes and try again.";
-        }
-        
-        setError(userMessage);
-        return;
-      }
-
-      if (data.user) {
-        console.log("Login successful, redirecting to dashboard");
-        navigate("/dashboard");
-      } else {
-        console.error("No user data received");
-        setError("Login failed. Please try again.");
-      }
-    } catch (error: any) {
-      console.error("Unexpected error during login:", error);
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,7 +62,11 @@ const Login = () => {
         )}
 
         <Card className="p-6 rounded-3xl shadow-md">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(e, setIsLoading, setError, email, password, navigate);
+            }} 
+            className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xl">
                 {text.emailLabel}

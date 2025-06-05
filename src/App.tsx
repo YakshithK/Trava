@@ -12,7 +12,7 @@ import Matches from "./pages/Matches";
 import Chat from "./pages/chat/Chat";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 import Requests from "./pages/Requests";
 import Profile from "./pages/Profile";
 import Layout from "./components/layout/Layout";

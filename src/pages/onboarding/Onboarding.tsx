@@ -11,6 +11,9 @@ import { supabase } from "@/config/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { validateEmail, validatePhoneNumber,  validatePassword, validateConfirmPassword} from "@/lib/validation";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
+import { formatPhoneNumber, handleFileChange, handleSubmit } from "./functions";
+import { PhotoUpload } from "./PhotoUpload";
+import { Password } from "./Password";
 
 const onboardingTexts = {
   en: {
@@ -53,130 +56,6 @@ const Onboarding = () => {
   const [error, setError] = useState<string | null>(null);
   const text = onboardingTexts.en;
 
-  const formatPhoneNumber = (phone: string): string => {
-    const digitsOnly = phone.replace(/\D/g, '');
-  
-    // Check if the number has more than 10 digits (i.e., has a country code)
-    if (digitsOnly.length > 10) {
-      const countryCode = digitsOnly.slice(0, digitsOnly.length - 10);
-      const areaCode = digitsOnly.slice(-10, -7);
-      const prefix = digitsOnly.slice(-7, -4);
-      const lineNumber = digitsOnly.slice(-4);
-      return `+${countryCode} (${areaCode}) ${prefix}-${lineNumber}`;
-    }
-  
-    // Fallback: assume US-style local number if exactly 10 digits
-    const match = digitsOnly.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-      return `(${match[1]}) ${match[2]}-${match[3]}`;
-    }
-  
-    // If none of the above match, return original
-    return phone;
-  };
-  
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target && typeof event.target.result === "string") {
-          setPhotoPreview(event.target.result);
-        }
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    // Validate all fields
-    const emailValidationError = validateEmail(email);
-    const phoneValidationError = validatePhoneNumber(contactNumber);
-    const passwordValidationError = validatePassword(password);
-    const confirmPasswordValidationError = validateConfirmPassword(password, confirmPassword);
-    
-    // Set all errors
-    setEmailError(emailValidationError);
-    setPhoneError(phoneValidationError);
-    setPasswordError(passwordValidationError);
-    setConfirmPasswordError(confirmPasswordValidationError);
-
-    // Check if there are any validation errors
-    if (emailValidationError || phoneValidationError || 
-        passwordValidationError || confirmPasswordValidationError) {
-      setIsLoading(false);
-      setError("Please fix all validation errors before creating your account");
-      return;
-    }
-
-    // Validate name and age
-    if (!name.trim()) {
-      setIsLoading(false);
-      setError("Please enter your name");
-      return;
-    }
-
-    const ageNum = Number(age);
-    if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
-      setIsLoading(false);
-      setError("Please enter a valid age between 0 and 120");
-      return;
-    }
-    
-    try {
-      // First, sign up the user
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        phone: contactNumber,
-        password,
-      });
-
-      if (signUpError) {
-        console.error("Error signing up:", signUpError);
-        setError("Failed to create account. Please try again.");
-        return;
-      }
-
-      if (!data.user) {
-        console.error("No user data received after signup");
-        setError("Failed to create account. Please try again.");
-        return;
-      }
-
-      // Then, insert the user data into the users table
-      const { error: insertError } = await supabase.from("users").insert({
-        id: data.user.id,
-        name,
-        age: parseInt(age),
-        contact_number: contactNumber,
-        email,
-        photo: photoPreview,
-      });
-
-      if (insertError) {
-        console.error("Error inserting user data:", insertError);
-        setError("Failed to save profile information. Please try again.");
-        return;
-      }
-
-      localStorage.setItem("onboardingData", JSON.stringify({
-        email,
-        phone: contactNumber,
-        password
-      }))
-      navigate("/verify");
-    } catch (error) {
-      console.error("Unexpected error during signup:", error);
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 flex justify-between items-center">
@@ -204,7 +83,23 @@ const Onboarding = () => {
         )}
 
         <Card className="p-6 rounded-3xl shadow-md">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => handleSubmit(
+            e,
+            setIsLoading,
+            setError,
+            email,
+            contactNumber,
+            password,
+            confirmPassword,
+            name,
+            age,
+            photoPreview,
+            setEmailError,
+            setPhoneError,
+            setPasswordError,
+            setConfirmPasswordError,
+            navigate
+          )} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-xl">
                 {text.nameLabel}
@@ -275,38 +170,14 @@ const Onboarding = () => {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-xl">
-                {text.passwordLabel}
-              </Label>
-              <Input
-                id="name"
-                type="password"
-                placeholder={text.passwordPlaceholder}
-                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                required
-                value={password}
-                onChange={(e) => {
-                  const newPassword = e.target.value;
-                  setPassword(newPassword);
-                  setPasswordError(validatePassword(newPassword));
-
-                  if (confirmPassword) {
-                    setConfirmPasswordError(validateConfirmPassword(newPassword, confirmPassword))
-                  }
-                }}
-                onBlur={(e) => {
-                  setPasswordError(validatePassword(e.target.value));
-                }}
-              />
-              {passwordError && (
-                <ul className="text-sm text-red-500 mt-1 list-disc pl-5">
-                  {passwordError.split("\n").map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <Password text={text}
+              password={password}
+              setPassword={setPassword}
+              setPasswordError={setPasswordError}
+              confirmPassword={confirmPassword}
+              passwordError={passwordError}
+              setConfirmPasswordError={setConfirmPasswordError}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-xl">
@@ -337,35 +208,7 @@ const Onboarding = () => {
               <Label htmlFor="photo" className="text-xl">
                 {text.photoLabel}
               </Label>
-              <div className="flex flex-col items-center">
-                <div className="relative w-32 h-32 mb-4">
-                  {photoPreview ? (
-                    <img
-                      src={photoPreview}
-                      alt="Profile preview"
-                      className="w-full h-full rounded-full object-cover border-4 border-saath-saffron"
-                    />
-                  ) : (
-                    <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center border-4 border-saath-light-gray">
-                      <User className="w-16 h-16 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-                <label
-                  htmlFor="photo-upload"
-                  className="cursor-pointer flex items-center gap-2 bg-saath-saffron hover:bg-saath-saffron/90 text-black rounded-full px-6 py-3"
-                >
-                  <Camera className="h-5 w-5" />
-                  <span>{text.photoButton}</span>
-                </label>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
+              <PhotoUpload text={text} handleFileChange={handleFileChange} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} />
             </div>
 
             <div className="pt-4">
