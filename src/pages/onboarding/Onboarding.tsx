@@ -14,6 +14,7 @@ import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { formatPhoneNumber, handleFileChange, handleSubmit } from "./functions";
 import { PhotoUpload } from "./PhotoUpload";
 import { Password } from "./Password";
+import { ConfirmPassword } from "./ConfirmPassword";
 
 const onboardingTexts = {
   en: {
@@ -179,31 +180,13 @@ const Onboarding = () => {
               setConfirmPasswordError={setConfirmPasswordError}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-xl">
-                Confirm Password
-              </Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                required
-                value={confirmPassword}
-                onChange={(e) => {
-                  const newConfirmPassword = e.target.value;
-                  setConfirmPassword(newConfirmPassword);
-                  setConfirmPasswordError(validateConfirmPassword(password, newConfirmPassword));
-                }}
-                onBlur={(e) => {
-                  setConfirmPasswordError(validateConfirmPassword(password, e.target.value));
-                }}
+            <ConfirmPassword
+              password={password}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+              setConfirmPasswordError={setConfirmPasswordError}
+              confirmPasswordError={confirmPasswordError}
               />
-              {confirmPasswordError && (
-                <p className="text-sm text-red-500 mt-1">{confirmPasswordError}</p>
-              )}
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="photo" className="text-xl">
                 {text.photoLabel}
