@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,20 @@ import { supabase } from "@/config/supabase";
 import { handleResendVerification } from "./functions";
 
 const Verify = () => {
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Async function to check auth state
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        navigate("/dashboard", { replace: true });
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);

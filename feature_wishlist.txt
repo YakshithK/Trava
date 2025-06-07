@@ -1,12 +1,10 @@
 general:
-    - if logged in, redirect to dashboard
     - area coding
     - multi language
     - mobile app? (expo?)
     - organize code (global functions)
 
 chat:
-    - organize code and add in types for functions and compoenents
     - no spam
     - latest chat showing
     - online / offline
@@ -16,7 +14,6 @@ chat:
     - image sharing
 
 matches: 
-    - notifications 
     - rating others / giving review to each other
 
 trips:

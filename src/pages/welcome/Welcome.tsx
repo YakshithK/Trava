@@ -1,11 +1,12 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import VoiceHelp from "@/components/VoiceHelp";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
+import { supabase } from "@/config/supabase";
 
 const welcomeTexts = {
   en: {
@@ -18,6 +19,19 @@ const welcomeTexts = {
 };
 
 const Welcome = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Async function to check auth state
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        navigate("/dashboard", { replace: true });
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+  
   const [language, setLanguage] = useState<"en" | "hi" | "te">("en");
   const text = welcomeTexts[language];
 

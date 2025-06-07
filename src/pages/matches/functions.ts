@@ -91,7 +91,7 @@ export const handleContactRequest = async (
         from_user: user.id,
         to_user: matchUserId,
         trip_id: tripId,
-        status: "pending", // optional
+        status: "pending",
       },
     ]);
 
