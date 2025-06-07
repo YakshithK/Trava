@@ -71,7 +71,7 @@ export function GlobalRequestListener() {
               <button
                 onClick={() => {
                   console.log("Navigating to request ID:", payload.new.id);
-                  navigate(`/requests/${payload.new.id}`);
+                  navigate(`/requests`);
                 }}
                 className="underline text-primary"
               >
