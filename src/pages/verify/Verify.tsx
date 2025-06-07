@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, ArrowLeft } from "lucide-react";
 import { supabase } from "@/config/supabase";
+import { handleResendVerification } from "./functions";
 
 const Verify = () => {
   const navigate = useNavigate();
@@ -13,36 +14,6 @@ const Verify = () => {
   const [success, setSuccess] = useState<string | null>(null);
 
   const onboardingData = JSON.parse(localStorage.getItem("onboardingData")|| "{}")
-
-  const handleResendVerification = async () => {
-    setIsResending(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-
-      const {data, error: resendError} = await supabase.auth.signUp({
-        email: onboardingData.email,
-        phone: onboardingData.phone,
-        password: onboardingData.password
-      })
-      
-      if (resendError) {
-        if (resendError.message.includes("User already registered")) {
-          setSuccess("Verification email resent! Please check your inbox.");
-        } else {
-          setError("Failed to resend verification email: " + resendError.message);
-        }
-      } else {
-        setSuccess("Verification email resent! Please check your inbox.");
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError("Unexpected error occurred.");
-    } finally {
-      setIsResending(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +57,7 @@ const Verify = () => {
             </div>
             <div className="w-full space-y-4">
               <Button
-                onClick={handleResendVerification}
+                onClick={() => handleResendVerification(setIsResending, setError, setSuccess, onboardingData)}
                 className="w-full large-button bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={isResending}
               >

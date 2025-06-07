@@ -11,26 +11,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { CalendarIcon, ArrowLeft, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
 import VoiceHelp from "@/components/VoiceHelp";
 import { supabase } from "@/config/supabase";
 import { error } from "console";
-import Papa from "papaparse"
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
-
-type Airport = {
-  iata_code: string,
-  name: string,
-  municipality: string,
-  iso_country: string
-}
-
-type Airline = {
-  code: string,
-  name: string
-}
+import { fetchAirlines, fetchAirports, fetchData } from "./functions";
+import { Airline, Airport } from "./types";
 
 const tripTexts = {
   en: {
@@ -68,48 +57,11 @@ const TripPosting = () => {
   const text = tripTexts.en;
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error("Error fetching session:", error);
-      }
-    };
 
-    const fetchAirports = async () => {
-      fetch("/data/airports-short.csv")
-      .then((res) => res.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            setAirportList(results.data)
-          }
-        })
-      })
-    }
 
-    const fetchAirlines = async () => {
-      fetch("/data/airlines-short.csv")
-      .then((res) => res.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            const airlines = results.data.map((airline: any) => ({
-              code: airline.code,
-              name: airline.name
-            }));
-            setAirlineList(airlines);
-          }
-        })
-      })
-    }
-
-    fetchData()
-    fetchAirports()
-    fetchAirlines()
+    fetchData
+    fetchAirports(setAirportList)
+    fetchAirlines(setAirlineList)
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
