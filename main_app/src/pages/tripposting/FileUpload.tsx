@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Upload, Camera, FileText } from "lucide-react";
+import Tesseract from 'tesseract.js';
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 
 const documentTexts = {
@@ -11,7 +11,7 @@ const documentTexts = {
     ticketTitle: "Upload Your Ticket",
     boardingPassTitle: "Upload Your Boarding Pass",
     subtitle: "Take a photo or upload from your device",
-    uploadFromDevice: "Upload from Device",
+    uploadFromDevice: "Upload from Device (Image Only!)",
     takePhoto: "Take Photo",
     uploadedFile: "File uploaded:",
     continue: "Continue",
@@ -21,13 +21,16 @@ const documentTexts = {
   },
 };
 
-const DocumentUpload = () => {
-  const { type } = useParams<{ type: 'ticket' | 'boarding-pass' }>();
+export const FileUpload = () => {
+
+  const { page } = useParams();
+
   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const text = documentTexts.en;
 
-  const isTicket = type === 'ticket';
+  const isTicket = page === 'ticket';
   const title = isTicket ? text.ticketTitle : text.boardingPassTitle;
   const voiceHelp = isTicket ? text.ticketVoiceHelp : text.boardingPassVoiceHelp;
 
@@ -39,17 +42,32 @@ const DocumentUpload = () => {
   };
 
   const handleCameraCapture = () => {
-    // TODO: Implement camera capture functionality
     console.log("Camera capture would be implemented here");
   };
 
   const handleContinue = () => {
-    if (uploadedFile) {
-      // TODO: Process the uploaded document and extract trip information
-      // For now, navigate to manual entry with extracted data
-      navigate('/trip-posting/manual');
-    }
+    setLoading(true);
+
+    Tesseract.recognize(
+      uploadedFile,                // Path to image
+      'eng',                      // Language
+      {
+        logger: m => console.log(m) // Optional logger
+      }
+    ).then(({ data: { text } }) => {
+      console.log('OCR output:', text);
+    }).finally(() => {
+      setLoading(false);
+    });
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-saath-saffron border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,7 +116,7 @@ const DocumentUpload = () => {
                     <input
                       id="file-upload"
                       type="file"
-                      accept="image/*,.pdf"
+                      accept="image/*"
                       onChange={handleFileUpload}
                       className="hidden"
                     />
@@ -138,5 +156,3 @@ const DocumentUpload = () => {
     </div>
   );
 };
-
-export default DocumentUpload;

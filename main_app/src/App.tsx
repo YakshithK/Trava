@@ -8,9 +8,9 @@ import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "next-themes";
 import Welcome from "./pages/welcome/Welcome";
 import Onboarding from "./pages/onboarding/Onboarding";
-import TripPosting from "./pages/tripposting/TripPosting";
+import TripPosting from "./pages/tripposting/ManualTripPosting";
 import TripSelection from "./pages/tripposting/TripSelection";
-import DocumentUpload from "./pages/tripposting/DocumentUpload";
+import { FileUpload } from "./pages/tripposting/FileUpload";
 import Matches from "./pages/matches/Matches";
 import Chat from "./pages/chat/Chat";
 import NotFound from "./pages/notfound/NotFound";
@@ -87,7 +87,27 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Layout>
+                        <TripSelection />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/trip-posting/manual"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
                         <TripPosting />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/trip-posting/:page"
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <FileUpload />
                       </Layout>
                     </ProtectedRoute>
                   }

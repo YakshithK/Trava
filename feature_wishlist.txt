@@ -22,3 +22,94 @@ matches:
 trips:
     - full directory of all trips
     - you upload borading pass / ticket and it autofills 
+
+Phase 1: Social & Community Features (15h)
+User Ratings & Reviews:
+Let users rate and review travel companions after a trip (6h)
+Display average ratings and reviews on profiles (2h)
+Block/Report Users:
+Add ability to block/report users for abuse or spam (3h)
+Referral/Invite System:
+Users can invite friends via link or email (2h)
+User Feedback Form:
+In-app feedback/bug report modal (2h)
+Phase 2: Advanced Chat & Real-Time (15h)
+Typing Indicators:
+Show when someone is typing in chat (3h)
+Read Receipts:
+Show when messages are read (3h)
+Push Notifications:
+Real push notifications for new messages/requests (web & mobile) (4h)
+Image Sharing in Chat:
+Allow sending images in chat (3h)
+Message Reactions:
+Emoji reactions to messages (2h)
+Phase 3: Trip & Matching Enhancements (15h)
+Trip Directory & Search:
+Browse/search all trips (4h)
+Trip Suggestions:
+Suggest trips based on user preferences/history (3h)
+Advanced Matching:
+Match on interests, languages, etc. (4h)
+Trip Calendar Integration:
+Export trips to Google/Apple calendar (2h)
+Trip Privacy Controls:
+Public/private trip settings (2h)
+Phase 4: Notifications & Sidebar (10h)
+Notification Sidebar:
+Persistent sidebar with notification history (4h)
+Notification Settings:
+Mute, frequency, and type controls (2h)
+Notification Badges:
+Badges on sidebar/icons for unread (2h)
+Grouped Notifications:
+Stack/group similar notifications (2h)
+Phase 5: Multi-language & Accessibility (10h)
+i18n Framework:
+Integrate react-i18next or similar (2h)
+Translate UI to 2+ Languages:
+Add at least one more language (4h)
+Language Switcher:
+UI for switching languages (1h)
+Accessibility Audit & Improvements:
+ARIA, keyboard nav, color contrast (3h)
+Phase 6: Mobile App (React Native/Expo) (15h)
+Set Up Expo Project:
+Share codebase where possible (2h)
+Implement Core Flows:
+Login, onboarding, matches, chat (6h)
+Push Notifications:
+Expo/FCM/APNs (3h)
+Camera Integration:
+For ticket/boarding pass upload (2h)
+Test on Devices:
+iOS and Android (2h)
+Phase 7: Performance, Security & DevOps (10h)
+Optimize Supabase Queries:
+Indexes, pagination, efficient fetches (2h)
+Backend Rate Limiting:
+Prevent spam/abuse (2h)
+Security Audit:
+Auth, XSS, CSRF, etc. (2h)
+CI/CD Pipeline:
+Automated deploys for web/mobile (2h)
+Monitoring & Backups:
+Error tracking, DB backups (2h)
+Phase 8: Growth, Analytics & Gamification (10h)
+Analytics Dashboard:
+User growth, engagement, retention (3h)
+Gamification:
+Badges, achievements for activity (3h)
+Social Sharing:
+Share trips/invites to social media (2h)
+FAQ/Help Section:
+In-app help and guides (2h)
+Phase 9: Final Polish & Stretch Goals (10h)
+UI/UX Polish:
+Animations, transitions, micro-interactions (3h)
+Custom Themes:
+User-selectable color themes (2h)
+AI-Powered Features:
+Smart trip suggestions, chat moderation (3h)
+Documentation:
+For contributors and future devs (2h)

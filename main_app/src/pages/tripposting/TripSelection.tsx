@@ -28,7 +28,7 @@ const TripSelection = () => {
     if (type === 'manual') {
       navigate('/trip-posting/manual');
     } else {
-      navigate(`/trip-posting/upload/${type}`);
+      navigate(`/trip-posting/${type}`);
     }
   };
 
