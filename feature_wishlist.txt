@@ -1,8 +1,11 @@
 general:
+    - zustand
     - area coding
     - multi language
     - mobile app? (expo?)
     - organize code (global functions)
+
+notifcation sidebar
 
 chat:
     - no spam
