@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,8 @@ import { ThemeProvider } from "next-themes";
 import Welcome from "./pages/welcome/Welcome";
 import Onboarding from "./pages/onboarding/Onboarding";
 import TripPosting from "./pages/tripposting/TripPosting";
+import TripSelection from "./pages/tripposting/TripSelection";
+import DocumentUpload from "./pages/tripposting/DocumentUpload";
 import Matches from "./pages/matches/Matches";
 import Chat from "./pages/chat/Chat";
 import NotFound from "./pages/notfound/NotFound";
