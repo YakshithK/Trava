@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Upload, Camera, FileText } from "lucide-react";
 import Tesseract from 'tesseract.js';
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
+import { supabase } from "@/config/supabase";
 
 const documentTexts = {
   en: {
@@ -45,21 +46,48 @@ export const FileUpload = () => {
     console.log("Camera capture would be implemented here");
   };
 
-  const handleContinue = () => {
-    setLoading(true);
+const handleContinue = async () => {
+  setLoading(true);
 
-    Tesseract.recognize(
-      uploadedFile,                // Path to image
-      'eng',                      // Language
+  let ocrText = "";
+  await Tesseract.recognize(
+    uploadedFile,
+    'eng',
+    {
+      logger: m => console.log(m)
+    }
+  ).then(({ data: { text } }) => {
+    ocrText = text;
+    console.log('OCR output:', text);
+  });
+  console.log("sending to edge function:", ocrText);
+  try {
+    const response = await fetch(
+      'https://kqrvuazjzcnlysbrndmq.supabase.co/functions/v1/parse-flight-info',
       {
-        logger: m => console.log(m) // Optional logger
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxcnZ1YXpqemNubHlzYnJuZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4OTM4MTksImV4cCI6MjA2MjQ2OTgxOX0.Q8ZwRfb3mxIkFHZT2gPUR5KsANNvXi1v1Cjnm3YFW9U`,
+        },
+        body: JSON.stringify({ text: ocrText }),
       }
-    ).then(({ data: { text } }) => {
-      console.log('OCR output:', text);
-    }).finally(() => {
-      setLoading(false);
-    });
-  };
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Edge function response:', data);
+  } catch (error) {
+    console.error('Error calling edge function:', error);
+    setLoading(false);
+    throw error;
+  }
+  setLoading(false);
+};
+
 
   if (loading) {
     return (
