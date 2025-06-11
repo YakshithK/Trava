@@ -20,7 +20,6 @@ matches:
     - rating others / giving review to each other
 
 trips:
-    - delete trip button gone?
     - date is fked up
     - full directory of all trips
     - you upload borading pass / ticket and it autofills 
