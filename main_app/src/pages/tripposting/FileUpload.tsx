@@ -29,6 +29,8 @@ export const FileUpload = () => {
   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isEdgeDone, setIsEdgeDone] = useState(false);
+  const [edgeResponse, setEdgeResponse] = useState<any>(null);
   const text = documentTexts.en;
 
   const isTicket = page === 'ticket';
@@ -47,52 +49,68 @@ export const FileUpload = () => {
   };
 
 const handleContinue = async () => {
-  setLoading(true);
 
-  let ocrText = "";
-  await Tesseract.recognize(
-    uploadedFile,
-    'eng',
-    {
-      logger: m => console.log(m)
+    if (!uploadedFile) {
+      alert("Please upload a file first.");
+      return;
     }
-  ).then(({ data: { text } }) => {
-    ocrText = text;
-    console.log('OCR output:', text);
-  });
-  console.log("sending to edge function:", ocrText);
-  try {
-    const response = await fetch(
-      'https://kqrvuazjzcnlysbrndmq.supabase.co/functions/v1/parse-flight-info',
-      {
-        method: 'POST',
+
+    setLoading(true);
+    setIsEdgeDone(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", uploadedFile);
+
+      const response = await fetch("https://kqrvuazjzcnlysbrndmq.supabase.co/functions/v1/parse-flight-info", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxcnZ1YXpqemNubHlzYnJuZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4OTM4MTksImV4cCI6MjA2MjQ2OTgxOX0.Q8ZwRfb3mxIkFHZT2gPUR5KsANNvXi1v1Cjnm3YFW9U`,
         },
-        body: JSON.stringify({ text: ocrText }),
-      }
-    );
+        body: formData,
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await response.json();
+      console.log("OCR & GPT response:", result);
+
+      setEdgeResponse(result);
+      setIsEdgeDone(true);
+    } catch (error) {
+      console.error("Error calling edge function:", error);
+      setEdgeResponse({ error: "Something went wrong." });
+    } finally {
+      setLoading(false);
     }
 
-    const data = await response.json();
-    console.log('Edge function response:', data);
-  } catch (error) {
-    console.error('Error calling edge function:', error);
-    setLoading(false);
-    throw error;
-  }
-  setLoading(false);
-};
+  }  
 
 
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-saath-saffron border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Display edge response if extraction is done
+  if (isEdgeDone && edgeResponse) {
+
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Card className="bg-card p-8 rounded-3xl shadow-md border max-w-md w-full">
+          <h2 className="text-2xl font-bold mb-4 text-center">Extracted Flight Info</h2>
+          <div className="space-y-2 text-lg">
+            <div><span className="font-semibold">Airline:</span> {edgeResponse.airline || <span className="text-gray-400">N/A</span>}</div>
+            <div><span className="font-semibold">Flight Number:</span> {edgeResponse.flight_number || <span className="text-gray-400">N/A</span>}</div>
+            <div><span className="font-semibold">Date:</span> {edgeResponse.date || <span className="text-gray-400">N/A</span>}</div>
+            <div><span className="font-semibold">From:</span> {edgeResponse.from_airport || <span className="text-gray-400">N/A</span>}</div>
+            <div><span className="font-semibold">To:</span> {edgeResponse.to_airport || <span className="text-gray-400">N/A</span>}</div>
+          </div>
+          <Button className="mt-8 w-full" onClick={() => { setIsEdgeDone(false); setUploadedFile(null); setEdgeResponse(null); }}>
+            Upload Another
+          </Button>
+        </Card>
       </div>
     );
   }
