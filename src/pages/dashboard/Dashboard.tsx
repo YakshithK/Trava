@@ -1,23 +1,25 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, MapPin, Plus } from "lucide-react";
+import { Calendar, MapPin, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/authContext";
+import { useToast } from "@/hooks/use-toast";
 import { Request } from "./types"; 
-import { fetchRequests, fetchTrips, formatDate } from "./functions";
+import { fetchRequests, fetchTrips, formatDate, deleteTrip } from "./functions";
 import { FullRequests } from "./FullRequests";
-
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [trips, setTrips] = useState<any[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     if (user) {
       fetchTrips(user, setLoading, setTrips);
       fetchRequests(setLoading, setRequests);
@@ -25,6 +27,13 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  const handleDeleteTrip = async (tripId: string) => {
+    const success = await deleteTrip(tripId, toast);
+    if (success && user) {
+      // Refresh trips after successful deletion
+      fetchTrips(user, setLoading, setTrips);
+    }
+  };
 
   if (loading) {
     return (
@@ -81,7 +90,33 @@ const Dashboard = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{trip.from} to {trip.to}</span>
-                    <Badge>{trip.language}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge>{trip.language}</Badge>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Trip</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this trip to {trip.to}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDeleteTrip(trip.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </CardTitle>
                   <CardDescription className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
