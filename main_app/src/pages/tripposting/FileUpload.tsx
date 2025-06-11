@@ -71,7 +71,6 @@ const handleContinue = async () => {
       });
 
       const result = await response.json();
-      console.log("OCR & GPT response:", result);
 
       setEdgeResponse(result);
       setIsEdgeDone(true);
@@ -79,41 +78,17 @@ const handleContinue = async () => {
       console.error("Error calling edge function:", error);
       setEdgeResponse({ error: "Something went wrong." });
     } finally {
-      setLoading(false);
+      localStorage.setItem("tripData", JSON.stringify({
+        from: edgeResponse.from_airport,
+        to: edgeResponse.to_airport,
+        airline: edgeResponse.airline,
+        flightNumber: edgeResponse.flight_number,
+        date: edgeResponse.date,
+      }))
+      navigate("/trip-posting/new");
     }
 
   }  
-
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-saath-saffron border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  // Display edge response if extraction is done
-  if (isEdgeDone && edgeResponse) {
-
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <Card className="bg-card p-8 rounded-3xl shadow-md border max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-4 text-center">Extracted Flight Info</h2>
-          <div className="space-y-2 text-lg">
-            <div><span className="font-semibold">Airline:</span> {edgeResponse.airline || <span className="text-gray-400">N/A</span>}</div>
-            <div><span className="font-semibold">Flight Number:</span> {edgeResponse.flight_number || <span className="text-gray-400">N/A</span>}</div>
-            <div><span className="font-semibold">Date:</span> {edgeResponse.date || <span className="text-gray-400">N/A</span>}</div>
-            <div><span className="font-semibold">From:</span> {edgeResponse.from_airport || <span className="text-gray-400">N/A</span>}</div>
-            <div><span className="font-semibold">To:</span> {edgeResponse.to_airport || <span className="text-gray-400">N/A</span>}</div>
-          </div>
-          <Button className="mt-8 w-full" onClick={() => { setIsEdgeDone(false); setUploadedFile(null); setEdgeResponse(null); }}>
-            Upload Another
-          </Button>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

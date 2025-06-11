@@ -20,9 +20,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("[parse-flight-info] Received request:", req.method, req.url);
     try {
-      console.log("[parse-flight-info] Received request1:", req.method, req.url);
       const formData = await req.formData();
       const imageFile = formData.get("image") as File; // This is valid in Deno Edge Functions
 
@@ -30,7 +28,6 @@ serve(async (req) => {
       const uploadForm = new FormData();
       uploadForm.append("image", imageFile); // no need to reconstruct
 
-      console.log(uploadForm)
       const response1 = await fetch("https://kqrvuazjzcnlysbrndmq.supabase.co/functions/v1/get-ocr", {
         method: "POST",
         headers: {
@@ -40,7 +37,6 @@ serve(async (req) => {
       });
 
       const result = await response1.json();
-      console.log("OCR & GPT response:", result);
 
       const text = result.text;
 

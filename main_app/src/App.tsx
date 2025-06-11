@@ -93,7 +93,7 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/trip-posting/manual"
+                  path="/trip-posting/new"
                   element={
                     <ProtectedRoute>
                       <Layout>

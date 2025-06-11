@@ -99,8 +99,6 @@ export const handleContactRequest = async (
       .select("*")
       .eq("request_id", existingRequests && existingRequests[0]?.id); 
 
-      console.log("Existing connections:", existingConnections);
-
     if ((existingRequests && existingRequests.length > 0) || (existingConnections && existingConnections.length > 0) ) {
       toast({
         title: "Request Already Sent",

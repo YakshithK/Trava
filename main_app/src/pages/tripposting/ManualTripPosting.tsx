@@ -42,6 +42,7 @@ const tripTexts = {
 };
 
 const TripPosting = () => {
+
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [airline, setAirline] = useState("");
@@ -50,6 +51,19 @@ const TripPosting = () => {
   const [notes, setNotes] = useState(""); 
   const [airportList, setAirportList] = useState<Airport[]>([])
   const [airlineList, setAirlineList] = useState<Airline[]>([])
+
+  const onboardingData = JSON.parse(localStorage.getItem("tripData")|| null)
+
+  useEffect(() => {
+    if (onboardingData) {
+      setFrom(onboardingData.from || "");
+      setTo(onboardingData.to || "");
+      setAirline(onboardingData.airline || "");
+      setDate(onboardingData.date ? new Date(onboardingData.date) : undefined);
+      setFlightNumber(onboardingData.flightNumber || "");
+      setNotes(onboardingData.notes || "");
+    }
+  }, []);
 
   const navigate = useNavigate();
   const text = tripTexts.en;
@@ -118,6 +132,7 @@ const TripPosting = () => {
                   id="from"
                   className="h-14 text-lg rounded-xl border-2 border-saath-light-gray w-full"
                   required
+                  value={to}
                   onChange={(e) => setTo(e.target.value)}
                 >
                 <option value="">Select departure airport</option>
@@ -137,6 +152,7 @@ const TripPosting = () => {
                   id="from"
                   className="h-14 text-lg rounded-xl border-2 border-saath-light-gray w-full"
                   required
+                  value={from}
                   onChange={(e) => setFrom(e.target.value)}
                 >
                 <option value="">Select departure airport</option>
@@ -206,7 +222,8 @@ const TripPosting = () => {
                 id="flight-number"
                 placeholder={text.flightNumberPlaceholder}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
-                onChange={(e) => setNotes(e.target.value)}
+                value={flightNumber}
+                onChange={(e) => setFlightNumber(e.target.value)}
               />
             </div>
 
@@ -218,6 +235,7 @@ const TripPosting = () => {
                 id="notes"
                 placeholder={text.notesPlaceholder}
                 className="min-h-[100px] text-lg rounded-xl border-2 border-saath-light-gray"
+                value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
             </div>

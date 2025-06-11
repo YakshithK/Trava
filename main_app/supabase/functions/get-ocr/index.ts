@@ -37,8 +37,6 @@ serve(async (req) => {
     const ocrJson = await ocrResponse.json();
     const text = ocrJson?.ParsedResults?.[0]?.ParsedText?.trim() || "";
 
-    console.log("OCR TEXT:\n", text);
-
     const finalJson = JSON.stringify({text: text});
 
     return new Response(finalJson, {
