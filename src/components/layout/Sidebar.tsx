@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -7,7 +8,8 @@ import {
   MessageSquare,
   User,
   Mail,
-  Sparkles
+  Sparkles,
+  LogOut
 } from "lucide-react";
 import {
   Sidebar as ShadcnSidebar,
@@ -126,45 +128,55 @@ const Sidebar = () => {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="p-6 border-t border-border/50">
-        <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10 ring-2 ring-primary/20">
-              <AvatarImage src={profile?.avatar_url || ""} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-100">
-                {getUserInitials()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-1">
-              <p className="text-sm font-medium">
-                {profile?.first_name || "Loading..."}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {profile?.email}
-              </p>
-            </div>
+
+      <SidebarFooter className="p-4 border-t border-border/50 space-y-4">
+        {/* User Info Section */}
+        <div className="flex items-center space-x-3 px-2 py-3 rounded-lg bg-accent/20 border border-border/30">
+          <Avatar className="h-12 w-12 ring-2 ring-primary/20">
+            <AvatarImage src={profile?.avatar_url || ""} />
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-100 text-sm font-semibold">
+              {getUserInitials()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
+              {profile?.first_name || "Loading..."}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {profile?.email}
+            </p>
           </div>
         </div>
-      </SidebarFooter>
-      <SidebarFooter className="p-6 border-t border-border/50">
-        <div className="flex items-center justify-between px-4 py-2">
-          <ThemeToggle />
-          <Button 
-            onClick={handleSignOut} 
-            variant="ghost" 
-            size="sm"
-            className="hover:bg-destructive/10 hover:text-destructive transition-colors"
-          >
-            Log out
-          </Button>
-          <Button 
-            onClick={() => setShowBugDialog(true)} 
-            variant="ghost" 
-            size="sm"
-            className="hover:bg-destructive/10 hover:text-destructive transition-colors"
-          >
-            Report a Bug
-          </Button>
+
+        {/* Action Buttons Section */}
+        <div className="space-y-3">
+          {/* Theme Toggle Row */}
+          <div className="flex items-center justify-between px-2">
+            <span className="text-sm font-medium text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setShowBugDialog(true)} 
+              variant="outline" 
+              size="sm"
+              className="flex-1 h-9 text-xs hover:bg-accent/50 transition-colors"
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
+              Report Bug
+            </Button>
+            <Button 
+              onClick={handleSignOut} 
+              variant="outline" 
+              size="sm"
+              className="flex-1 h-9 text-xs hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50 transition-colors"
+            >
+              <LogOut className="h-3 w-3 mr-1" />
+              Log out
+            </Button>
+          </div>
         </div>
       </SidebarFooter>
     </ShadcnSidebar>
