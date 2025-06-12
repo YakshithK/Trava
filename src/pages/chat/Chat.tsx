@@ -14,6 +14,7 @@ import { Messages } from "./Messages";
 import { FullConnections } from "./FullConnections";
 import { ChatHeader } from "./ChatHeader";
 import { usePresenceStore } from "@/store/presenceStore";
+import { useToast } from "@/hooks/use-toast";
 
 const chatTexts = {
   en: {
@@ -45,6 +46,8 @@ const Chat = () => {
   
   const typingChannel = useRef<any>(null);
   const presenceChannel = useRef<any>(null);
+
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!selectedConnection) return;
@@ -158,12 +161,32 @@ const Chat = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status: string) => {
+        if (status === 'SUBSCRIBED') {
+          // Check if we can access messages (RLS check)
+          supabase
+            .from('messages')
+            .select('id')
+            .eq('connection_id', selectedConnection.id)
+            .limit(1)
+            .then(({ error }) => {
+              if (error) {
+                if (error.code === 'PGRST301') {
+                  toast({
+                    title: "Access Denied",
+                    description: "You can't access these messages. The user may have blocked you.",
+                    variant: "destructive",
+                  });
+                }
+              }
+            });
+        }
+      });
 
     return () => {
       if (channel) supabase.removeChannel(channel);
     };
-  }, [selectedConnection?.id, user?.id]);
+  }, [selectedConnection?.id, user?.id, toast]);
 
   useEffect(() => {
     // Mark as read when messages are loaded or updated
@@ -273,7 +296,7 @@ const Chat = () => {
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  await handleSendMessage(e, messageText, setMessageText, selectedConnection, user);
+                  await handleSendMessage(e, messageText, setMessageText, selectedConnection, user, toast);
                 }}
                 className="flex items-center gap-4 max-w-4xl mx-auto"
               >

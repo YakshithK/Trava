@@ -47,7 +47,8 @@ export const handleSendMessage = async (e: React.FormEvent,
   messageText: string, 
   setMessageText: React.Dispatch<React.SetStateAction<string>>, 
   selectedConnection: Connection | null, 
-  user: SupabaseUser | null) => {
+  user: SupabaseUser | null,
+  toast?: any) => {
     e.preventDefault();
     if (messageText.trim() === "" || !selectedConnection || !user) return;
 
@@ -66,10 +67,27 @@ export const handleSendMessage = async (e: React.FormEvent,
 
       if (error) {
         console.error("Failed to send message to database:", error);
-        // Optionally show a subtle indicator that the message failed to send
+        if (error.code === 'PGRST301') {
+          toast?.({
+            title: "Message Failed",
+            description: "You can't send messages to this user. They may have blocked you.",
+            variant: "destructive",
+          });
+        } else {
+          toast?.({
+            title: "Error",
+            description: "Failed to send message. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Error sending message:", error);
+      toast?.({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

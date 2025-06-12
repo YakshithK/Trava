@@ -10,10 +10,10 @@ export const reportUser = async (
   if (!reportingUser) return { error: "No user logged in" };
 
   const { error } = await supabase
-    .from("user_reports")
+    .from("reports")
     .insert({
-      reported_user_id: reportedUserId,
-      reporting_user_id: reportingUser.id,
+      reported_id: reportedUserId,
+      reporter_id: reportingUser.id,
       reason: reason || "Inappropriate behavior",
       created_at: new Date().toISOString()
     });
@@ -28,10 +28,10 @@ export const blockUser = async (
   if (!blockingUser) return { error: "No user logged in" };
 
   const { error } = await supabase
-    .from("user_blocks")
+    .from("blocks")
     .insert({
-      blocked_user_id: blockedUserId,
-      blocking_user_id: blockingUser.id,
+      blocked_id: blockedUserId,
+      blocker_id: blockingUser.id,
       created_at: new Date().toISOString()
     });
 
