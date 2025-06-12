@@ -39,8 +39,12 @@ const Chat = () => {
   const text = chatTexts.en;
 
   const onlineUserIds = usePresenceStore((s) => s.onlineUserIds);
+  const setOnlineUserIds = usePresenceStore((s) => s.setOnlineUserIds);
+  const addOnlineUser = usePresenceStore((s) => s.addOnlineUser);
+  const removeOnlineUser = usePresenceStore((s) => s.removeOnlineUser);
   
-  const typingChannel = useRef<any>(null)
+  const typingChannel = useRef<any>(null);
+  const presenceChannel = useRef<any>(null);
 
   useEffect(() => {
     if (!selectedConnection) return;
@@ -73,7 +77,6 @@ const Chat = () => {
   }, [selectedConnection, user])
 
   useEffect(() => {
-
     fetchConnections(setUser, setConnections);
   }, []);
 
@@ -147,7 +150,6 @@ const Chat = () => {
     };
   }, [selectedConnection?.id, user?.id]);
 
-
   useEffect(() => {
     // Mark as read when messages are loaded or updated
     if (messages.length > 0) {
@@ -155,6 +157,50 @@ const Chat = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, selectedConnection]);
+
+  // Add presence tracking
+  useEffect(() => {
+    if (!user) return;
+
+    // Create a presence channel
+    presenceChannel.current = supabase.channel('online-users', {
+      config: {
+        broadcast: { self: true },
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    // Subscribe to presence changes
+    presenceChannel.current
+      .on('presence', { event: 'sync' }, () => {
+        const presenceState = presenceChannel.current.presenceState();
+        const onlineIds = Object.keys(presenceState);
+        setOnlineUserIds(onlineIds);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        newPresences.forEach((presence: any) => {
+          addOnlineUser(presence.key);
+        });
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        leftPresences.forEach((presence: any) => {
+          removeOnlineUser(presence.key);
+        });
+      })
+      .subscribe(async (status: string) => {
+        if (status === 'SUBSCRIBED') {
+          await presenceChannel.current.track({ user_id: user.id });
+        }
+      });
+
+    return () => {
+      if (presenceChannel.current) {
+        supabase.removeChannel(presenceChannel.current);
+      }
+    };
+  }, [user, setOnlineUserIds, addOnlineUser, removeOnlineUser]);
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-background via-purple-50/30 to-blue-50/30 overflow-hidden">

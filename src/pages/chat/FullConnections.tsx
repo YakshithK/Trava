@@ -60,7 +60,7 @@ export const FullConnections = ({onlineUserIds, connections, selectedConnection,
                     ? "bg-green-100 text-green-700 border border-green-200" 
                     : "bg-gray-100 text-gray-500 border border-gray-200"
                 }`}>
-                    {connection.isOnline ? "Online" : "Offline"}
+                    {onlineUserIds.includes(connection.user_id) ? "Online" : "Offline"}
                 </span>
                 </div>
             </div>
