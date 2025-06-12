@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Circle, MoreVertical, Flag, Block } from "lucide-react";
+import { Circle, MoreVertical, Flag, Blocks } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,7 +69,7 @@ export const ChatHeader = ({ selectedConnection, user }: ChatHeaderProps) => {
                 onClick={() => setShowBlockDialog(true)}
                 className="text-red-600 focus:text-red-700"
               >
-                <Block className="h-4 w-4 mr-2" />
+                <Blocks className="h-4 w-4 mr-2" />
                 Block
               </DropdownMenuItem>
             </DropdownMenuContent>
