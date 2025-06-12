@@ -49,6 +49,109 @@ const queryClient = new QueryClient({
   },
 });
 
+const AppContent = () => {
+  usePresenceChannel();
+  
+  return (
+    <BrowserRouter>
+      <GlobalMessageListener />
+      <GlobalRequestListener />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/" element={<Welcome />}/>
+
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trip-posting"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TripSelection />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trip-posting/new"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TripPosting />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trip-posting/:page"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <FileUpload />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/matches"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Matches />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/requests"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Requests />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chat/:matchId?"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Chat />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Profile />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
 const App = () => (
   <ErrorBoundary>
     <ThemeProvider
@@ -62,103 +165,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <AuthProvider>
-            {usePresenceChannel()}
-            <BrowserRouter>
-              <GlobalMessageListener />
-              <GlobalRequestListener />
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/verify" element={<Verify />} />
-                <Route path="/" element={<Welcome />}/>
-
-                {/* Protected Routes */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Dashboard />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/trip-posting"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <TripSelection />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/trip-posting/new"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <TripPosting />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/trip-posting/:page"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <FileUpload />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/matches"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Matches />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/requests"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Requests />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/chat/:matchId?"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Chat />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Profile />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Catch-all */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <AppContent />
             <Analytics />
           </AuthProvider>
         </TooltipProvider>

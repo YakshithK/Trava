@@ -1,3 +1,4 @@
+
 import { supabase } from "@/config/supabase";
 import { useAuth } from "@/context/authContext";
 import { usePresenceStore } from "@/store/presenceStore";
@@ -26,7 +27,10 @@ export function usePresenceChannel() {
                 console.log("hello", ids, "my user id:", user.id);
                 setOnlineUserIds(ids);
             })
-            .on('presence', { event: 'join' }, ({ key, leftPresences }) => {
+            .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                console.log('join', key, newPresences)
+            })
+            .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
                 console.log('leave', key, leftPresences)
             })
             .subscribe(async (status) => {
