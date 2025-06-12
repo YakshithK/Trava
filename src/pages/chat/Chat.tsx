@@ -132,6 +132,21 @@ const Chat = () => {
               if (prev.some(msg => msg.id === newMessage.id)) return prev;
               return [...prev, newMessage];
             });
+            
+            // Update the connection's last message locally instead of refetching
+            setConnections(prev => {
+              if (!prev) return prev;
+              return prev.map(conn => {
+                if (conn.id === selectedConnection.id) {
+                  return {
+                    ...conn,
+                    lastMessage: newMessage.text,
+                    lastMessageTime: newMessage.timestamp
+                  };
+                }
+                return conn;
+              });
+            });
           }
 
           if (payload.eventType === 'UPDATE') {

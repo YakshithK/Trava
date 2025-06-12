@@ -1,9 +1,3 @@
-    - area coding
-    - organize code (global functions)
-    - latest chat showing
-    - online / offline
-    - dark mode issue
-
 Phase 1: Social & Community Features (15h)
 User Ratings & Reviews:
 Let users rate and review travel companions after a trip (6h)
