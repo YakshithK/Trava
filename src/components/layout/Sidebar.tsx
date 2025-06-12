@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/config/supabase";
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { BugDialog } from "./BugDialog";
 
 const navigationItems = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
@@ -38,7 +39,8 @@ const Sidebar = () => {
   const location = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<{ first_name: string; avatar_url: string } | null>(null);
+  const [profile, setProfile] = useState<{ first_name: string; email: string; avatar_url: string } | null>(null);
+  const [showBugDialog, setShowBugDialog] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -59,7 +61,7 @@ const Sidebar = () => {
 
       const { data, error } = await supabase
         .from("users")
-        .select("name, photo")
+        .select("name, email, photo")
         .eq("id", user.id)
         .single();
 
@@ -68,6 +70,7 @@ const Sidebar = () => {
       } else {
         setProfile({
           first_name: data.name,
+          email: data.email,
           avatar_url: data.photo,
         });
       }
@@ -77,6 +80,7 @@ const Sidebar = () => {
   }, [user?.id]);
 
   return (
+    <>
     <ShadcnSidebar className="border-r border-border/50 glass-effect">
       <SidebarHeader className="flex items-center justify-between p-6 border-b border-border/50">
         <div className="flex items-center">
@@ -122,10 +126,8 @@ const Sidebar = () => {
           ))}
         </SidebarMenu>
       </SidebarContent>
-
       <SidebarFooter className="p-6 border-t border-border/50">
         <div className="flex items-center justify-between px-4 py-2">
-          <ThemeToggle />
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10 ring-2 ring-primary/20">
               <AvatarImage src={profile?.avatar_url || ""} />
@@ -137,9 +139,16 @@ const Sidebar = () => {
               <p className="text-sm font-medium">
                 {profile?.first_name || "Loading..."}
               </p>
-              <p className="text-xs text-muted-foreground">Premium User</p>
+              <p className="text-xs text-muted-foreground">
+                {profile?.email}
+              </p>
             </div>
           </div>
+        </div>
+      </SidebarFooter>
+      <SidebarFooter className="p-6 border-t border-border/50">
+        <div className="flex items-center justify-between px-4 py-2">
+          <ThemeToggle />
           <Button 
             onClick={handleSignOut} 
             variant="ghost" 
@@ -148,9 +157,24 @@ const Sidebar = () => {
           >
             Log out
           </Button>
+          <Button 
+            onClick={() => setShowBugDialog(true)} 
+            variant="ghost" 
+            size="sm"
+            className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
+            Report a Bug
+          </Button>
         </div>
       </SidebarFooter>
     </ShadcnSidebar>
+
+      <BugDialog
+        isOpen={showBugDialog}
+        onClose={() => setShowBugDialog(false)}
+        user={user}
+      />
+    </>
   );
 };
 

@@ -27,7 +27,7 @@ Phase 3: Trip & Matching Enhancements (15h)
     Trip Calendar Integration:
         Export trips to Google/Apple calendar (2h)
     Trip Privacy Controls:
-    Public/private trip settings (2h)
+    Public/private trip settings (2h) 
 Phase 4: Notifications & Sidebar (10h)
     Notification Sidebar:
         Persistent sidebar with notification history (4h)
