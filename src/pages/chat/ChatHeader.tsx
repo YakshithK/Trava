@@ -1,45 +1,97 @@
-import { Circle, Sparkle, User } from "lucide-react";
+
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Circle, MoreVertical, Flag, Block } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Connection } from "./types";
+import { ReportBlockDialog } from "./ReportBlockDialog";
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface ChatHeaderProps {
   selectedConnection: Connection;
+  user?: SupabaseUser | null;
 }
 
-export const ChatHeader = ({ selectedConnection } : ChatHeaderProps) => (
-    <header className="p-6 border-b border-border/50 glass-effect backdrop-blur-md">
-        <div className="flex items-center gap-4">
+export const ChatHeader = ({ selectedConnection, user }: ChatHeaderProps) => {
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showBlockDialog, setShowBlockDialog] = useState(false);
+
+  return (
+    <>
+      <Card className="p-4 border-0 border-b border-border/50 rounded-none glass-effect backdrop-blur-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
             <div className="relative">
-            <div className="h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-primary/20 to-purple-100 ring-2 ring-white shadow-md">
-                {selectedConnection.photoUrl ? (
+              {selectedConnection.photoUrl ? (
                 <img
-                    src={selectedConnection.photoUrl}
-                    alt={selectedConnection.name}
-                    className="h-full w-full object-cover"
+                  src={selectedConnection.photoUrl}
+                  alt={selectedConnection.name}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
                 />
-                ) : (
-                <div className="h-full w-full bg-gradient-to-br from-primary/30 to-purple-200 flex items-center justify-center">
-                    <User className="h-6 w-6 text-primary/70" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-purple-100 flex items-center justify-center text-xl font-semibold text-primary border-2 border-white shadow-lg">
+                  {selectedConnection.name[0]}
                 </div>
-                )}
-            </div>
-            {selectedConnection.isOnline && (
-                <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white"></div>
-            )}
+              )}
+              {selectedConnection.isOnline && (
+                <Circle className="absolute -bottom-1 -right-1 h-4 w-4 fill-green-500 text-white border-2 border-white rounded-full" />
+              )}
             </div>
             <div>
-            <h2 className="font-bold text-xl text-foreground">{selectedConnection.name}</h2>
-            <p className={`text-sm font-medium flex items-center ${
-                selectedConnection.isOnline ? "text-green-600" : "text-muted-foreground"
-            }`}>
-                <Circle className={`h-2 w-2 mr-2 ${
-                selectedConnection.isOnline ? "fill-green-500 text-green-500" : "fill-gray-400 text-gray-400"
-                }`} />
-                {selectedConnection.isOnline ? "Online" : "Offline"}
-            </p>
+              <h3 className="font-semibold text-lg text-foreground">{selectedConnection.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                {selectedConnection.isOnline ? "Online" : "Last seen recently"}
+              </p>
             </div>
-            <div className="ml-auto">
-            <Sparkle className="h-5 w-5 text-primary/60" />
-            </div>
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                onClick={() => setShowReportDialog(true)}
+                className="text-red-600 focus:text-red-700"
+              >
+                <Flag className="h-4 w-4 mr-2" />
+                Report
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setShowBlockDialog(true)}
+                className="text-red-600 focus:text-red-700"
+              >
+                <Block className="h-4 w-4 mr-2" />
+                Block
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-    </header>
-)
+      </Card>
+
+      <ReportBlockDialog
+        isOpen={showReportDialog}
+        onClose={() => setShowReportDialog(false)}
+        selectedConnection={selectedConnection}
+        user={user}
+        type="report"
+      />
+
+      <ReportBlockDialog
+        isOpen={showBlockDialog}
+        onClose={() => setShowBlockDialog(false)}
+        selectedConnection={selectedConnection}
+        user={user}
+        type="block"
+      />
+    </>
+  );
+};
