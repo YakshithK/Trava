@@ -1,28 +1,8 @@
-general:
-    - zustand
     - area coding
-    - multi language
-    - mobile app? (expo?)
     - organize code (global functions)
-
-notifcation sidebar
-
-chat:
-    - no spam
     - latest chat showing
     - online / offline
-    - latest chat always on top
     - dark mode issue
-    - notifcations stack on each other
-    - image sharing
-
-matches: 
-    - rating others / giving review to each other
-
-trips:
-    - date is fked up
-    - full directory of all trips
-    - you upload borading pass / ticket and it autofills 
 
 Phase 1: Social & Community Features (15h)
 User Ratings & Reviews:
@@ -47,6 +27,7 @@ Message Reactions:
 Emoji reactions to messages (2h)
 Phase 3: Trip & Matching Enhancements (15h)
 Trip Directory & Search:
+Zustand (3h)
 Browse/search all trips (4h)
 Trip Suggestions:
 Suggest trips based on user preferences/history (3h)

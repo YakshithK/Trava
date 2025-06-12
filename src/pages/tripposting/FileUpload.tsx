@@ -6,6 +6,7 @@ import { ArrowLeft, Upload, Camera, FileText } from "lucide-react";
 import Tesseract from 'tesseract.js';
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { supabase } from "@/config/supabase";
+import { handleCameraCapture, handleContinue, handleFileUpload } from "./functions";
 
 const documentTexts = {
   en: {
@@ -37,58 +38,13 @@ export const FileUpload = () => {
   const title = isTicket ? text.ticketTitle : text.boardingPassTitle;
   const voiceHelp = isTicket ? text.ticketVoiceHelp : text.boardingPassVoiceHelp;
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setUploadedFile(file);
-    }
-  };
-
-  const handleCameraCapture = () => {
-    console.log("Camera capture would be implemented here");
-  };
-
-const handleContinue = async () => {
-
-    if (!uploadedFile) {
-      alert("Please upload a file first.");
-      return;
-    }
-
-    setLoading(true);
-    setIsEdgeDone(false);
-
-    try {
-      const formData = new FormData();
-      formData.append("image", uploadedFile);
-
-      const response = await fetch("https://kqrvuazjzcnlysbrndmq.supabase.co/functions/v1/parse-flight-info", {
-        method: "POST",
-        headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxcnZ1YXpqemNubHlzYnJuZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4OTM4MTksImV4cCI6MjA2MjQ2OTgxOX0.Q8ZwRfb3mxIkFHZT2gPUR5KsANNvXi1v1Cjnm3YFW9U`,
-        },
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      setEdgeResponse(result);
-      setIsEdgeDone(true);
-    } catch (error) {
-      console.error("Error calling edge function:", error);
-      setEdgeResponse({ error: "Something went wrong." });
-    } finally {
-      localStorage.setItem("tripData", JSON.stringify({
-        from: edgeResponse.from_airport,
-        to: edgeResponse.to_airport,
-        airline: edgeResponse.airline,
-        flightNumber: edgeResponse.flight_number,
-        date: edgeResponse.date,
-      }))
-      navigate("/trip-posting/new");
-    }
-
-  }  
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-saath-saffron border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,7 +94,7 @@ const handleContinue = async () => {
                       id="file-upload"
                       type="file"
                       accept="image/*"
-                      onChange={handleFileUpload}
+                      onChange={(e) => handleFileUpload(e, setUploadedFile)}
                       className="hidden"
                     />
                     
@@ -162,7 +118,7 @@ const handleContinue = async () => {
                 <p className="font-semibold text-lg mb-6">{uploadedFile.name}</p>
                 
                 <Button
-                  onClick={handleContinue}
+                  onClick={(e) => handleContinue(uploadedFile, setLoading, setIsEdgeDone, setEdgeResponse, navigate, edgeResponse)}
                   className="w-full large-button bg-saath-saffron hover:bg-saath-saffron/90 text-black"
                 >
                   {text.continue}

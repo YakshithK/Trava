@@ -13,6 +13,7 @@ import { NoConnection } from "./NoConnection";
 import { Messages } from "./Messages";
 import { FullConnections } from "./FullConnections";
 import { ChatHeader } from "./ChatHeader";
+import { usePresenceStore } from "@/store/presenceStore";
 
 const chatTexts = {
   en: {
@@ -36,6 +37,8 @@ const Chat = () => {
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const text = chatTexts.en;
+
+  const onlineUserIds = usePresenceStore((s) => s.onlineUserIds);
   
   const typingChannel = useRef<any>(null)
 
@@ -172,7 +175,7 @@ const Chat = () => {
             </div>
           </div>
         </div>
-        <FullConnections connections={connections} selectedConnection={selectedConnection} handleConnectionSelect={handleConnectionSelect} navigate={navigate} />
+        <FullConnections onlineUserIds={onlineUserIds} connections={connections} selectedConnection={selectedConnection} handleConnectionSelect={handleConnectionSelect} navigate={navigate} />
       </div>
 
       {/* Enhanced Chat Area */}

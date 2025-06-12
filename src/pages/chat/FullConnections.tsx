@@ -3,6 +3,7 @@ import { formatLastMessageTime } from "./functions";
 import { Connection } from "./types";
 
 interface FullConnectionsProps {
+  onlineUserIds, 
   connections: Connection[];
   selectedConnection: Connection | null;
   handleConnectionSelect: (
@@ -13,7 +14,7 @@ interface FullConnectionsProps {
   navigate: any;
 }
 
-export const FullConnections = ({connections, selectedConnection, handleConnectionSelect, navigate}: FullConnectionsProps) => (
+export const FullConnections = ({onlineUserIds, connections, selectedConnection, handleConnectionSelect, navigate}: FullConnectionsProps) => (
     <div className="overflow-y-auto h-full">
         {connections.map((connection) => (
         <div
@@ -40,7 +41,7 @@ export const FullConnections = ({connections, selectedConnection, handleConnecti
                     </div>
                 )}
                 </div>
-                {connection.isOnline && (
+                {onlineUserIds.includes(connection.user_id) && (
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white shadow-sm">
                     <Circle className="h-2 w-2 fill-current text-green-500 mx-auto mt-0.5" />
                 </div>
@@ -55,7 +56,7 @@ export const FullConnections = ({connections, selectedConnection, handleConnecti
                 )}
                 <div className="flex items-center mt-2">
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    connection.isOnline 
+                    onlineUserIds.includes(connection.user_id)
                     ? "bg-green-100 text-green-700 border border-green-200" 
                     : "bg-gray-100 text-gray-500 border border-gray-200"
                 }`}>

@@ -52,16 +52,24 @@ const TripPosting = () => {
   const [airportList, setAirportList] = useState<Airport[]>([])
   const [airlineList, setAirlineList] = useState<Airline[]>([])
 
-  const onboardingData = JSON.parse(localStorage.getItem("tripData")|| null)
+  const tripData = JSON.parse(localStorage.getItem("tripData")|| null)
+  console.log("Onboarding Data:", tripData);
 
   useEffect(() => {
-    if (onboardingData) {
-      setFrom(onboardingData.from || "");
-      setTo(onboardingData.to || "");
-      setAirline(onboardingData.airline || "");
-      setDate(onboardingData.date ? new Date(onboardingData.date) : undefined);
-      setFlightNumber(onboardingData.flightNumber || "");
-      setNotes(onboardingData.notes || "");
+    if (tripData) {
+      setFrom(tripData.from || "");
+      setTo(tripData.to || "");
+      setAirline(tripData.airline || "");
+      setDate(tripData.date ? new Date(tripData.date) : undefined);
+      setFlightNumber(tripData.flightNumber || "");
+      setNotes(tripData.notes || "");
+    }
+
+    if (tripData.date) {
+      const [year, month, day] = tripData.date.split('-').map(Number);
+      setDate(new Date(year, month - 1, day));
+    } else {
+      setDate(undefined);
     }
   }, []);
 

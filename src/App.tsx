@@ -29,6 +29,7 @@ import { supabase } from "./config/supabase";
 import { useLocation } from "react-router-dom";
 import { GlobalMessageListener } from "./listeners/Messages";
 import { GlobalRequestListener } from "./listeners/Requests";
+import { usePresenceChannel } from "./hooks/use-presenceChannel";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +62,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <AuthProvider>
+            {usePresenceChannel()}
             <BrowserRouter>
               <GlobalMessageListener />
               <GlobalRequestListener />
