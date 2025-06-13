@@ -1,9 +1,11 @@
+
 import { z } from "zod";
 
 export const profileFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   phoneNumber: z.string(),
   age: z.string(),
+  code: z.string(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
