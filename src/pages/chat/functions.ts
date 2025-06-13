@@ -169,7 +169,7 @@ export const fetchMessages = async (matchId: string,
           if (error) {
             console.error("Error fetching messages:", error);
           } else {
-            console.log("Fetched messages:", data);
+
             setMessages(
               data.map((msg) => ({
                 id: msg.id,
@@ -178,7 +178,8 @@ export const fetchMessages = async (matchId: string,
                 read: msg.read ? true : false,
                 timestamp: new Date(msg.timestamp),
                 type: msg.type || "text",
-                imageUrl: msg.image_url
+                imageUrl: msg.image_url,
+                edited: msg.edited
               }))
             );
           }
@@ -190,3 +191,87 @@ export const handleConnectionSelect = (connection: Connection,
     navigate(`/chat/${connection.id}`);
     console.log(selectedConnection)
   };
+
+export const deleteMessage = async (
+  message: Message,
+  user: SupabaseUser | null,
+  toast?: any
+) => {
+  if (!user) return;
+
+  try {
+    if (message.type === "image" && message.imageUrl) {
+      const urlParts = message.imageUrl.split('/')
+      const fileName = urlParts[urlParts.length-1].split("?")[0]
+
+      const {error: storageError} = await supabase.storage
+        .from('chat-images')
+        .remove([fileName])
+      console.log("removed image")
+      if (storageError) {
+        console.error("Error deleting image from storage: ", storageError)
+        toast?.({
+          title: "Error",
+          description: "Failed to delete image from storage bucket. Please try again.",
+          variant: "destructive"
+        })
+      }
+    }
+
+    const {error} = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", message.id)
+      .eq("sender_id", user.id)
+
+    if (error) {
+      console.error("Error deleting message: ", error)
+      toast?.({
+        title: "Error",
+        description: "Failed to delete message. Please try again.",
+        variant: "destructive"
+      })
+    }
+  } catch (error) {
+    console.error("Error while deleting message: ", error)
+    toast?.({
+      title: "Error",
+      description: "Failed to delete message. Please try again",
+      variant: "destructive"
+    })
+  }
+}
+
+export const editMessage = async (
+  message: Message,
+  newText: string,
+  user: SupabaseUser | null,
+  toast?: any
+) => {
+  if (!user) return;
+
+  try {
+    const { error } = await supabase
+      .from("messages")
+      .update({ 
+        text: newText,
+        edited: true
+      })
+      .eq("id", message.id)
+      .eq("sender_id", user.id);
+
+    if (error) {
+      toast?.({
+        title: "Error",
+        description: "Failed to edit message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  } catch (error) {
+    toast?.({
+      title: "Error",
+      description: "Failed to edit message. Please try again.",
+      variant: "destructive",
+    });
+  }
+};

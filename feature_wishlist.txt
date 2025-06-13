@@ -4,8 +4,6 @@ after i send, i shouldnt have to close photo
 enter button not working
 organize code of referrals
 put profile pictures into storage bucket
-delete messages feature 
-edit messages feature
 
 Phase 1: Social & Community Features (15h)
     Block/Report Users:

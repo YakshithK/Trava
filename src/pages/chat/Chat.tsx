@@ -94,7 +94,7 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-    console.log("matchid", messages)
+
     if (matchId) {
       const connection = connections.find(c => c.id === matchId);
       if (connection) {
@@ -335,7 +335,7 @@ const Chat = () => {
                   </Card>
                 </div>
               ) : (
-                <Messages messages={messages} messagesEndRef={messagesEndRef} isOtherTyping={isOtherTyping} selectedConnection={selectedConnection} />
+                <Messages messages={messages} messagesEndRef={messagesEndRef} isOtherTyping={isOtherTyping} selectedConnection={selectedConnection} user={user} toast={toast}/>
               )}
             </div>
 

@@ -1,11 +1,12 @@
 export interface Message {
-  id: number;
+  id: string;
   text: string;
   sender: "user" | "match";
   timestamp: Date;
   read: boolean;
   type: "text" | "image";
   imageUrl?: string;
+  edited: boolean
 }
 
 export interface Connection {
