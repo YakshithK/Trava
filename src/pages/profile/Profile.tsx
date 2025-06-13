@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/config/supabase";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Users, DollarSign } from "lucide-react";
 import { validatePhoneNumber } from "@/lib/validation";
 import { profileFormSchema, ProfileFormValues } from "./types";
 import { fetchData, formatPhoneNumber, handleForgotPassword, handlePhotoChange, onSubmit } from "./functions";
@@ -40,6 +40,14 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  // Hard-coded referral stats
+  const referralStats = {
+    totalReferrals: 12,
+    totalEarnings: 240.00,
+    pendingEarnings: 60.00,
+    successfulReferrals: 8
+  };
 
   useEffect(() => {
     fetchData(setIsLoading, setError, setUser, form, setPhotoData);
@@ -76,6 +84,57 @@ export default function Profile() {
           <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}
+
+      {/* Referral Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <Users className="h-8 w-8 text-blue-600" />
+              <div>
+                <p className="text-2xl font-bold">{referralStats.totalReferrals}</p>
+                <p className="text-sm text-muted-foreground">Total Referrals</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <Users className="h-8 w-8 text-green-600" />
+              <div>
+                <p className="text-2xl font-bold">{referralStats.successfulReferrals}</p>
+                <p className="text-sm text-muted-foreground">Successful Referrals</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="h-8 w-8 text-green-600" />
+              <div>
+                <p className="text-2xl font-bold">${referralStats.totalEarnings.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Total Earnings</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="h-8 w-8 text-orange-600" />
+              <div>
+                <p className="text-2xl font-bold">${referralStats.pendingEarnings.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Pending Earnings</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
