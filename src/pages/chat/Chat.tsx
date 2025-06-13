@@ -15,6 +15,7 @@ import { FullConnections } from "./FullConnections";
 import { ChatHeader } from "./ChatHeader";
 import { usePresenceStore } from "@/store/presenceStore";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "./ImageUpload";
 
 const chatTexts = {
   en: {
@@ -32,6 +33,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const { matchId } = useParams<{ matchId: string }>();
   const [messageText, setMessageText] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isOtherTyping, setIsOtherTyping] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -130,6 +132,8 @@ const Chat = () => {
               sender: payload.new.sender_id === user.id ? "user" : "match",
               timestamp: new Date(payload.new.timestamp),
               read: payload.new.read ? true : false,
+              type: payload.new.type || "text",
+              imageUrl: payload.new.image_url
             };
             setMessages(prev => {
               if (prev.some(msg => msg.id === newMessage.id)) return prev;
@@ -240,6 +244,50 @@ const Chat = () => {
     };
   }, [user, setOnlineUserIds, addOnlineUser, removeOnlineUser]);
 
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if ((!messageText.trim() && !selectedImage) || !selectedConnection || !user) return;
+
+    try {
+      const { error } = await supabase.from("messages").insert({
+        connection_id: selectedConnection.id,
+        sender_id: user.id,
+        receiver_id: selectedConnection.user_id,
+        text: messageText.trim() || (selectedImage ? "Shared an image" : ""),
+        type: selectedImage ? "image" : "text",
+        image_url: selectedImage,
+        timestamp: new Date().toISOString()
+      });
+
+      if (error) {
+        console.error("Failed to send message to database:", error);
+        if (error.code === 'PGRST301') {
+          toast({
+            title: "Message Failed",
+            description: "You can't send messages to this user. They may have blocked you.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to send message. Please try again.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        setMessageText("");
+        setSelectedImage(null);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-background via-purple-50/30 to-blue-50/30 overflow-hidden">
       {/* Enhanced Connections Sidebar */}
@@ -294,19 +342,24 @@ const Chat = () => {
             {/* Enhanced Message Input */}
             <div className="p-6 border-t border-border/50 glass-effect backdrop-blur-md">
               <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  await handleSendMessage(e, messageText, setMessageText, selectedConnection, user, toast);
-                }}
+                onSubmit={handleSendMessage}
                 className="flex items-center gap-4 max-w-4xl mx-auto"
               >
+                <ImageUpload
+                  onImageUpload={(imageUrl) => {
+                    const event = new Event('submit') as unknown as React.FormEvent;
+                    handleSendMessage(event);
+                  }}
+                  onImageSelect={setSelectedImage}
+                  disabled={!selectedConnection}
+                />
                 <div className="flex-1 relative">
                   <Input
                     value={messageText}
                     onChange={(e) => {
                       setMessageText(e.target.value)
                       handleTyping(typingChannel, user);
-                    }}
+                    }}  
                     placeholder={text.inputPlaceholder}
                     className="h-14 text-base rounded-xl border-2 border-border/30 bg-white/80 backdrop-blur-sm focus:bg-white focus:border-primary transition-all duration-200 pr-4 pl-6 shadow-sm"
                   />
@@ -314,8 +367,9 @@ const Chat = () => {
                 <Button 
                   type="submit" 
                   size="icon"
+                  disabled={(!messageText.trim() && !selectedImage) || !selectedConnection}
                   className="h-14 w-14 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg transition-all duration-200 hover:scale-105 glow-effect"
-                >
+                > 
                   <Send className="h-5 w-5" />
                 </Button>
               </form>

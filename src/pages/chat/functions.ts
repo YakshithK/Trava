@@ -43,53 +43,55 @@ export const formatLastMessageTime = (date: Date) => {
     return date.toLocaleDateString();
   };
 
-export const handleSendMessage = async (e: React.FormEvent, 
-  messageText: string, 
-  setMessageText: React.Dispatch<React.SetStateAction<string>>, 
-  selectedConnection: Connection | null, 
+export const handleSendMessage = async (
+  e: React.FormEvent,
+  messageText: string,
+  setMessageText: React.Dispatch<React.SetStateAction<string>>,
+  selectedConnection: Connection | null,
   user: SupabaseUser | null,
-  toast?: any) => {
-    e.preventDefault();
-    if (messageText.trim() === "" || !selectedConnection || !user) return;
+  toast?: any,
+  type: "text" | "image" = "text",
+  imageUrl?: string
+) => {
+  e.preventDefault();
+  if ((!messageText.trim() && !imageUrl) || !selectedConnection || !user) return;
 
-    const messageToSend = messageText.trim();
-    setMessageText("");
+  try {
+    const { error } = await supabase.from("messages").insert({
+      connection_id: selectedConnection.id,
+      sender_id: user.id,
+      receiver_id: selectedConnection.user_id,
+      text: messageText.trim() || (type === "image" ? "" : ""),
+      type: type,
+      image_url: imageUrl,
+      timestamp: new Date().toISOString()
+    });
 
-    // Only send to Supabase, do not add to UI optimistically
-    try {
-      const { error } = await supabase.from("messages").insert({
-        connection_id: selectedConnection.id,
-        sender_id: user.id,
-        receiver_id: selectedConnection.user_id,
-        text: messageToSend,
-        timestamp: new Date().toISOString()
-      });
-
-      if (error) {
-        console.error("Failed to send message to database:", error);
-        if (error.code === 'PGRST301') {
-          toast?.({
-            title: "Message Failed",
-            description: "You can't send messages to this user. They may have blocked you.",
-            variant: "destructive",
-          });
-        } else {
-          toast?.({
-            title: "Error",
-            description: "Failed to send message. Please try again.",
-            variant: "destructive",
-          });
-        }
+    if (error) {
+      console.error("Failed to send message to database:", error);
+      if (error.code === 'PGRST301') {
+        toast?.({
+          title: "Message Failed",
+          description: "You can't send messages to this user. They may have blocked you.",
+          variant: "destructive",
+        });
+      } else {
+        toast?.({
+          title: "Error",
+          description: "Failed to send message. Please try again.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast?.({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
     }
-  };
+  } catch (error) {
+    console.error("Error sending message:", error);
+    toast?.({
+      title: "Error",
+      description: "Failed to send message. Please try again.",
+      variant: "destructive",
+    });
+  }
+};
 
 export const fetchConnections = async (setUser: React.Dispatch<React.SetStateAction<SupabaseUser | null>>, 
   setConnections: React.Dispatch<React.SetStateAction<Connection[] | null>> ) => {
@@ -167,6 +169,7 @@ export const fetchMessages = async (matchId: string,
           if (error) {
             console.error("Error fetching messages:", error);
           } else {
+            console.log("Fetched messages:", data);
             setMessages(
               data.map((msg) => ({
                 id: msg.id,
@@ -174,6 +177,8 @@ export const fetchMessages = async (matchId: string,
                 sender: msg.sender_id === user?.id ? "user" : "match",
                 read: msg.read ? true : false,
                 timestamp: new Date(msg.timestamp),
+                type: msg.type || "text",
+                imageUrl: msg.image_url
               }))
             );
           }

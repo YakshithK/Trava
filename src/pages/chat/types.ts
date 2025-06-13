@@ -3,7 +3,9 @@ export interface Message {
   text: string;
   sender: "user" | "match";
   timestamp: Date;
-  read: boolean; // Optional, defaults to false
+  read: boolean;
+  type: "text" | "image";
+  imageUrl?: string;
 }
 
 export interface Connection {

@@ -1,7 +1,16 @@
+implement rls
+i have to reload to upload again
+after i send, i shouldnt have to close photo
+enter button not working
+organize code of referrals
+put profile pictures into storage bucket
+delete messages feature 
+edit messages feature
+
 Phase 1: Social & Community Features (15h)
     Block/Report Users:
         Add ability to block/report users for abuse or spam (3h)
-    Referral/Invite System:
+    Referral/Invite System:  
         Users can invite friends via link or email (2h)
     User Feedback Form:
         In-app feedback/bug report modal (2h)
@@ -25,7 +34,7 @@ Phase 3: Trip & Matching Enhancements (15h)
     Advanced Matching:
         Match on interests, languages, etc. (4h)
     Trip Calendar Integration:
-        Export trips to Google/Apple calendar (2h)
+        Export trips to Google/Apple calendar (2h)  
     Trip Privacy Controls:
     Public/private trip settings (2h) 
 Phase 4: Notifications & Sidebar (10h)

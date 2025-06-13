@@ -146,11 +146,11 @@ export const handleSubmit = async (e: React.FormEvent,
           referred_id: data.user.id,
       })
 
-      if (referError) {
+      if (referError) {     
         console.log("Error inserting refer data: ", referrerError)
         setError("Failed to insert refer information. Please try again.");
         return
-      }
+      } 
 
       localStorage.setItem("onboardingData", JSON.stringify({
         email,

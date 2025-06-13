@@ -62,6 +62,20 @@ const Onboarding = () => {
     const refCode = params.get('ref')
     if (refCode) {
       localStorage.setItem("referral_code", refCode)
+      async function insertRef() {
+        const {data, error: referrerError} = await supabase
+          .from("users")
+          .select("id")
+          .eq("code", refCode)
+          .single()
+
+        const {error: insertError} = await supabase
+          .from("referral_clicks").insert({
+            referrer_id: data.id,
+            created_at: new Date().toISOString()
+          })
+        }
+        insertRef()
     }
   }, [])
 

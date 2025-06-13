@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -21,7 +20,7 @@ import { supabase } from "@/config/supabase";
 import { AlertTriangle, Users, DollarSign } from "lucide-react";
 import { validatePhoneNumber } from "@/lib/validation";
 import { profileFormSchema, ProfileFormValues } from "./types";
-import { fetchData, formatPhoneNumber, handleForgotPassword, handlePhotoChange, onSubmit } from "./functions";
+import { fetchData, formatPhoneNumber, handleForgotPassword, handlePhotoChange, onSubmit, getReferralStats } from "./functions";
 import { set } from "date-fns";
 
 export default function Profile() {
@@ -42,20 +41,21 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
-
-  // Hard-coded referral stats
-  const referralStats = {
-    totalReferrals: 12,
-    totalEarnings: 240.00,
-    pendingEarnings: 60.00,
-    successfulReferrals: 8
-  };
+  // const [totalReferrals, setTotalReferrals] = useState<any>(null)
+  // const [pendingReferrals, setPendingReferrals] = useState<any>(null)
+  // const [successfulReferrals, setSuccessfulReferrals] = useState<any>(null)
 
   useEffect(() => {
-    fetchData(setIsLoading, setError, setUser, form, setPhotoData);
+    fetchData(
+      setIsLoading,
+      setError,
+      setUser,
+      form,
+      setPhotoData
+    );
   }, []);
 
-  if (isLoading && !form.watch("name")) {
+  if (isLoading && !form.watch("name")) { 
     return (
       <div className="p-6 space-y-6">
         <Card>
@@ -87,15 +87,15 @@ export default function Profile() {
         </Alert>
       )}
 
-      {/* Referral Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Referral Stats Cards - Commented out for now
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
               <Users className="h-8 w-8 text-blue-600" />
               <div>
-                <p className="text-2xl font-bold">{referralStats.totalReferrals}</p>
-                <p className="text-sm text-muted-foreground">Total Referrals</p>
+                <p className="text-2xl font-bold">{totalReferrals || 0}</p>
+                <p className="text-sm text-muted-foreground">Total Clicks</p>
               </div>
             </div>
           </CardContent>
@@ -106,8 +106,8 @@ export default function Profile() {
             <div className="flex items-center space-x-2">
               <Users className="h-8 w-8 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">{referralStats.successfulReferrals}</p>
-                <p className="text-sm text-muted-foreground">Successful Referrals</p>
+                <p className="text-2xl font-bold">{successfulReferrals || 0}</p>
+                <p className="text-sm text-muted-foreground">Successful Signups</p>
               </div>
             </div>
           </CardContent>
@@ -116,27 +116,16 @@ export default function Profile() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <Users className="h-8 w-8 text-amber-600" />
               <div>
-                <p className="text-2xl font-bold">${referralStats.totalEarnings.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Total Earnings</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-8 w-8 text-orange-600" />
-              <div>
-                <p className="text-2xl font-bold">${referralStats.pendingEarnings.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Pending Earnings</p>
+                <p className="text-2xl font-bold">{pendingReferrals || 0}</p>
+                <p className="text-sm text-muted-foreground">Pending Signups</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+      */}
 
       <Card>
         <CardHeader>
