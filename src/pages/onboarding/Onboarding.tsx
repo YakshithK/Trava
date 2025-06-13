@@ -57,6 +57,14 @@ const Onboarding = () => {
   const [error, setError] = useState<string | null>(null);
   const text = onboardingTexts.en;
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const refCode = params.get('ref')
+    if (refCode) {
+      localStorage.setItem("referral_code", refCode)
+    }
+  }, [])
+
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 flex justify-between items-center">

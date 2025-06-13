@@ -48,7 +48,7 @@ export const fetchData = async (setIsLoading: React.Dispatch<React.SetStateActio
       setUser(user)
       const { data: userStats, error } = await supabase
         .from("users")
-        .select("name, age, contact_number, photo")
+        .select("name, age, contact_number, photo, code")
         .eq("id", user.id)
         .single();
 
@@ -64,6 +64,7 @@ export const fetchData = async (setIsLoading: React.Dispatch<React.SetStateActio
         name: userStats.name || "",
         phoneNumber: userStats.contact_number || "",
         age: userStats.age ? String(userStats.age) : "",
+        code: userStats.code || ""
       });
 
       setPhotoData(userStats.photo || null);

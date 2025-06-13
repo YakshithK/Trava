@@ -1,4 +1,5 @@
 import { supabase } from "@/config/supabase";
+import { generateReferralCode } from "@/lib/utils";
 import { validateEmail, validatePhoneNumber, validatePassword, validateConfirmPassword } from "@/lib/validation";
 import { NavigateFunction } from "react-router-dom";
 
@@ -68,6 +69,8 @@ export const handleSubmit = async (e: React.FormEvent,
     setPasswordError(passwordValidationError);
     setConfirmPasswordError(confirmPasswordValidationError);
 
+    const refCode = localStorage.getItem("referral_code")
+
     // Check if there are any validation errors
     if (emailValidationError || phoneValidationError || 
         passwordValidationError || confirmPasswordValidationError) {
@@ -110,7 +113,6 @@ export const handleSubmit = async (e: React.FormEvent,
         return;
       }
 
-      // Then, insert the user data into the users table
       const { error: insertError } = await supabase.from("users").insert({
         id: data.user.id,
         name,
@@ -118,12 +120,36 @@ export const handleSubmit = async (e: React.FormEvent,
         contact_number: contactNumber,
         email,
         photo: photoPreview,
+        code: generateReferralCode()
       });
 
       if (insertError) {
         console.error("Error inserting user data:", insertError);
         setError("Failed to save profile information. Please try again.");
         return;
+      }
+
+      const { data: referrer, error: referrerError } = await supabase.from("users")
+        .select("id")
+        .eq("code", refCode)
+        .single();
+      
+      if (referrerError) {
+        console.log("Error getting referrer data: ", referrerError)
+        setError("Failed to get referrer information. Please try again.");
+        return
+      }
+
+      const {error: referError} = await supabase.from("referrals")
+        .insert({
+          referrer_id: referrer.id,
+          referred_id: data.user.id,
+      })
+
+      if (referError) {
+        console.log("Error inserting refer data: ", referrerError)
+        setError("Failed to insert refer information. Please try again.");
+        return
       }
 
       localStorage.setItem("onboardingData", JSON.stringify({

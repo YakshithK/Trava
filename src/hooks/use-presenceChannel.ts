@@ -9,8 +9,6 @@ export function usePresenceChannel() {
     const setOnlineUserIds = usePresenceStore((s) => s.setOnlineUserIds)
     const onlineUserIds = usePresenceStore((s) => s.onlineUserIds)
 
-    console.log(onlineUserIds, 'lebron')
-
     useEffect(() => {
         if (!user) return
 
@@ -20,18 +18,14 @@ export function usePresenceChannel() {
 
             channel 
             .on("presence", { event: "sync" }, () => {
-                console.log("lebron");
                 const state = channel.presenceState();
-                console.log("presence state:", state);
+
                 const ids = Object.keys(state);
-                console.log("hello", ids, "my user id:", user.id);
                 setOnlineUserIds(ids);
             })
             .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-                console.log('join', key, newPresences)
             })
             .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-                console.log('leave', key, leftPresences)
             })
             .subscribe(async (status) => {
                 if (status === "SUBSCRIBED") {

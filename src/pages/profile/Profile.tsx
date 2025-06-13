@@ -36,6 +36,7 @@ export default function Profile() {
   const [photoData, setPhotoData] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [code, setCode] = useState("")
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
@@ -174,6 +175,31 @@ export default function Profile() {
                   {form.formState.errors.age.message}
                 </p>
               )}
+            </div>
+
+            <div>
+              <Label>Referral Code</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="code"
+                  {...form.register("code")}
+                  readOnly
+                  className="bg-muted"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/onboarding?ref=${form.getValues("code")}`);
+                    toast({
+                      title: "Copied!",
+                      description: "Referral code copied to clipboard",
+                    });
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
             </div>
 
             <Button

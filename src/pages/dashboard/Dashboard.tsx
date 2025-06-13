@@ -1,16 +1,18 @@
 import { useUserStore } from "@/store/userStore";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, MapPin, Plus, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Plus, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
 import { Request } from "./types"; 
 import { fetchRequests, fetchTrips, formatDate, deleteTrip } from "./functions";
 import { FullRequests } from "./FullRequests";
+import { supabase } from "@/config/supabase";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -18,12 +20,24 @@ const Dashboard = () => {
   const [trips, setTrips] = useState<any[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userCode, setUserCode] = useState("");
 
   useEffect(() => {
     if (user) {
       fetchTrips(user, setLoading, setTrips);
       fetchRequests(setLoading, setRequests);
-      console.log(requests)
+      // Fetch user's code
+      const fetchUserCode = async () => {
+        const { data, error } = await supabase
+          .from('users')
+          .select('code')
+          .eq('id', user.id)
+          .single();
+        if (data && !error) {
+          setUserCode(data.code);
+        }
+      };
+      fetchUserCode();
     }
   }, [user]);
 
@@ -53,6 +67,40 @@ const Dashboard = () => {
           </p>
         </div>
       </div>
+
+      {/* Referral Code */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold">Invite Friends</h2>
+              <p className="text-muted-foreground max-w-md">
+                Share your referral code with friends and help them join your travel community.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={userCode}
+                readOnly
+                className="bg-muted w-[120px]"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/onboarding?ref=${userCode}`);
+                  toast({
+                    title: "Copied!",
+                    description: "Referral code copied to clipboard",
+                  });
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Post Trip CTA */}
       <Card className="bg-card border-border">

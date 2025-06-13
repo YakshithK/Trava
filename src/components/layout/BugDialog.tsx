@@ -14,12 +14,11 @@ import { useToast } from "@/hooks/use-toast";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from "@/config/supabase";
 
-
 interface BugDialogProps {
   isOpen: boolean;
   onClose: () => void;
   user: SupabaseUser
-}
+} 
 
 export const BugDialog = ({ isOpen, onClose, user}: BugDialogProps) => {
   const [message, setMessage] = useState("");
