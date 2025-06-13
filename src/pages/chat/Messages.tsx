@@ -1,5 +1,8 @@
+
 import { formatTime } from "./functions";
 import { Connection, Message } from "./types";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash } from "lucide-react";
 
 interface MessageProps {
   messages: Message[];
@@ -13,10 +16,10 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
         {messages.map((message) => (
         <div
             key={message.id}
-            className={`flex animate-fade-in-up ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex animate-fade-in-up group ${message.sender === "user" ? "justify-end" : "justify-start"}`}
         >
             <div
-            className={`max-w-[75%] px-6 py-4 rounded-2xl shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg ${
+            className={`max-w-[75%] px-6 py-4 rounded-2xl shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg relative ${
                 message.sender === "user"
                 ? "bg-gradient-to-r from-primary to-purple-600 !text-white rounded-br-lg glow-effect"
                 : "bg-white/90 border border-border/30 text-gray-600 rounded-bl-lg"
@@ -49,6 +52,34 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
             >
                 {formatTime(message.timestamp)}
             </div>
+            
+            {/* Action buttons - only show for user messages */}
+            {message.sender === "user" && (
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/20"
+                        onClick={() => {
+                            // TODO: Implement edit logic
+                            console.log("Edit message", message.id);
+                        }}
+                    >
+                        <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/20"
+                        onClick={() => {
+                            // TODO: Implement delete logic
+                            console.log("Delete message", message.id);
+                        }}
+                    >
+                        <Trash className="h-3 w-3" />
+                    </Button>
+                </div>
+            )}
             </div>
         </div>
         ))}
