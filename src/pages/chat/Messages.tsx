@@ -53,31 +53,33 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
                 {formatTime(message.timestamp)}
             </div>
             
-            {/* Action buttons - only show for user messages */}
+            {/* Enhanced Action buttons - only show for user messages */}
             {message.sender === "user" && (
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/20"
-                        onClick={() => {
-                            // TODO: Implement edit logic
-                            console.log("Edit message", message.id);
-                        }}
-                    >
-                        <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/20"
-                        onClick={() => {
-                            // TODO: Implement delete logic
-                            console.log("Delete message", message.id);
-                        }}
-                    >
-                        <Trash className="h-3 w-3" />
-                    </Button>
+                <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out transform translate-y-1 group-hover:translate-y-0">
+                    <div className="flex bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200/50 p-1 gap-0.5">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-gray-600 hover:text-primary hover:bg-primary/10 transition-colors duration-150"
+                            onClick={() => {
+                                // TODO: Implement edit logic
+                                console.log("Edit message", message.id);
+                            }}
+                        >
+                            <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors duration-150"
+                            onClick={() => {
+                                // TODO: Implement delete logic
+                                console.log("Delete message", message.id);
+                            }}
+                        >
+                            <Trash className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
                 </div>
             )}
             </div>
