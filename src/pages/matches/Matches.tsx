@@ -8,6 +8,7 @@ import { supabase } from "@/config/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { TravelMatch } from "./types"; 
 import { fetchMatches, handleContactRequest } from "./functions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const matchTexts = {
   en: {
@@ -64,17 +65,12 @@ const Matches = () => {
               >
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="h-24 w-24 rounded-full flex-shrink-0 overflow-hidden bg-saath-light-gray">
-                    {match.photo_url ? (
-                      <img
-                        src={match.photo_url}
-                        alt={match.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center">
+                    <Avatar className="h-full w-full">
+                      <AvatarImage src={match.photo_url || ""} />
+                      <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-100">
                         <User className="h-12 w-12 text-gray-400" />
-                      </div>
-                    )}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div className="flex-1 text-center md:text-left">
                     <h3 className="text-2xl font-semibold mb-2">

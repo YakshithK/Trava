@@ -1,6 +1,7 @@
 import { Circle, User } from "lucide-react";
 import { formatLastMessageTime } from "./functions";
 import { Connection } from "./types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface FullConnectionsProps {
   onlineUserIds, 
@@ -28,19 +29,12 @@ export const FullConnections = ({onlineUserIds, connections, selectedConnection,
         >
             <div className="flex items-center gap-4">
             <div className="relative">
-                <div className="h-14 w-14 rounded-full overflow-hidden bg-gradient-to-br from-primary/20 to-purple-100 ring-2 ring-white shadow-md">
-                {connection.photoUrl ? (
-                    <img
-                    src={connection.photoUrl}
-                    alt={connection.name}
-                    className="h-full w-full object-cover"
-                    />
-                ) : (
-                    <div className="h-full w-full bg-gradient-to-br from-primary/30 to-purple-200 flex items-center justify-center">
-                    <User className="h-7 w-7 text-primary/70" />
-                    </div>
-                )}
-                </div>
+                <Avatar className="h-14 w-14 ring-2 ring-white shadow-md">
+                    <AvatarImage src={connection.photoUrl || ""} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary/30 to-purple-200">
+                        <User className="h-7 w-7 text-primary/70" />
+                    </AvatarFallback>
+                </Avatar>
                 {onlineUserIds.includes(connection.user_id) && (
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white shadow-sm">
                     <Circle className="h-2 w-2 fill-current text-green-500 mx-auto mt-0.5" />

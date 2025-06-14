@@ -122,15 +122,10 @@ export const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>,
       e.target.value = ''; // Clear the file input
       return;
     }
-
+    
     // Check image dimensions
     const img = new Image();
     img.onload = () => {
-      if (img.width > 2000 || img.height > 2000) {
-        setError("Image dimensions should not exceed 2000x2000 pixels");
-        e.target.value = ''; // Clear the file input
-        return;
-      }
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -189,13 +184,55 @@ export const onSubmit = async (data: ProfileFormValues,
         return;
       }
 
+      let photoUrl = null
+
+      if (photoData) {
+        const base64Data = photoData.split(',')[1]
+        const byteCharacters = atob(base64Data)
+        const byteArrays = []
+
+        for (let offset = 0; offset < byteCharacters.length; offset += 512){
+          const slice = byteCharacters.slice(offset, offset+512)
+          const byteNumbers = new Array(slice.length)
+
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i)
+          }
+
+          const byteArray = new Uint8Array(byteNumbers)
+          byteArrays.push(byteArray)
+        }
+
+        const blob = new Blob(byteArrays, {type: 'image/jpeg'})
+        const file = new File([blob], `${user.id}-profile.jpg`, {type: 'image/jpeg'})
+
+        const {data: uploadData, error: uploadError} = await supabase.storage
+          .from('profile-images')
+          .upload(`${user.id}-profile.jpg`, file, {
+            upsert: true,
+            cacheControl: '3600'
+          })
+
+        if (uploadError) {
+          console.error("Error uploading photo: ", uploadError)
+          setError("Failed to upload photo. Please try again.")
+          return
+        }
+
+        const {data: {publicUrl}} = supabase.storage
+          .from('profile-images')
+          .getPublicUrl(`${user.id}-profile.jpg`)
+
+        photoUrl = publicUrl
+      }
+
       const { error } = await supabase
         .from("users")
         .update({
           name: data.name,
           contact_number: data.phoneNumber,
           age: Number(data.age),
-          photo: photoData,
+          photo: photoUrl,
         })
         .eq("id", user.id);
 

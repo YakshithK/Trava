@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { deleteMessage, editMessage, formatTime } from "./functions";
+import {deleteMessage, editMessage, formatTime } from "./functions";
 import { Connection, Message } from "./types";
 import { Button } from "@/components/ui/button";
 import { Check, Edit, Trash, X } from "lucide-react";
@@ -12,10 +12,9 @@ interface MessageProps {
     selectedConnection: Connection | null;
     user: any,
     toast: any
-}
-
+}   
 export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConnection, user, toast}: MessageProps) => {
-
+ 
     const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
     const [editText, setEditText] = useState("")
 

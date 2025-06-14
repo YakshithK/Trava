@@ -22,6 +22,7 @@ import { validatePhoneNumber } from "@/lib/validation";
 import { profileFormSchema, ProfileFormValues } from "./types";
 import { fetchData, formatPhoneNumber, handleForgotPassword, handlePhotoChange, onSubmit, getReferralStats } from "./functions";
 import { set } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Profile() {
   const form = useForm<ProfileFormValues>({
@@ -37,7 +38,6 @@ export default function Profile() {
   const [photoData, setPhotoData] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [code, setCode] = useState("")
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
@@ -148,13 +148,12 @@ export default function Profile() {
             className="space-y-4"
           >
             <div className="flex flex-col items-center space-y-2">
-              {photoData && (
-                <img
-                  src={photoData}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-lg"
-                />
-              )}
+              <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
+                <AvatarImage src={photoData || ""} />
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-100 text-2xl font-semibold">
+                  {form.watch("name")?.substring(0, 2).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
               <Input
                 type="file"
                 accept="image/*"

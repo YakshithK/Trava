@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import {
 import { Connection } from "./types";
 import { ReportBlockDialog } from "./ReportBlockDialog";
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ChatHeaderProps {
   selectedConnection: Connection;
@@ -28,17 +28,12 @@ export const ChatHeader = ({ selectedConnection, user }: ChatHeaderProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="relative">
-              {selectedConnection.photoUrl ? (
-                <img
-                  src={selectedConnection.photoUrl}
-                  alt={selectedConnection.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-purple-100 flex items-center justify-center text-xl font-semibold text-primary border-2 border-white shadow-lg">
+              <Avatar className="w-12 h-12 border-2 border-white shadow-lg">
+                <AvatarImage src={selectedConnection.photoUrl || ""} />
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-100 text-xl font-semibold">
                   {selectedConnection.name[0]}
-                </div>
-              )}
+                </AvatarFallback>
+              </Avatar>
               {selectedConnection.isOnline && (
                 <Circle className="absolute -bottom-1 -right-1 h-4 w-4 fill-green-500 text-white border-2 border-white rounded-full" />
               )}

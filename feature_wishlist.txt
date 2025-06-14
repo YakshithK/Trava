@@ -3,7 +3,6 @@ i have to reload to upload again
 after i send, i shouldnt have to close photo
 enter button not working
 organize code of referrals
-put profile pictures into storage bucket
 
 Phase 1: Social & Community Features (15h)
     Block/Report Users:
@@ -12,7 +11,7 @@ Phase 1: Social & Community Features (15h)
         Users can invite friends via link or email (2h)
     User Feedback Form:
         In-app feedback/bug report modal (2h)
-Phase 2: Advanced Chat & Real-Time (15h)
+Phase 2: Advanced Chat & Real-Time (15h)   
     Typing Indicators:
         Show when someone is typing in chat (3h)
     Read Receipts:  

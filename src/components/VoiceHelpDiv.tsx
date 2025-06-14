@@ -6,4 +6,4 @@ const VoiceHelpDiv = ({ text }) => (
   </div>
 );
 
-export default VoiceHelpDiv;
+export default VoiceHelpDiv;  

@@ -53,6 +53,7 @@ const Onboarding = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const text = onboardingTexts.en;
@@ -116,7 +117,7 @@ const Onboarding = () => {
             confirmPassword,
             name,
             age,
-            photoPreview,
+            photoFile,
             setEmailError,
             setPhoneError,
             setPasswordError,
@@ -213,7 +214,11 @@ const Onboarding = () => {
               <Label htmlFor="photo" className="text-xl">
                 {text.photoLabel}
               </Label>
-              <PhotoUpload text={text} handleFileChange={handleFileChange} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} />
+              <PhotoUpload text={text} 
+              handleFileChange={(e) => handleFileChange(e, setPhotoPreview, setPhotoFile)} 
+              photoPreview={photoPreview} 
+              setPhotoPreview={setPhotoPreview} 
+              />
             </div>
 
             <div className="pt-4">

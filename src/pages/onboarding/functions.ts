@@ -25,15 +25,23 @@ export const formatPhoneNumber = (phone: string): string => {
     return phone;
   };
 
-export const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setPhotoPreview: React.Dispatch<React.SetStateAction<string>>) => {
+  export const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>, 
+    setPhotoPreview: React.Dispatch<React.SetStateAction<string>>,
+    setPhotoFile: React.Dispatch<React.SetStateAction<File | null>> // Add this to store the file
+  ) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhotoFile(file); // Store the file for later upload
+      
+      // Create preview
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target && typeof event.target.result === "string") {
           setPhotoPreview(event.target.result);
         }
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -46,7 +54,7 @@ export const handleSubmit = async (e: React.FormEvent,
     confirmPassword: string,
     name: string,
     age: string,
-    photoPreview: string,
+    photoFile: File | null,
     setEmailError: React.Dispatch<React.SetStateAction<string | null>>,
     setPhoneError: React.Dispatch<React.SetStateAction<string | null>>,
     setPasswordError: React.Dispatch<React.SetStateAction<string | null>>,
@@ -113,13 +121,36 @@ export const handleSubmit = async (e: React.FormEvent,
         return;
       }
 
+      let photoUrl = null
+
+      if (photoFile) {
+        const {data: uploadData, error: uploadError} = await supabase.storage
+          .from("profile-images")
+          .upload(`${data.user.id}-profile.jpg`, photoFile, {
+            cacheControl: '3600',
+            upsert: true
+          })
+
+        if (uploadError) {
+          console.error("Error uploading photo: ", uploadError)
+          setError("Failed to upload profile photo. Please try again.")
+          return
+        }
+
+        const {data: {publicUrl}} = supabase.storage
+          .from('profile-images')
+          .getPublicUrl(`${data.user.id}-profile.jpg`)
+
+        photoUrl = publicUrl
+      }
+
       const { error: insertError } = await supabase.from("users").insert({
         id: data.user.id,
         name,
         age: parseInt(age),
         contact_number: contactNumber,
         email,
-        photo: photoPreview,
+        photo: photoUrl,
         code: generateReferralCode()
       });
 
@@ -129,29 +160,32 @@ export const handleSubmit = async (e: React.FormEvent,
         return;
       }
 
-      const { data: referrer, error: referrerError } = await supabase.from("users")
-        .select("id")
-        .eq("code", refCode)
-        .single();
-      
-      if (referrerError) {
-        console.log("Error getting referrer data: ", referrerError)
-        setError("Failed to get referrer information. Please try again.");
-        return
+      console.log(refCode)
+
+      if (refCode) {
+        const { data: referrer, error: referrerError } = await supabase.from("users")
+          .select("id")
+          .eq("code", refCode)
+          .single();
+        
+        if (referrerError) {
+          console.log("Error getting referrer data: ", referrerError)
+          setError("Failed to get referrer information. Please try again.");
+          return
+        }
+
+        const {error: referError} = await supabase.from("referrals")
+          .insert({
+            referrer_id: referrer.id,
+            referred_id: data.user.id,
+        })
+
+        if (referError) {     
+          console.log("Error inserting refer data: ", referrerError)
+          setError("Failed to insert refer information. Please try again.");
+          return
+        } 
       }
-
-      const {error: referError} = await supabase.from("referrals")
-        .insert({
-          referrer_id: referrer.id,
-          referred_id: data.user.id,
-      })
-
-      if (referError) {     
-        console.log("Error inserting refer data: ", referrerError)
-        setError("Failed to insert refer information. Please try again.");
-        return
-      } 
-
       localStorage.setItem("onboardingData", JSON.stringify({
         email,
         phone: contactNumber,

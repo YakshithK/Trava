@@ -1,4 +1,5 @@
 import { Camera, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const PhotoUpload = ({
     text,
@@ -8,17 +9,12 @@ export const PhotoUpload = ({
 }) => (
     <div className="flex flex-col items-center">
         <div className="relative w-32 h-32 mb-4">
-            {photoPreview ? (
-            <img
-                src={photoPreview}
-                alt="Profile preview"
-                className="w-full h-full rounded-full object-cover border-4 border-saath-saffron"
-            />
-            ) : (
-            <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center border-4 border-saath-light-gray">
-                <User className="w-16 h-16 text-gray-400" />
-            </div>
-            )}
+            <Avatar className="w-full h-full border-4 border-saath-saffron">
+                <AvatarImage src={photoPreview || ""} />
+                <AvatarFallback className="bg-gray-200">
+                    <User className="w-16 h-16 text-gray-400" />
+                </AvatarFallback>
+            </Avatar>
         </div>
         <label
             htmlFor="photo-upload"
