@@ -3,10 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Upload, Camera, FileText } from "lucide-react";
-import Tesseract from 'tesseract.js';
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
-import { supabase } from "@/config/supabase";
-import { handleCameraCapture, handleContinue, handleFileUpload } from "./functions";
+import { handleCameraCapture, handleContinue, handleFileUpload } from "@/features/trip_posting/index";
 
 const documentTexts = {
   en: {

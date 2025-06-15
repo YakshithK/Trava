@@ -9,9 +9,7 @@ import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
-import { Request } from "../../features/dashboard/types"; 
-import { fetchRequests, fetchTrips, formatDate, deleteTrip } from "./functions";
-import { FullRequests } from "../../features/dashboard/components/FullRequests";
+import { Request, fetchRequests, fetchTrips, formatDate, deleteTrip, FullRequests } from "@/features/dashboard";
 import { supabase } from "@/config/supabase";
 
 const Dashboard = () => {

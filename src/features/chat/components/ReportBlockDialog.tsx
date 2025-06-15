@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Connection } from "../types";
-import { reportUser, blockUser } from "../../../pages/chat/reportBlockFunctions";
+import { reportUser, blockUser } from "../index";
 
 interface ReportBlockDialogProps {
   isOpen: boolean;
