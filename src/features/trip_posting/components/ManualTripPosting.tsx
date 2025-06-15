@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/config/supabase";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { fetchAirlines, fetchAirports, Airline, Airport } from "../index";
+import { handleAddToCalendar } from "../controllers/handleCalendar";
+import { toast } from "@/components/ui/use-toast";
 
 const tripTexts = {
   en: {
@@ -53,7 +55,7 @@ const TripPosting = () => {
   const [airlineList, setAirlineList] = useState<Airline[]>([])
 
   const tripData = JSON.parse(localStorage.getItem("tripData")|| null)
-  console.log("Onboarding Data:", tripData);
+
 
   useEffect(() => {
     if (tripData) {
@@ -107,11 +109,6 @@ const TripPosting = () => {
     }
 
     navigate("/matches");
-  };
-
-  const handleAddToCalendar = () => {
-    // Placeholder for Google Calendar integration
-    console.log("Add to Google Calendar clicked");
   };
 
   return (
@@ -264,7 +261,32 @@ const TripPosting = () => {
                 type="button"
                 variant="outline"
                 className="w-full large-button border-saath-saffron text-saath-saffron hover:bg-saath-saffron hover:text-black flex items-center justify-center gap-2"
-                onClick={handleAddToCalendar}
+                onClick={async () => {
+                  try {
+                    if (!date) {
+                      throw new Error('Please select a date first');
+                    }
+                    const result = await handleAddToCalendar({
+                      from: from,
+                      to: to,
+                      date: date,
+                      flightNumber: flightNumber,
+                      notes: notes
+                    });
+                    if (result.success) {
+                      toast({
+                        title: "Success",
+                        description: "Trip added to your Google Calendar",
+                      });
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: error instanceof Error ? error.message : "Failed to add to calendar",
+                      variant: "destructive"
+                    });
+                  }
+                }}
               >
                 <CalendarPlus className="h-5 w-5" />
                 {text.addToCalendar}

@@ -26,7 +26,7 @@ const TripSelection = () => {
 
   const handleSelection = (type: 'ticket' | 'boarding-pass' | 'manual') => {
     if (type === 'manual') {
-      navigate('/trip-posting/manual');
+      navigate('/trip-posting/new');
     } else {
       navigate(`/trip-posting/${type}`);
     }
