@@ -1,8 +1,5 @@
 implement rls
-i have to reload to upload again
-after i send, i shouldnt have to close photo
-enter button not working
-organize code of referrals
+organize code of everything again
 
 Phase 1: Social & Community Features (15h)
     Block/Report Users:
