@@ -139,15 +139,19 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
                   </div>
                 )}
 
-                {/* Reaction Button */}
+                {/* Enhanced Reaction Button - more visible */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute -bottom-2 -right-2 h-6 w-6 rounded-full bg-white/90 shadow-sm hover:bg-white"
+                      className={`absolute -bottom-2 -right-2 h-8 w-8 rounded-full shadow-lg border-2 transition-all duration-200 hover:scale-110 ${
+                        message.sender === "user" 
+                          ? "bg-white text-primary border-white hover:bg-gray-50" 
+                          : "bg-primary text-white border-primary hover:bg-primary/90"
+                      }`}
                     >
-                      <Smile className="h-3.5 w-3.5" />
+                      <Smile className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-2">
@@ -155,7 +159,7 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
                       {COMMON_EMOJIS.map((emoji) => (
                         <button
                           key={emoji}
-                          className="hover:scale-125 transition-transform"
+                          className="hover:scale-125 transition-transform text-lg p-1 rounded hover:bg-gray-100"
                           onClick={() => handleReaction(message.id, emoji, user)}
                         >
                           {emoji}

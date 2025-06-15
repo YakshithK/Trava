@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format, set } from "date-fns";
-import { CalendarIcon, ArrowLeft, Plane } from "lucide-react";
+import { CalendarIcon, ArrowLeft, Plane, CalendarPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/config/supabase";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
@@ -35,6 +35,7 @@ const tripTexts = {
     notesLabel: "Additional Notes",
     notesPlaceholder: "Any specific requirements or preferences?",
     findCompanions: "Find Companions",
+    addToCalendar: "Add to Google Calendar",
     back: "Back",
     voiceHelp: "Please fill in your trip details. Enter your departure city, destination city, airline name, and select your travel date. You can also add any additional notes or preferences. Click on Find Companions when you're done.",
   },
@@ -106,6 +107,11 @@ const TripPosting = () => {
     }
 
     navigate("/matches");
+  };
+
+  const handleAddToCalendar = () => {
+    // Placeholder for Google Calendar integration
+    console.log("Add to Google Calendar clicked");
   };
 
   return (
@@ -245,13 +251,23 @@ const TripPosting = () => {
               />
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 space-y-4">
               <Button
                 type="submit"
                 className="w-full large-button bg-saath-saffron hover:bg-saath-saffron/90 text-black flex items-center justify-center gap-2"
               >
                 <Plane className="h-5 w-5" />
                 {text.findCompanions}
+              </Button>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full large-button border-saath-saffron text-saath-saffron hover:bg-saath-saffron hover:text-black flex items-center justify-center gap-2"
+                onClick={handleAddToCalendar}
+              >
+                <CalendarPlus className="h-5 w-5" />
+                {text.addToCalendar}
               </Button>
             </div>
           </form>
