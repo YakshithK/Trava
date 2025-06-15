@@ -3,9 +3,13 @@ import { editMessage } from "../controllers/editMessage";
 import { formatTime } from "../utils/formatTime";
 import { Connection, Message } from "../types";
 import { Button } from "@/components/ui/button";
-import { Check, Edit, Trash, X } from "lucide-react";
+import { Check, Edit, Smile, Trash, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { deleteMessage } from "../controllers/deleteMessage";
+import { handleReaction } from "../controllers/handleReaction";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const COMMON_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏", "👏", "🔥"];
 
 interface MessageProps {
   messages: Message[];
@@ -115,6 +119,52 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
                   </>
                 )}
                 
+                {/* Reactions */}
+                {message.reactions && message.reactions.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {Object.entries(
+                      message.reactions.reduce((acc, reaction) => {
+                        acc[reaction.emoji] = (acc[reaction.emoji] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([emoji, count]) => (
+                      <div
+                        key={emoji}
+                        className="flex items-center gap-1 px-2 py-1 bg-white/20 rounded-full text-sm"
+                        onClick={() => handleReaction(message.id, emoji, user)}
+                      >
+                        <span>{emoji}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Reaction Button */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute -bottom-2 -right-2 h-6 w-6 rounded-full bg-white/90 shadow-sm hover:bg-white"
+                    >
+                      <Smile className="h-3.5 w-3.5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2">
+                    <div className="flex gap-2">
+                      {COMMON_EMOJIS.map((emoji) => (
+                        <button
+                          key={emoji}
+                          className="hover:scale-125 transition-transform"
+                          onClick={() => handleReaction(message.id, emoji, user)}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
                 {/* Enhanced Action buttons - only show for user messages */}
                 {message.sender === "user" && editingMessageId !== message.id && (
                   <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out transform translate-y-1 group-hover:translate-y-0">

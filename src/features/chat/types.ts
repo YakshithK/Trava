@@ -7,6 +7,10 @@ export interface Message {
   type: "text" | "image";
   imageUrl?: string;
   edited?: boolean;
+  reactions?: {
+    emoji: string;
+    userId: string;
+  }[];
 }
 
 export interface Connection {

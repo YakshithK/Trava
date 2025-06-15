@@ -250,6 +250,31 @@ const Chat = () => {
     };
   }, [user, setOnlineUserIds, addOnlineUser, removeOnlineUser]);
 
+  useEffect(() => {
+    if (!selectedConnection || !user) return;
+  
+    const channel = supabase
+      .channel(`messages:${selectedConnection.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'message_reactions',
+          filter: `message_id=in.(${messages.map(m => m.id).join(',')})`
+        },
+        async (payload) => {
+          // Refresh messages to get updated reactions
+          await fetchMessages(selectedConnection.id, setMessages, user);
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConnection, user, messages]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!messageText.trim() && !selectedImage) || !selectedConnection || !user) return;
