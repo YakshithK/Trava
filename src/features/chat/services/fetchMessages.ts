@@ -16,7 +16,7 @@ export const fetchMessages = async (matchId: string,
     `)
     .eq("connection_id", matchId)
     .order("timestamp", { ascending: true });
-
+  
   if (error) {
     console.error("Error fetching messages:", error);
   } else {

@@ -21,7 +21,6 @@ Phase 2: Advanced Chat & Real-Time (15h)
         Emoji reactions to messages (2h)
 Phase 3: Trip & Matching Enhancements (15h)
     Trip Directory & Search:  
-    Zustand (3h)
         Browse/search all trips (4h)
     Trip Suggestions:
         Suggest trips based on user preferences/history (3h)
