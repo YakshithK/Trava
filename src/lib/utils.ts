@@ -14,3 +14,13 @@ export function generateReferralCode(length = 8): string {
   }
   return code
 }
+
+export function getInitials(name: string): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}

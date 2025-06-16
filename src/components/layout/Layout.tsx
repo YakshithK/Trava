@@ -6,7 +6,7 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { BreadcrumbNav } from "@/components/navigation/BreadcrumbNav";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import NotificationsTrigger from "./NotificationsTrigger";
+import NotificationsTrigger from "@/features/notifications/components/NotificationsTrigger";
 
 interface LayoutProps {
   children: ReactNode;

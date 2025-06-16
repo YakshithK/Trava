@@ -6,17 +6,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetchRequests, formatDate, getInitials, getStatusColor, handleAcceptRequest, handleCancelRequest, MatchRequest} from "@/features/requesting";
+import { notificationsService } from "@/features/notifications";
+import { useAuth } from "@/context/authContext";
 
 const Requests = () => {
   const [incoming, setIncoming] = useState<MatchRequest[]>([]);
   const [outgoing, setOutgoing] = useState<MatchRequest[]>([]);
 
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-
     fetchRequests(setLoading, setIncoming, setOutgoing);
-  }, []);
+    
+    // Mark request notifications as read when visiting the requests page
+    if (user?.id) {
+      notificationsService.markRequestNotificationsAsRead(user.id);
+    }
+  }, [user?.id]);
 
 
   return (

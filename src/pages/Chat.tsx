@@ -9,6 +9,7 @@ import { supabase } from "@/config/supabase";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { usePresenceStore } from "@/store/presenceStore";
 import { useToast } from "@/hooks/use-toast";
+import { notificationsService } from "@/features/notifications";
 import {Connection, 
   Message, 
   fetchConnections, 
@@ -100,13 +101,16 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-
     if (matchId) {
       const connection = connections.find(c => c.id === matchId);
       if (connection) {
         setSelectedConnection(connection);
-
-        fetchMessages(matchId, setMessages, user)
+        fetchMessages(matchId, setMessages, user);
+        
+        // Mark notifications as read for this chat when opened
+        if (user?.id) {
+          notificationsService.markMessageNotificationsAsRead(user.id, matchId);
+        }
       }
     } else {
       setSelectedConnection(null);

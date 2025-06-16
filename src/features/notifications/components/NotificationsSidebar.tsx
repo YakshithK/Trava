@@ -1,75 +1,95 @@
-
-import { useState } from "react";
 import { Bell, X, Clock, User, Calendar, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { notificationsService } from "../services/notificationsService";
+import { Notification } from "../types";
+import { useAuth } from "@/context/authContext";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationsSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  notifications: Notification[];
+  onNotificationsChange: (notifications: Notification[]) => void;
 }
 
-// Mock notification data for UI purposes
-const mockNotifications = [
-  {
-    id: 1,
-    type: "match",
-    title: "New Match Found!",
-    message: "You have a new travel match for your NYC trip",
-    time: "2 min ago",
-    unread: true,
-    icon: User,
-  },
-  {
-    id: 2,
-    type: "message",
-    title: "New Message",
-    message: "Sarah sent you a message about the flight details",
-    time: "15 min ago",
-    unread: true,
-    icon: MessageSquare,
-  },
-  {
-    id: 3,
-    type: "trip",
-    title: "Trip Reminder",
-    message: "Your flight to London is tomorrow at 8:30 AM",
-    time: "1 hour ago",
-    unread: false,
-    icon: Calendar,
-  },
-  {
-    id: 4,
-    type: "system",
-    title: "Profile Updated",
-    message: "Your travel preferences have been saved",
-    time: "3 hours ago",
-    unread: false,
-    icon: User,
-  },
-];
-
-const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarProps) => {
-  const [notifications, setNotifications] = useState(mockNotifications);
+const NotificationsSidebar = ({ 
+  isOpen, 
+  onClose, 
+  notifications,
+  onNotificationsChange 
+}: NotificationsSidebarProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter(n => !n.read_).length;
 
-  const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, unread: false }
-          : notification
-      )
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      await notificationsService.markAsRead(id);
+      onNotificationsChange(
+        notifications.map(notification => 
+          notification.id === id 
+            ? { ...notification, read_: true }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, unread: false }))
-    );
+  const markAllAsRead = async () => {
+    if (!user?.id) return;
+    try {
+      await notificationsService.markAllAsRead(user.id);
+      onNotificationsChange(
+        notifications.map(notification => ({ ...notification, read_: true }))
+      );
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    try {
+      // Mark the notification as read
+      await notificationsService.markNotificationAsRead(notification.id);
+      
+      // Then navigate if there's a link
+      if (notification.link_) {
+        navigate(notification.link_);
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to handle notification click:', error);
+    }
+  };
+
+  const handleDeleteNotification = async (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation(); // Prevent triggering the notification click
+    try {
+      await notificationsService.deleteNotification(notificationId);
+      // Update local state by removing the deleted notification
+      onNotificationsChange(notifications.filter(n => n.id !== notificationId));
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'User':
+        return User;
+      case 'MessageSquare':
+        return MessageSquare;
+      case 'Calendar':
+        return Calendar;
+      default:
+        return Bell;
+    }
   };
 
   return (
@@ -134,25 +154,34 @@ const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarProps) =>
               ) : (
                 <div className="space-y-2">
                   {notifications.map((notification) => {
-                    const IconComponent = notification.icon;
+                    const IconComponent = getIconComponent(notification.icon);
                     return (
                       <div
                         key={notification.id}
                         className={cn(
-                          "p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50",
-                          notification.unread 
+                          "p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50 relative group",
+                          !notification.read_ 
                             ? "bg-primary/5 border-primary/20" 
                             : "bg-background border-border"
                         )}
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={() => handleNotificationClick(notification)}
                       >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute bottom-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => handleDeleteNotification(e, notification.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
                         <div className="flex gap-3">
                           <div className={cn(
                             "p-2 rounded-lg flex-shrink-0",
-                            notification.type === "match" && "bg-green-100 text-green-600",
-                            notification.type === "message" && "bg-blue-100 text-blue-600",
-                            notification.type === "trip" && "bg-orange-100 text-orange-600",
-                            notification.type === "system" && "bg-purple-100 text-purple-600"
+                            notification.type_ === "match" && "bg-green-100 text-green-600",
+                            notification.type_ === "message" && "bg-blue-100 text-blue-600",
+                            notification.type_ === "trip" && "bg-orange-100 text-orange-600",
+                            notification.type_ === "system" && "bg-purple-100 text-purple-600",
+                            notification.type_ === "request" && "bg-yellow-100 text-yellow-600"
                           )}>
                             <IconComponent className="h-4 w-4" />
                           </div>
@@ -160,20 +189,20 @@ const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarProps) =>
                             <div className="flex items-start justify-between gap-2">
                               <h4 className={cn(
                                 "text-sm font-medium truncate",
-                                notification.unread && "text-foreground"
+                                !notification.read_ && "text-foreground"
                               )}>
                                 {notification.title}
                               </h4>
-                              {notification.unread && (
+                              {!notification.read_ && (
                                 <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {notification.message}
+                              {notification.message_}
                             </p>
                             <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                               <Clock className="h-3 w-3" />
-                              {notification.time}
+                              {new Date(notification.created_at).toLocaleString()}
                             </div>
                           </div>
                         </div>
