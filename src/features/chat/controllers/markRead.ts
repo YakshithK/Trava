@@ -19,4 +19,4 @@ export const markMessagesAsRead = async (
       // Delete notifications for this chat
       await notificationsService.deleteMessageNotifications(user.id, selectedConnection.id);
     };
-  
+    

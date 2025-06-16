@@ -7,6 +7,7 @@ import { notificationsService } from "../services/notificationsService";
 import { Notification } from "../types";
 import { useAuth } from "@/context/authContext";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface NotificationsSidebarProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ const NotificationsSidebar = ({
 }: NotificationsSidebarProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const unreadCount = notifications.filter(n => !n.read_).length;
 
@@ -112,7 +114,7 @@ const NotificationsSidebar = ({
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
-              <h2 className="text-lg font-semibold">Notifications</h2>
+              <h2 className="text-lg font-semibold">{t('notifications.title')}</h2>
               {unreadCount > 0 && (
                 <Badge variant="destructive" className="text-xs">
                   {unreadCount}
@@ -138,7 +140,7 @@ const NotificationsSidebar = ({
                 onClick={markAllAsRead}
                 className="w-full"
               >
-                Mark all as read
+                {t('notifications.markAllRead')}
               </Button>
             </div>
           )}
@@ -149,7 +151,7 @@ const NotificationsSidebar = ({
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Bell className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                  <p className="text-muted-foreground">No notifications yet</p>
+                  <p className="text-muted-foreground">{t('notifications.noNotifications')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">

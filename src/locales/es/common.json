@@ -1,0 +1,21 @@
+{
+  "navigation": {
+    "home": "Inicio",
+    "profile": "Perfil",
+    "messages": "Mensajes",
+    "requests": "Solicitudes",
+    "settings": "Configuración"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todas como leídas",
+    "noNotifications": "No hay notificaciones"
+  }
+}
