@@ -6,6 +6,7 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { BreadcrumbNav } from "@/components/navigation/BreadcrumbNav";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import NotificationsTrigger from "./NotificationsTrigger";
 
 interface LayoutProps {
   children: ReactNode;
@@ -42,7 +43,10 @@ const Layout = ({ children }: LayoutProps) => {
         <FloatingTrigger />
         <main className="flex-1 overflow-auto">
           <div className="container p-6 md:p-8 max-w-7xl mx-auto">
-            <BreadcrumbNav />
+            <div className="flex items-center justify-between mb-6">
+              <BreadcrumbNav />
+              <NotificationsTrigger />
+            </div>
             <div className="animate-fade-in-up">
               {children}
             </div>
