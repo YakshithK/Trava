@@ -254,7 +254,7 @@ const Chat = () => {
     if (!selectedConnection || !user) return;
   
     const channel = supabase
-      .channel(`messages:${selectedConnection.id}`)
+      .channel(`messages_reactions:${selectedConnection.id}`)
       .on(
         'postgres_changes',
         {
