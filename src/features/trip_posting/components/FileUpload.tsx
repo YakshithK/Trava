@@ -5,36 +5,19 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Upload, Camera, FileText } from "lucide-react";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { handleCameraCapture, handleContinue, handleFileUpload } from "@/features/trip_posting/index";
-
-const documentTexts = {
-  en: {
-    ticketTitle: "Upload Your Ticket",
-    boardingPassTitle: "Upload Your Boarding Pass",
-    subtitle: "Take a photo or upload from your device",
-    uploadFromDevice: "Upload from Device (Image Only!)",
-    takePhoto: "Take Photo",
-    uploadedFile: "File uploaded:",
-    continue: "Continue",
-    back: "Back",
-    ticketVoiceHelp: "Upload your flight ticket by taking a photo or selecting a file from your device. The system will automatically extract your flight information.",
-    boardingPassVoiceHelp: "Upload your boarding pass by taking a photo or selecting a file from your device. The system will automatically extract your flight information.",
-  },
-};
+import { useTranslation } from "react-i18next";
 
 export const FileUpload = () => {
-
   const { page } = useParams();
-
   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [isEdgeDone, setIsEdgeDone] = useState(false);
   const [edgeResponse, setEdgeResponse] = useState<any>(null);
-  const text = documentTexts.en;
+  const { t } = useTranslation();
 
   const isTicket = page === 'ticket';
-  const title = isTicket ? text.ticketTitle : text.boardingPassTitle;
-  const voiceHelp = isTicket ? text.ticketVoiceHelp : text.boardingPassVoiceHelp;
+  const type = isTicket ? 'ticket' : 'boardingPass';
 
   if (loading) {
     return (
@@ -59,74 +42,63 @@ export const FileUpload = () => {
 
       <main className="page-container">
         <div className="mb-8 text-center">
-          <h1 className="mb-2">{title}</h1>
-          <p className="text-gray-600">{text.subtitle}</p>
+          <h1 className="mb-2">{t(`fileUpload.${type}.title`)}</h1>
+          <p className="text-gray-600">{t(`fileUpload.${type}.subtitle`)}</p>
         </div>
 
         <Card className="bg-card p-6 rounded-3xl shadow-md border">
           <div className="space-y-6">
-            {!uploadedFile ? (
-              <>
-                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center">
-                  <div className="mb-4">
-                    <FileText className="h-16 w-16 text-gray-400 mx-auto" />
-                  </div>
-                  <p className="text-gray-600 mb-6">
-                    {isTicket ? "Upload your flight ticket" : "Upload your boarding pass"}
-                  </p>
-                  
-                  <div className="space-y-3">
-                    <label htmlFor="file-upload">
-                      <Button
-                        variant="outline"
-                        className="w-full h-14 text-lg rounded-xl border-2"
-                        asChild
-                      >
-                        <span className="cursor-pointer flex items-center justify-center gap-2">
-                          <Upload className="h-5 w-5" />
-                          {text.uploadFromDevice}
-                        </span>
-                      </Button>
-                    </label>
-                    <input
-                      id="file-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileUpload(e, setUploadedFile)}
-                      className="hidden"
-                    />
-                    
-                    <Button
-                      variant="outline"
-                      className="w-full h-14 text-lg rounded-xl border-2"
-                      onClick={handleCameraCapture}
-                    >
-                      <Camera className="h-5 w-5 mr-2" />
-                      {text.takePhoto}
-                    </Button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="mb-4">
-                  <FileText className="h-16 w-16 text-saath-saffron mx-auto" />
-                </div>
-                <p className="text-gray-600 mb-2">{text.uploadedFile}</p>
-                <p className="font-semibold text-lg mb-6">{uploadedFile.name}</p>
-                
+            <div className="flex flex-col gap-4">
+              <label htmlFor="file-upload">
                 <Button
-                  onClick={(e) => handleContinue(uploadedFile, setLoading, setIsEdgeDone, setEdgeResponse, navigate, edgeResponse)}
-                  className="w-full large-button bg-saath-saffron hover:bg-saath-saffron/90 text-black"
+                  variant="outline"
+                  className="h-14 text-lg w-full"
+                  asChild
                 >
-                  {text.continue}
+                  <span className="cursor-pointer flex items-center justify-center gap-2">
+                    <Upload className="h-5 w-5" />
+                    {t(`fileUpload.${type}.uploadFromDevice`)}
+                  </span>
                 </Button>
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, setUploadedFile)}
+                className="hidden"
+              />
+
+              <Button
+                variant="outline"
+                className="h-14 text-lg"
+                onClick={handleCameraCapture}
+              >
+                <Camera className="mr-2 h-5 w-5" />
+                {t(`fileUpload.${type}.takePhoto`)}
+              </Button>
+            </div>
+
+            {uploadedFile && (
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  {t(`fileUpload.${type}.uploadedFile`)} {uploadedFile.name}
+                </p>
               </div>
+            )}
+
+            {isEdgeDone && (
+              <Button
+                className="w-full h-14 text-lg bg-saath-saffron hover:bg-saath-saffron/90 text-black"
+                onClick={() => handleContinue(uploadedFile, setLoading, setIsEdgeDone, setEdgeResponse, navigate, edgeResponse)}
+              >
+                {t(`fileUpload.${type}.continue`)}
+              </Button>
             )}
           </div>
         </Card>
 
-        <VoiceHelpDiv text={voiceHelp} />
+        <VoiceHelpDiv text={t(`fileUpload.${type}.voiceHelp`)} />
       </main>
     </div>
   );

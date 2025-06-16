@@ -19,32 +19,9 @@ import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { fetchAirlines, fetchAirports, Airline, Airport } from "../index";
 import { handleAddToCalendar } from "../controllers/handleCalendar";
 import { toast } from "@/components/ui/use-toast";
-
-const tripTexts = {
-  en: {
-    title: "Post Your Trip",
-    subtitle: "Share your travel plans to find companions",
-    fromLabel: "From City",
-    fromPlaceholder: "e.g., Hyderabad",
-    toLabel: "To City",
-    toPlaceholder: "e.g., Toronto",
-    airlineLabel: "Airline",
-    airlinePlaceholder: "e.g., Air India",
-    flightNumber: "Flight Number",
-    flightNumberPlaceholder: "e.g., AC056",
-    dateLabel: "Date of Travel",
-    datePlaceholder: "Select your travel date",
-    notesLabel: "Additional Notes",
-    notesPlaceholder: "Any specific requirements or preferences?",
-    findCompanions: "Find Companions",
-    addToCalendar: "Add to Google Calendar",
-    back: "Back",
-    voiceHelp: "Please fill in your trip details. Enter your departure city, destination city, airline name, and select your travel date. You can also add any additional notes or preferences. Click on Find Companions when you're done.",
-  },
-};
+import { useTranslation } from "react-i18next";
 
 const TripPosting = () => {
-
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [airline, setAirline] = useState("");
@@ -53,9 +30,9 @@ const TripPosting = () => {
   const [notes, setNotes] = useState(""); 
   const [airportList, setAirportList] = useState<Airport[]>([])
   const [airlineList, setAirlineList] = useState<Airline[]>([])
+  const { t } = useTranslation();
 
   const tripData = JSON.parse(localStorage.getItem("tripData")|| null)
-
 
   useEffect(() => {
     if (tripData) {
@@ -76,10 +53,8 @@ const TripPosting = () => {
   }, []);
 
   const navigate = useNavigate();
-  const text = tripTexts.en;
 
   useEffect(() => {
-
     fetchAirports(setAirportList)
     fetchAirlines(setAirlineList)
   }, []);
@@ -126,15 +101,15 @@ const TripPosting = () => {
 
       <main className="page-container">
         <div className="mb-8 text-center">
-          <h1 className="mb-2">{text.title}</h1>
-          <p className="text-gray-600">{text.subtitle}</p>
+          <h1 className="mb-2">{t('tripPosting.title')}</h1>
+          <p className="text-gray-600">{t('tripPosting.subtitle')}</p>
         </div>
 
         <Card className="bg-card p-6 rounded-3xl shadow-md border">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="from" className="text-xl">
-                {text.toLabel}
+                {t('tripPosting.toLabel')}
               </Label>
               <select
                   id="from"
@@ -143,7 +118,7 @@ const TripPosting = () => {
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
                 >
-                <option value="">Select departure airport</option>
+                <option value="">{t('tripPosting.toPlaceholder')}</option>
                 {airportList.map((airport, index) => (
                   <option key={index} value={airport.iata_code}>
                     {airport.name} ({airport.iata_code}) - {airport.municipality}, {airport.iso_country}
@@ -154,7 +129,7 @@ const TripPosting = () => {
 
             <div className="space-y-2">
               <Label htmlFor="from" className="text-xl">
-                {text.fromLabel}
+                {t('tripPosting.fromLabel')}
               </Label>
               <select
                   id="from"
@@ -163,7 +138,7 @@ const TripPosting = () => {
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
                 >
-                <option value="">Select departure airport</option>
+                <option value="">{t('tripPosting.fromPlaceholder')}</option>
                 {airportList.map((airport, index) => (
                   <option key={index} value={airport.iata_code}>
                     {airport.name} ({airport.iata_code}) - {airport.municipality}, {airport.iso_country}
@@ -174,7 +149,7 @@ const TripPosting = () => {
 
             <div className="space-y-2">
               <Label htmlFor="airline" className="text-xl">
-                {text.airlineLabel}
+                {t('tripPosting.airlineLabel')}
               </Label>
               <select
                 id="airline"
@@ -183,7 +158,7 @@ const TripPosting = () => {
                 value={airline}
                 onChange={(e) => setAirline(e.target.value)}
               >
-                <option value="">Select airline</option>
+                <option value="">{t('tripPosting.airlinePlaceholder')}</option>
                 {airlineList.map((airline, index) => (
                   <option key={index} value={airline.code}>
                     {airline.name} ({airline.code})
@@ -194,7 +169,7 @@ const TripPosting = () => {
 
             <div className="space-y-2">
               <Label htmlFor="date" className="text-xl">
-                {text.dateLabel}
+                {t('tripPosting.dateLabel')}
               </Label>
               <Popover>
                 <PopoverTrigger asChild>
@@ -206,7 +181,7 @@ const TripPosting = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-5 w-5" />
-                    {date ? format(date, "PPP") : text.datePlaceholder}
+                    {date ? format(date, "PPP") : t('tripPosting.datePlaceholder')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -224,11 +199,11 @@ const TripPosting = () => {
 
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-xl">
-                {text.flightNumber}
+                {t('tripPosting.flightNumber')}
               </Label>
               <Input
                 id="flight-number"
-                placeholder={text.flightNumberPlaceholder}
+                placeholder={t('tripPosting.flightNumberPlaceholder')}
                 className="h-14 text-lg rounded-xl border-2 border-saath-light-gray"
                 value={flightNumber}
                 onChange={(e) => setFlightNumber(e.target.value)}
@@ -237,11 +212,11 @@ const TripPosting = () => {
 
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-xl">
-                {text.notesLabel}
+                {t('tripPosting.notesLabel')}
               </Label>
               <Textarea
                 id="notes"
-                placeholder={text.notesPlaceholder}
+                placeholder={t('tripPosting.notesPlaceholder')}
                 className="min-h-[100px] text-lg rounded-xl border-2 border-saath-light-gray"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -254,48 +229,21 @@ const TripPosting = () => {
                 className="w-full large-button bg-saath-saffron hover:bg-saath-saffron/90 text-black flex items-center justify-center gap-2"
               >
                 <Plane className="h-5 w-5" />
-                {text.findCompanions}
+                {t('tripPosting.findCompanions')}
               </Button>
-              
               <Button
                 type="button"
                 variant="outline"
-                className="w-full large-button border-saath-saffron text-saath-saffron hover:bg-saath-saffron hover:text-black flex items-center justify-center gap-2"
-                onClick={async () => {
-                  try {
-                    if (!date) {
-                      throw new Error('Please select a date first');
-                    }
-                    const result = await handleAddToCalendar({
-                      from: from,
-                      to: to,
-                      date: date,
-                      flightNumber: flightNumber,
-                      notes: notes
-                    });
-                    if (result.success) {
-                      toast({
-                        title: "Success",
-                        description: "Trip added to your Google Calendar",
-                      });
-                    }
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: error instanceof Error ? error.message : "Failed to add to calendar",
-                      variant: "destructive"
-                    });
-                  }
-                }}
+                className="w-full large-button flex items-center justify-center gap-2"
+                onClick={() => handleAddToCalendar({ from, to, date, airline, flightNumber })}
               >
                 <CalendarPlus className="h-5 w-5" />
-                {text.addToCalendar}
+                {t('tripPosting.addToCalendar')}
               </Button>
             </div>
           </form>
         </Card>
-
-        <VoiceHelpDiv text={text.voiceHelp} />
+        <VoiceHelpDiv text={t('tripPosting.voiceHelp')} />
       </main>
     </div>
   );

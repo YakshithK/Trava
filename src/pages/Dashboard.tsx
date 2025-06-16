@@ -11,6 +11,7 @@ import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
 import { Request, fetchRequests, fetchTrips, formatDate, deleteTrip, FullRequests } from "@/features/dashboard";
 import { supabase } from "@/config/supabase";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [userCode, setUserCode] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (user) {
@@ -50,7 +52,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center">
-        <p>Loading your trips...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -59,9 +61,9 @@ const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('dashboard.title')}</h1>
           <p className="text-muted-foreground">
-            Welcome back! Here's an overview of your travel plans.
+            {t('dashboard.welcome')}
           </p>
         </div>
       </div>
@@ -71,9 +73,9 @@ const Dashboard = () => {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">Invite Friends</h2>
+              <h2 className="text-2xl font-semibold">{t('dashboard.inviteFriends.title')}</h2>
               <p className="text-muted-foreground max-w-md">
-                Share your referral code with friends and help them join your travel community.
+                {t('dashboard.inviteFriends.description')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -88,8 +90,8 @@ const Dashboard = () => {
                 onClick={() => {
                   navigator.clipboard.writeText(`${window.location.origin}/onboarding?ref=${userCode}`);
                   toast({
-                    title: "Copied!",
-                    description: "Referral code copied to clipboard",
+                    title: t('dashboard.inviteFriends.copied'),
+                    description: t('dashboard.inviteFriends.copiedDescription'),
                   });
                 }}
               >
@@ -105,15 +107,15 @@ const Dashboard = () => {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">Ready for your next journey?</h2>
+              <h2 className="text-2xl font-semibold">{t('dashboard.postTrip.title')}</h2>
               <p className="text-muted-foreground max-w-md">
-                Share your travel plans and find companions for your upcoming trip.
+                {t('dashboard.postTrip.description')}
               </p>
             </div>
             <Button asChild size="lg" className="w-full md:w-auto">
               <Link to="/trip-posting" className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
-                <span>Post a New Trip</span>
+                <span>{t('dashboard.postTrip.button')}</span>
               </Link>
             </Button>
           </div>
@@ -123,9 +125,9 @@ const Dashboard = () => {
       {/* Upcoming Trips */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Upcoming Trips</h2>
+          <h2 className="text-2xl font-semibold">{t('dashboard.upcomingTrips.title')}</h2>
           <Button asChild variant="outline" size="sm">
-            <Link to="/trip-posting">Add Trip</Link>
+            <Link to="/trip-posting">{t('dashboard.upcomingTrips.addTrip')}</Link>
           </Button>
         </div>
 
@@ -146,18 +148,18 @@ const Dashboard = () => {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Trip</AlertDialogTitle>
+                            <AlertDialogTitle>{t('dashboard.upcomingTrips.deleteTrip.title')}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete this trip to {trip.to}? This action cannot be undone.
+                              {t('dashboard.upcomingTrips.deleteTrip.description', { destination: trip.to })}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>{t('dashboard.upcomingTrips.deleteTrip.cancel')}</AlertDialogCancel>
                             <AlertDialogAction 
                               onClick={() => handleDeleteTrip(trip.id)}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Delete
+                              {t('dashboard.upcomingTrips.deleteTrip.confirm')}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -172,7 +174,7 @@ const Dashboard = () => {
                 <CardFooter>
                   <Button asChild variant="outline" className="w-full">
                     <Link to={`/matches?tripId=${trip.id}`}>
-                      Find Companions
+                      {t('dashboard.upcomingTrips.findCompanions')}
                     </Link>
                   </Button>
                 </CardFooter>
@@ -181,9 +183,9 @@ const Dashboard = () => {
           </div>
         ) : (
           <Card className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">You don't have any upcoming trips.</p>
+            <p className="text-muted-foreground mb-4">{t('dashboard.upcomingTrips.noTrips')}</p>
             <Button asChild>
-              <Link to="/trip-posting">Post Your First Trip</Link>
+              <Link to="/trip-posting">{t('dashboard.upcomingTrips.postFirstTrip')}</Link>
             </Button>
           </Card>
         )}

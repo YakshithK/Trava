@@ -1,28 +1,13 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Plane, Upload, Edit } from "lucide-react";
 import VoiceHelpDiv from "@/components/VoiceHelpDiv";
-
-const tripSelectionTexts = {
-  en: {
-    title: "Post Your Trip",
-    subtitle: "How would you like to create your trip?",
-    uploadTicket: "Upload Ticket",
-    uploadTicketDesc: "Scan or upload your flight ticket",
-    uploadBoardingPass: "Upload Boarding Pass",
-    uploadBoardingPassDesc: "Scan or upload your boarding pass",
-    manualEntry: "Manual Entry",
-    manualEntryDesc: "Enter trip details manually",
-    back: "Back",
-    voiceHelp: "Choose how you want to post your trip. You can upload your ticket, boarding pass, or enter details manually. Uploading documents will automatically fill in your trip information.",
-  },
-};
+import { useTranslation } from "react-i18next";
 
 const TripSelection = () => {
   const navigate = useNavigate();
-  const text = tripSelectionTexts.en;
+  const { t } = useTranslation();
 
   const handleSelection = (type: 'ticket' | 'boarding-pass' | 'manual') => {
     if (type === 'manual') {
@@ -47,58 +32,64 @@ const TripSelection = () => {
 
       <main className="page-container">
         <div className="mb-8 text-center">
-          <h1 className="mb-2">{text.title}</h1>
-          <p className="text-gray-600">{text.subtitle}</p>
+          <h1 className="mb-2">{t('tripSelection.title')}</h1>
+          <p className="text-gray-600">{t('tripSelection.subtitle')}</p>
         </div>
 
-        <div className="space-y-4">
-          <Card 
-            className="bg-card p-6 rounded-3xl shadow-md border cursor-pointer hover:shadow-lg transition-shadow"
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card
+            className="p-6 cursor-pointer hover:bg-accent transition-colors"
             onClick={() => handleSelection('ticket')}
           >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-saath-saffron/10 rounded-2xl">
-                <Upload className="h-8 w-8 text-saath-saffron" />
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Upload className="h-6 w-6 text-primary" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-1">{text.uploadTicket}</h3>
-                <p className="text-gray-600">{text.uploadTicketDesc}</p>
+              <div>
+                <h3 className="font-semibold">{t('tripSelection.uploadTicket.title')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('tripSelection.uploadTicket.description')}
+                </p>
               </div>
             </div>
           </Card>
 
-          <Card 
-            className="bg-card p-6 rounded-3xl shadow-md border cursor-pointer hover:shadow-lg transition-shadow"
+          <Card
+            className="p-6 cursor-pointer hover:bg-accent transition-colors"
             onClick={() => handleSelection('boarding-pass')}
           >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-saath-saffron/10 rounded-2xl">
-                <Plane className="h-8 w-8 text-saath-saffron" />
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Upload className="h-6 w-6 text-primary" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-1">{text.uploadBoardingPass}</h3>
-                <p className="text-gray-600">{text.uploadBoardingPassDesc}</p>
+              <div>
+                <h3 className="font-semibold">{t('tripSelection.uploadBoardingPass.title')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('tripSelection.uploadBoardingPass.description')}
+                </p>
               </div>
             </div>
           </Card>
 
-          <Card 
-            className="bg-card p-6 rounded-3xl shadow-md border cursor-pointer hover:shadow-lg transition-shadow"
+          <Card
+            className="p-6 cursor-pointer hover:bg-accent transition-colors"
             onClick={() => handleSelection('manual')}
           >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-saath-saffron/10 rounded-2xl">
-                <Edit className="h-8 w-8 text-saath-saffron" />
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Edit className="h-6 w-6 text-primary" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-1">{text.manualEntry}</h3>
-                <p className="text-gray-600">{text.manualEntryDesc}</p>
+              <div>
+                <h3 className="font-semibold">{t('tripSelection.manualEntry.title')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('tripSelection.manualEntry.description')}
+                </p>
               </div>
             </div>
           </Card>
         </div>
 
-        <VoiceHelpDiv text={text.voiceHelp} />
+        <VoiceHelpDiv text={t('tripSelection.voiceHelp')} />
       </main>
     </div>
   );

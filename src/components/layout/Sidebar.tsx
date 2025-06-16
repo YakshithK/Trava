@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -27,20 +26,22 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/config/supabase";
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { BugDialog } from "./BugDialog";
+import { useTranslation } from "react-i18next";
 
 const navigationItems = [
-  { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Post Trip", path: "/trip-posting", icon: PlusCircle },
-  { name: "Matches", path: "/matches", icon: Users },
-  { name: "Requests", path: "/requests", icon: Mail },
-  { name: "Chat", path: "/chat", icon: MessageSquare },
-  { name: "Profile", path: "/profile", icon: User },
+  { name: "dashboard", path: "/dashboard", icon: Home },
+  { name: "postTrip", path: "/trip-posting", icon: PlusCircle },
+  { name: "matches", path: "/matches", icon: Users },
+  { name: "requests", path: "/requests", icon: Mail },
+  { name: "chat", path: "/chat", icon: MessageSquare },
+  { name: "profile", path: "/profile", icon: User },
 ];
 
 const Sidebar = () => {
   const location = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
   const [profile, setProfile] = useState<{ first_name: string; email: string; avatar_url: string } | null>(null);
   const [showBugDialog, setShowBugDialog] = useState(false);
 
@@ -121,7 +122,7 @@ const Sidebar = () => {
                   }`}>
                     <item.icon className="h-5 w-5" />
                   </div>
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium">{t(`navigation.${item.name}`)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -140,7 +141,7 @@ const Sidebar = () => {
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
-              {profile?.first_name || "Loading..."}
+              {profile?.first_name || t('sidebar.loading')}
             </p>
             <p className="text-xs text-muted-foreground truncate">
               {profile?.email}
@@ -152,7 +153,7 @@ const Sidebar = () => {
         <div className="space-y-3">
           {/* Theme Toggle Row */}
           <div className="flex items-center justify-between px-2">
-            <span className="text-sm font-medium text-muted-foreground">Theme</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('sidebar.theme')}</span>
             <ThemeToggle />
           </div>
 
@@ -165,7 +166,7 @@ const Sidebar = () => {
               className="flex-1 h-9 text-xs hover:bg-accent/50 transition-colors"
             >
               <Sparkles className="h-3 w-3 mr-1" />
-              Report Bug
+              {t('sidebar.reportBug')}
             </Button>
             <Button 
               onClick={handleSignOut} 
@@ -174,7 +175,7 @@ const Sidebar = () => {
               className="flex-1 h-9 text-xs hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50 transition-colors"
             >
               <LogOut className="h-3 w-3 mr-1" />
-              Log out
+              {t('auth.logout')}
             </Button>
           </div>
         </div>

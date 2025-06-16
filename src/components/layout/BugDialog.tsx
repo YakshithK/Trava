@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from "@/config/supabase";
+import { useTranslation } from "react-i18next";
 
 interface BugDialogProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const BugDialog = ({ isOpen, onClose, user}: BugDialogProps) => {
   const [type, setType] = useState("")
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('common');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,15 +41,15 @@ export const BugDialog = ({ isOpen, onClose, user}: BugDialogProps) => {
         created_at: new Date().toISOString()
         });
       toast({
-        title: "Bug Reported",
-        description: "Thank you for your feedback! We'll look into it.",
+        title: t('bugDialog.success.title'),
+        description: t('bugDialog.success.description'),
       });
       setMessage("");
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to submit bug report. Please try again.",
+        title: t('bugDialog.error.title'),
+        description: t('bugDialog.error.description'),
         variant: "destructive",
       });
     } finally {
@@ -59,15 +61,15 @@ export const BugDialog = ({ isOpen, onClose, user}: BugDialogProps) => {
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Report a Bug</AlertDialogTitle>
+          <AlertDialogTitle>{t('bugDialog.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            Please describe the issue you encountered. Our team will review your report as soon as possible.
+            {t('bugDialog.description')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             className="w-full border rounded-lg p-2 text-base"
-            placeholder="What type of bug is it?"
+            placeholder={t('bugDialog.typePlaceholder')}
             value={type}
             onChange={(e) => setType(e.target.value)}
             required
@@ -75,17 +77,19 @@ export const BugDialog = ({ isOpen, onClose, user}: BugDialogProps) => {
           />
           <textarea
             className="w-full min-h-[100px] border rounded-lg p-2 text-base"
-            placeholder="Describe the bug or issue..."
+            placeholder={t('bugDialog.messagePlaceholder')}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
             disabled={submitting}
           />
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={onClose} disabled={submitting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={onClose} disabled={submitting}>
+              {t('bugDialog.cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button type="submit" disabled={submitting || !message.trim()} className="bg-blue-600 hover:bg-blue-700">
-                {submitting ? "Submitting..." : "Submit Bug"}
+                {submitting ? t('bugDialog.submitting') : t('bugDialog.submit')}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

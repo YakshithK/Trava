@@ -4,7 +4,11 @@
     "profile": "Perfil",
     "messages": "Mensajes",
     "requests": "Solicitudes",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "dashboard": "Panel",
+    "postTrip": "Publicar Viaje",
+    "matches": "Coincidencias",
+    "chat": "Chat"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -17,5 +21,98 @@
     "title": "Notificaciones",
     "markAllRead": "Marcar todas como leídas",
     "noNotifications": "No hay notificaciones"
+  },
+  "sidebar": {
+    "theme": "Tema",
+    "reportBug": "Reportar Error",
+    "loading": "Cargando..."
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "welcome": "¡Bienvenido de nuevo! Aquí tienes un resumen de tus planes de viaje.",
+    "inviteFriends": {
+      "title": "Invitar Amigos",
+      "description": "Comparte tu código de referido con amigos y ayúdales a unirse a tu comunidad de viajes.",
+      "copied": "¡Copiado!",
+      "copiedDescription": "Código de referido copiado al portapapeles"
+    },
+    "postTrip": {
+      "title": "¿Listo para tu próximo viaje?",
+      "description": "Comparte tus planes de viaje y encuentra compañeros para tu próximo viaje.",
+      "button": "Publicar un Nuevo Viaje"
+    },
+    "upcomingTrips": {
+      "title": "Próximos Viajes",
+      "addTrip": "Añadir Viaje",
+      "noTrips": "No tienes ningún viaje próximo.",
+      "postFirstTrip": "Publica tu Primer Viaje",
+      "findCompanions": "Encontrar Compañeros",
+      "deleteTrip": {
+        "title": "Eliminar Viaje",
+        "description": "¿Estás seguro de que quieres eliminar este viaje a {{destination}}? Esta acción no se puede deshacer.",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar"
+      }
+    }
+  },
+  "tripPosting": {
+    "title": "Publicar tu Viaje",
+    "subtitle": "Comparte tus planes de viaje para encontrar compañeros",
+    "fromLabel": "Ciudad de Origen",
+    "fromPlaceholder": "ej., Madrid",
+    "toLabel": "Ciudad de Destino",
+    "toPlaceholder": "ej., Barcelona",
+    "airlineLabel": "Aerolínea",
+    "airlinePlaceholder": "ej., Iberia",
+    "flightNumber": "Número de Vuelo",
+    "flightNumberPlaceholder": "ej., IB1234",
+    "dateLabel": "Fecha de Viaje",
+    "datePlaceholder": "Selecciona tu fecha de viaje",
+    "notesLabel": "Notas Adicionales",
+    "notesPlaceholder": "¿Algún requisito o preferencia específica?",
+    "findCompanions": "Encontrar Compañeros",
+    "addToCalendar": "Añadir a Google Calendar",
+    "back": "Atrás",
+    "voiceHelp": "Por favor, completa los detalles de tu viaje. Introduce tu ciudad de origen, ciudad de destino, nombre de la aerolínea y selecciona tu fecha de viaje. También puedes añadir notas adicionales o preferencias. Haz clic en Encontrar Compañeros cuando hayas terminado."
+  },
+  "tripSelection": {
+    "title": "Publicar tu Viaje",
+    "subtitle": "¿Cómo te gustaría crear tu viaje?",
+    "uploadTicket": {
+      "title": "Subir Billete",
+      "description": "Escanea o sube tu billete de avión"
+    },
+    "uploadBoardingPass": {
+      "title": "Subir Tarjeta de Embarque",
+      "description": "Escanea o sube tu tarjeta de embarque"
+    },
+    "manualEntry": {
+      "title": "Entrada Manual",
+      "description": "Introduce los detalles del viaje manualmente"
+    },
+    "back": "Atrás",
+    "voiceHelp": "Elige cómo quieres publicar tu viaje. Puedes subir tu billete, tarjeta de embarque o introducir los detalles manualmente. Al subir documentos, la información de tu viaje se rellenará automáticamente."
+  },
+  "fileUpload": {
+    "ticket": {
+      "title": "Subir tu Billete",
+      "subtitle": "Toma una foto o sube desde tu dispositivo",
+      "uploadFromDevice": "Subir desde Dispositivo (¡Solo Imágenes!)",
+      "takePhoto": "Tomar Foto",
+      "uploadedFile": "Archivo subido:",
+      "continue": "Continuar",
+      "back": "Atrás",
+      "voiceHelp": "Sube tu billete de avión tomando una foto o seleccionando un archivo de tu dispositivo. El sistema extraerá automáticamente la información de tu vuelo."
+    },
+    "boardingPass": {
+      "title": "Subir tu Tarjeta de Embarque",
+      "subtitle": "Toma una foto o sube desde tu dispositivo",
+      "uploadFromDevice": "Subir desde Dispositivo (¡Solo Imágenes!)",
+      "takePhoto": "Tomar Foto",
+      "uploadedFile": "Archivo subido:",
+      "continue": "Continuar",
+      "back": "Atrás",
+      "voiceHelp": "Sube tu tarjeta de embarque tomando una foto o seleccionando un archivo de tu dispositivo. El sistema extraerá automáticamente la información de tu vuelo."
+    }
   }
 }

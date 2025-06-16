@@ -24,7 +24,7 @@ const NotificationsSidebar = ({
 }: NotificationsSidebarProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   
   const unreadCount = notifications.filter(n => !n.read_).length;
 

@@ -4,7 +4,11 @@
     "profile": "Profil",
     "messages": "Messages",
     "requests": "Demandes",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "dashboard": "Tableau de bord",
+    "postTrip": "Publier un voyage",
+    "matches": "Correspondances",
+    "chat": "Chat"
   },
   "auth": {
     "login": "Connexion",
@@ -17,5 +21,98 @@
     "title": "Notifications",
     "markAllRead": "Tout marquer comme lu",
     "noNotifications": "Aucune notification"
+  },
+  "sidebar": {
+    "theme": "Thème",
+    "reportBug": "Signaler un bug",
+    "loading": "Chargement..."
+  },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "welcome": "Bon retour ! Voici un aperçu de vos projets de voyage.",
+    "inviteFriends": {
+      "title": "Inviter des Amis",
+      "description": "Partagez votre code de parrainage avec vos amis et aidez-les à rejoindre votre communauté de voyage.",
+      "copied": "Copié !",
+      "copiedDescription": "Code de parrainage copié dans le presse-papiers"
+    },
+    "postTrip": {
+      "title": "Prêt pour votre prochain voyage ?",
+      "description": "Partagez vos projets de voyage et trouvez des compagnons pour votre prochain voyage.",
+      "button": "Publier un Nouveau Voyage"
+    },
+    "upcomingTrips": {
+      "title": "Voyages à Venir",
+      "addTrip": "Ajouter un Voyage",
+      "noTrips": "Vous n'avez aucun voyage prévu.",
+      "postFirstTrip": "Publiez votre Premier Voyage",
+      "findCompanions": "Trouver des Compagnons",
+      "deleteTrip": {
+        "title": "Supprimer le Voyage",
+        "description": "Êtes-vous sûr de vouloir supprimer ce voyage vers {{destination}} ? Cette action ne peut pas être annulée.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      }
+    }
+  },
+  "tripPosting": {
+    "title": "Publier votre Voyage",
+    "subtitle": "Partagez vos projets de voyage pour trouver des compagnons",
+    "fromLabel": "Ville de Départ",
+    "fromPlaceholder": "ex., Paris",
+    "toLabel": "Ville d'Arrivée",
+    "toPlaceholder": "ex., Lyon",
+    "airlineLabel": "Compagnie Aérienne",
+    "airlinePlaceholder": "ex., Air France",
+    "flightNumber": "Numéro de Vol",
+    "flightNumberPlaceholder": "ex., AF1234",
+    "dateLabel": "Date de Voyage",
+    "datePlaceholder": "Sélectionnez votre date de voyage",
+    "notesLabel": "Notes Supplémentaires",
+    "notesPlaceholder": "Des exigences ou préférences particulières ?",
+    "findCompanions": "Trouver des Compagnons",
+    "addToCalendar": "Ajouter à Google Calendar",
+    "back": "Retour",
+    "voiceHelp": "Veuillez remplir les détails de votre voyage. Entrez votre ville de départ, ville d'arrivée, nom de la compagnie aérienne et sélectionnez votre date de voyage. Vous pouvez également ajouter des notes supplémentaires ou des préférences. Cliquez sur Trouver des Compagnons lorsque vous avez terminé."
+  },
+  "tripSelection": {
+    "title": "Publier votre Voyage",
+    "subtitle": "Comment souhaitez-vous créer votre voyage ?",
+    "uploadTicket": {
+      "title": "Télécharger le Billet",
+      "description": "Scannez ou téléchargez votre billet d'avion"
+    },
+    "uploadBoardingPass": {
+      "title": "Télécharger la Carte d'Embarquement",
+      "description": "Scannez ou téléchargez votre carte d'embarquement"
+    },
+    "manualEntry": {
+      "title": "Saisie Manuelle",
+      "description": "Saisissez les détails du voyage manuellement"
+    },
+    "back": "Retour",
+    "voiceHelp": "Choisissez comment vous souhaitez publier votre voyage. Vous pouvez télécharger votre billet, votre carte d'embarquement ou saisir les détails manuellement. Le téléchargement de documents remplira automatiquement les informations de votre voyage."
+  },
+  "fileUpload": {
+    "ticket": {
+      "title": "Télécharger votre Billet",
+      "subtitle": "Prenez une photo ou téléchargez depuis votre appareil",
+      "uploadFromDevice": "Télécharger depuis l'Appareil (Images Uniquement !)",
+      "takePhoto": "Prendre une Photo",
+      "uploadedFile": "Fichier téléchargé :",
+      "continue": "Continuer",
+      "back": "Retour",
+      "voiceHelp": "Téléchargez votre billet d'avion en prenant une photo ou en sélectionnant un fichier de votre appareil. Le système extraira automatiquement les informations de votre vol."
+    },
+    "boardingPass": {
+      "title": "Télécharger votre Carte d'Embarquement",
+      "subtitle": "Prenez une photo ou téléchargez depuis votre appareil",
+      "uploadFromDevice": "Télécharger depuis l'Appareil (Images Uniquement !)",
+      "takePhoto": "Prendre une Photo",
+      "uploadedFile": "Fichier téléchargé :",
+      "continue": "Continuer",
+      "back": "Retour",
+      "voiceHelp": "Téléchargez votre carte d'embarquement en prenant une photo ou en sélectionnant un fichier de votre appareil. Le système extraira automatiquement les informations de votre vol."
+    }
   }
 }
