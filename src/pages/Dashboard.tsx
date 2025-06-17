@@ -1,4 +1,3 @@
-
 import { useUserStore } from "@/store/userStore";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -13,6 +12,21 @@ import { useToast } from "@/hooks/use-toast";
 import { Request, fetchRequests, fetchTrips, formatDate, deleteTrip, FullRequests, Timeline } from "@/features/dashboard";
 import { supabase } from "@/config/supabase";
 import { useTranslation } from "react-i18next";
+import { formatDistanceToNow } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface RecentMessage {
+  id: string;
+  text: string;
+  timestamp: string;
+  sender: {
+    id: string;
+    name: string;
+    photo: string;
+  };
+  connection_id: string;
+}
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,6 +36,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [userCode, setUserCode] = useState("");
   const { t } = useTranslation();
+  const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -40,6 +56,71 @@ const Dashboard = () => {
       };
       fetchUserCode();
     }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchRecentMessages = async () => {
+      if (!user) return;
+
+      try {
+        // Get the most recent message from each connection
+        const { data, error } = await supabase
+          .from('messages')
+          .select(`
+            id,
+            text,
+            timestamp,
+            connection_id,
+            sender:sender_id (
+              id,
+              name,
+              photo
+            )
+          `)
+          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+          .order('timestamp', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        // Group messages by connection and get the most recent one
+        const uniqueConnections = new Map();
+        data.forEach((message) => {
+          if (!uniqueConnections.has(message.connection_id)) {
+            uniqueConnections.set(message.connection_id, message);
+          }
+        });
+
+        setRecentMessages(Array.from(uniqueConnections.values()));
+      } catch (error) {
+        console.error('Error fetching recent messages:', error);
+      } finally {
+        setMessagesLoading(false);
+      }
+    };
+
+    fetchRecentMessages();
+
+    // Subscribe to new messages
+    const channel = supabase
+      .channel('recent_messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${user?.id} OR receiver_id=eq.${user?.id}`
+        },
+        (payload) => {
+          fetchRecentMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const handleDeleteTrip = async (tripId: string) => {
@@ -224,14 +305,56 @@ const Dashboard = () => {
       {/* Recent Messages */}
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold">Recent Messages</h2>
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground mb-4">
-            You don't have any active conversations.
-          </p>
-          <Button asChild variant="outline">
-            <Link to="/matches">Find Travel Companions</Link>
-          </Button>
-        </Card>
+        {messagesLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="p-4">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : recentMessages.length > 0 ? (
+          <div className="space-y-4">
+            {recentMessages.map((message) => (
+              <Card key={message.id} className="p-4 hover:bg-accent/50 transition-colors">
+                <Link to={`/chat/${message.connection_id}`} className="block">
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarImage src={message.sender.photo} />
+                      <AvatarFallback>
+                        {message.sender.name.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
+                        <p className="font-medium truncate">{message.sender.name}</p>
+                        <span className="text-sm text-muted-foreground">
+                          {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{message.text}</p>
+                    </div>
+                  </div>
+                </Link>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground mb-4">
+              You don't have any active conversations.
+            </p>
+            <Button asChild variant="outline">
+              <Link to="/matches">Find Travel Companions</Link>
+            </Button>
+          </Card>
+        )}
       </div>
     </div>
   );

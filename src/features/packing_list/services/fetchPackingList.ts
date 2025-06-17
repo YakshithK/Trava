@@ -38,5 +38,11 @@ export const fetchPackingList = async (connectionId, setPackingList) => {
       return;
     }
 
+    
+
+
+
+
+    
     setPackingList(list);
   };

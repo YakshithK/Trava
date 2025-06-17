@@ -1,0 +1,15 @@
+{
+  "tripHistory": {
+    "title": "Trip History",
+    "tabs": {
+      "all": "All Trips",
+      "completed": "Completed",
+      "ongoing": "Ongoing",
+      "cancelled": "Cancelled"
+    },
+    "matches": "{{count}} matches"
+  },
+  "navigation": {
+    "tripHistory": "Trip History"
+  }
+} 
