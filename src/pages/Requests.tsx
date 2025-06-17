@@ -8,13 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetchRequests, formatDate, getInitials, getStatusColor, handleAcceptRequest, handleCancelRequest, MatchRequest} from "@/features/requesting";
 import { notificationsService } from "@/features/notifications";
 import { useAuth } from "@/context/authContext";
+import { useTranslation } from "react-i18next";
 
 const Requests = () => {
   const [incoming, setIncoming] = useState<MatchRequest[]>([]);
   const [outgoing, setOutgoing] = useState<MatchRequest[]>([]);
-
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchRequests(setLoading, setIncoming, setOutgoing);
@@ -25,26 +26,25 @@ const Requests = () => {
     }
   }, [user?.id]);
 
-
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Travel Requests</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('requests.title')}</h1>
         <p className="text-muted-foreground">
-          Manage your incoming and outgoing travel companion requests.
+          {t('requests.subtitle')}
         </p> 
       </div>
 
       <Tabs defaultValue="incoming">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="incoming">
-            Incoming Requests 
+            {t('requests.incoming')}
             {incoming.length > 0 && (
               <Badge className="ml-2 bg-amber-500">{incoming.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="outgoing">
-            Outgoing Requests
+            {t('requests.outgoing')}
             {outgoing.length > 0 && (
               <Badge className="ml-2">{outgoing.length}</Badge>
             )}
@@ -80,8 +80,8 @@ const Requests = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between gap-2">
-                    <Button variant="outline" className="w-full" onClick={() => handleCancelRequest(request.id, setOutgoing)}>Decline</Button>
-                    <Button className="w-full" onClick={() => handleAcceptRequest(request.from_user, request.to_user, request.id, setIncoming)}>Accept</Button>
+                    <Button variant="outline" className="w-full" onClick={() => handleCancelRequest(request.id, setOutgoing)}>{t('requests.decline')}</Button>
+                    <Button className="w-full" onClick={() => handleAcceptRequest(request.from_user, request.to_user, request.id, setIncoming)}>{t('requests.accept')}</Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -89,7 +89,7 @@ const Requests = () => {
           ) : (
             <Card className="p-8 text-center">
               <p className="text-muted-foreground">
-                You don't have any incoming travel requests.
+                {t('requests.noIncoming')}
               </p>
             </Card>
           )}
@@ -108,8 +108,8 @@ const Requests = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <CardTitle>{request.name}</CardTitle>
-                        <Badge className={getStatusColor(request.status,)}>
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        <Badge className={getStatusColor(request.status)}>
+                          {t(`requests.status.${request.status}`)}
                         </Badge>
                       </div>
                       <CardDescription className="flex items-center gap-1">
@@ -131,12 +131,12 @@ const Requests = () => {
                   <CardFooter>
                     {request.status === "accepted" ? (
                       <Button asChild className="w-full">
-                        <a href={`/chat/${request.id}`}>Start Chat</a>
+                        <a href={`/chat/${request.id}`}>{t('requests.startChat')}</a>
                       </Button>
                     ) : request.status === "pending" ? (
-                      <Button variant="outline" className="w-full" onClick={() => handleCancelRequest(request.id, setOutgoing)}>Cancel Request</Button>
+                      <Button variant="outline" className="w-full" onClick={() => handleCancelRequest(request.id, setOutgoing)}>{t('requests.cancel')}</Button>
                     ) : (
-                      <Button variant="outline" className="w-full">Remove</Button>
+                      <Button variant="outline" className="w-full">{t('requests.remove')}</Button>
                     )}
                   </CardFooter>
                 </Card>
@@ -145,7 +145,7 @@ const Requests = () => {
           ) : (
             <Card className="p-8 text-center">
               <p className="text-muted-foreground">
-                You haven't sent any travel requests yet.
+                {t('requests.noOutgoing')}
               </p>
             </Card>
           )}

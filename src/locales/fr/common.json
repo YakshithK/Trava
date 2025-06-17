@@ -114,5 +114,79 @@
       "back": "Retour",
       "voiceHelp": "Téléchargez votre carte d'embarquement en prenant une photo ou en sélectionnant un fichier de votre appareil. Le système extraira automatiquement les informations de votre vol."
     }
+  },
+  "matches": {
+    "title": "Compagnons de Voyage Potentiels",
+    "subtitle": "Ces voyageurs ont des plans similaires",
+    "age": "Âge",
+    "route": "Itinéraire",
+    "contactButton": "Demander à Voyager Ensemble",
+    "noMatches": "Aucune correspondance trouvée. Revenez plus tard !",
+    "loading": "Chargement des correspondances...",
+    "voiceHelp": "Cette page montre les compagnons de voyage potentiels correspondant à votre voyage. Chaque carte affiche le nom du voyageur, son âge et son itinéraire. Cliquez sur 'Demander à Voyager Ensemble' pour vous connecter avec quelqu'un."
+  },
+  "requests": {
+    "title": "Demandes de Voyage",
+    "subtitle": "Gérez vos demandes de compagnons de voyage entrantes et sortantes",
+    "incoming": "Demandes Entrantes",
+    "outgoing": "Demandes Sortantes",
+    "noIncoming": "Vous n'avez pas de demandes de voyage entrantes.",
+    "noOutgoing": "Vous n'avez pas encore envoyé de demandes de voyage.",
+    "decline": "Refuser",
+    "accept": "Accepter",
+    "cancel": "Annuler la Demande",
+    "remove": "Supprimer",
+    "startChat": "Démarrer le Chat",
+    "status": {
+      "pending": "En Attente",
+      "accepted": "Accepté",
+      "declined": "Refusé"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "connectionsTitle": "Vos Connexions",
+    "inputPlaceholder": "Écrivez un message...",
+    "noConnectionSelected": "Sélectionnez une connexion pour commencer à discuter",
+    "voiceHelp": "Discutez avec vos connexions en temps réel. Envoyez des messages, partagez des images et réagissez avec des emojis.",
+    "online": "En ligne",
+    "lastSeen": "Vu récemment",
+    "report": "Signaler",
+    "block": "Bloquer",
+    "sharedImage": "Image partagée",
+    "edited": "modifié",
+    "read": "Lu",
+    "unread": "Non lu",
+    "isTyping": "est en train d'écrire...",
+    "accessDenied": {
+      "title": "Accès Refusé",
+      "description": "Vous n'avez pas la permission d'accéder à ce chat."
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Mettre à jour vos informations personnelles",
+    "loading": "Chargement de votre profil...",
+    "name": "Nom",
+    "password": "Mot de passe",
+    "resetPassword": "Cliquez ici pour réinitialiser le mot de passe",
+    "phoneNumber": "Numéro de Téléphone",
+    "phonePlaceholder": "(123) 456-7890",
+    "age": "Âge",
+    "referralCode": "Code de Parrainage",
+    "copy": "Copier",
+    "photoUpload": {
+      "maxSize": "Taille maximale : 5MB"
+    },
+    "validation": {
+      "age": {
+        "min": "L'âge doit être au moins 0",
+        "max": "L'âge doit être inférieur à 120"
+      }
+    },
+    "copied": {
+      "title": "Copié !",
+      "description": "Code de parrainage copié dans le presse-papiers"
+    }
   }
 }

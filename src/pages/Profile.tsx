@@ -19,6 +19,7 @@ import { AlertTriangle, Users, DollarSign } from "lucide-react";
 import { validatePhoneNumber } from "@/lib/validation";
 import { fetchData, formatPhoneNumber, handleForgotPassword, handlePhotoChange, onSubmit, getReferralStats, profileFormSchema, ProfileFormValues } from "@/features/profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
   const form = useForm<ProfileFormValues>({
@@ -41,6 +42,8 @@ export default function Profile() {
   // const [pendingReferrals, setPendingReferrals] = useState<any>(null)
   // const [successfulReferrals, setSuccessfulReferrals] = useState<any>(null)
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     fetchData(
       setIsLoading,
@@ -59,7 +62,7 @@ export default function Profile() {
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               <span className="ml-2 text-muted-foreground">
-                Loading your profile...
+                {t('profile.loading')}
               </span>
             </div>
           </CardContent>
@@ -125,8 +128,8 @@ export default function Profile() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Update your personal information</CardDescription>
+          <CardTitle>{t('profile.title')}</CardTitle>
+          <CardDescription>{t('profile.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -156,11 +159,11 @@ export default function Profile() {
                 onChange={(e) => handlePhotoChange(e, setError, setPhotoData)}
                 className="w-auto"
               />
-              <p className="text-xs text-muted-foreground">Max size: 5MB</p>
+              <p className="text-xs text-muted-foreground">{t('profile.photoUpload.maxSize')}</p>
             </div>
 
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('profile.name')}</Label>
               <Input
                 id="name"
                 {...form.register("name")}
@@ -174,19 +177,19 @@ export default function Profile() {
             </div>
 
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('profile.password')}</Label>
               <div
                 onClick={() => handleForgotPassword(setIsLoading, setError, setSuccess, user)}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
               >
                 <span className="text-muted-foreground">
-                  Click here to reset password
+                  {t('profile.resetPassword')}
                 </span>
               </div>
             </div>
 
             <div>
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">{t('profile.phoneNumber')}</Label>
               <Input
                 id="phoneNumber"
                 {...form.register("phoneNumber", {
@@ -197,7 +200,7 @@ export default function Profile() {
                   },
                 })}
                 disabled={isLoading}
-                placeholder="(123) 456-7890"
+                placeholder={t('profile.phonePlaceholder')}
               />
               {phoneError && (
                 <p className="text-sm text-red-500 mt-1">{phoneError}</p>
@@ -205,13 +208,13 @@ export default function Profile() {
             </div>
 
             <div>
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age">{t('profile.age')}</Label>
               <Input
                 id="age"
                 type="number"
                 {...form.register("age", {
-                  min: { value: 0, message: "Age must be at least 0" },
-                  max: { value: 120, message: "Age must be less than 120" },
+                  min: { value: 0, message: t('profile.validation.age.min') },
+                  max: { value: 120, message: t('profile.validation.age.max') },
                 })}
                 disabled={isLoading}
               />
@@ -223,7 +226,7 @@ export default function Profile() {
             </div>
 
             <div>
-              <Label>Referral Code</Label>
+              <Label>{t('profile.referralCode')}</Label>
               <div className="flex gap-2">
                 <Input
                   id="code"
@@ -237,29 +240,22 @@ export default function Profile() {
                   onClick={() => {
                     navigator.clipboard.writeText(`${window.location.origin}/onboarding?ref=${form.getValues("code")}`);
                     toast({
-                      title: "Copied!",
-                      description: "Referral code copied to clipboard",
+                      title: t('profile.copied.title'),
+                      description: t('profile.copied.description'),
                     });
                   }}
                 >
-                  Copy
+                  {t('profile.copy')}
                 </Button>
               </div>
             </div>
 
             <Button
               type="submit"
+              className="w-full bg-saath-saffron hover:bg-saath-saffron/90 text-black"
               disabled={isLoading}
-              className="w-full sm:w-auto"
             >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
-                </>
-              ) : (
-                "Save"
-              )}
+              {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </CardContent>

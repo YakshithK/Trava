@@ -131,5 +131,79 @@
         "back": "Back",
         "voiceHelp": "Upload your boarding pass by taking a photo or selecting a file from your device. The system will automatically extract your flight information."
       }
+    },
+    "matches": {
+      "title": "Potential Travel Companions",
+      "subtitle": "These travelers have similar plans",
+      "age": "Age",
+      "route": "Route",
+      "contactButton": "Request to Travel Together",
+      "noMatches": "No matches found. Check back later!",
+      "loading": "Loading matches...",
+      "voiceHelp": "This page shows potential travel companions matching your trip. Each card shows the traveler's name, age, and travel route. Click on 'Request to Travel Together' to connect with someone."
+    },
+    "requests": {
+      "title": "Travel Requests",
+      "subtitle": "Manage your incoming and outgoing travel companion requests",
+      "incoming": "Incoming Requests",
+      "outgoing": "Outgoing Requests",
+      "noIncoming": "You don't have any incoming travel requests.",
+      "noOutgoing": "You haven't sent any travel requests yet.",
+      "decline": "Decline",
+      "accept": "Accept",
+      "cancel": "Cancel Request",
+      "remove": "Remove",
+      "startChat": "Start Chat",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      }
+    },
+    "chat": {
+      "title": "Chat",
+      "connectionsTitle": "Your Connections",
+      "inputPlaceholder": "Type a message...",
+      "noConnectionSelected": "Select a connection to start chatting",
+      "voiceHelp": "Chat with your connections in real-time. Send messages, share images, and react with emojis.",
+      "online": "Online",
+      "lastSeen": "Last seen recently",
+      "report": "Report",
+      "block": "Block",
+      "sharedImage": "Shared image",
+      "edited": "edited",
+      "read": "Read",
+      "unread": "Unread",
+      "isTyping": "is typing...",
+      "accessDenied": {
+        "title": "Access Denied",
+        "description": "You don't have permission to access this chat."
+      }
+    },
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Update your personal information",
+      "loading": "Loading your profile...",
+      "name": "Name",
+      "password": "Password",
+      "resetPassword": "Click here to reset password",
+      "phoneNumber": "Phone Number",
+      "phonePlaceholder": "(123) 456-7890",
+      "age": "Age",
+      "referralCode": "Referral Code",
+      "copy": "Copy",
+      "photoUpload": {
+        "maxSize": "Max size: 5MB"
+      },
+      "validation": {
+        "age": {
+          "min": "Age must be at least 0",
+          "max": "Age must be less than 120"
+        }
+      },
+      "copied": {
+        "title": "Copied!",
+        "description": "Referral code copied to clipboard"
+      }
     }
   }

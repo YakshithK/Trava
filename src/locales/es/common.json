@@ -114,5 +114,79 @@
       "back": "Atrás",
       "voiceHelp": "Sube tu tarjeta de embarque tomando una foto o seleccionando un archivo de tu dispositivo. El sistema extraerá automáticamente la información de tu vuelo."
     }
+  },
+  "matches": {
+    "title": "Compañeros de Viaje Potenciales",
+    "subtitle": "Estos viajeros tienen planes similares",
+    "age": "Edad",
+    "route": "Ruta",
+    "contactButton": "Solicitar Viajar Juntos",
+    "noMatches": "No se encontraron coincidencias. ¡Vuelve a revisar más tarde!",
+    "loading": "Cargando coincidencias...",
+    "voiceHelp": "Esta página muestra compañeros de viaje potenciales que coinciden con tu viaje. Cada tarjeta muestra el nombre del viajero, edad y ruta de viaje. Haz clic en 'Solicitar Viajar Juntos' para conectarte con alguien."
+  },
+  "requests": {
+    "title": "Solicitudes de Viaje",
+    "subtitle": "Gestiona tus solicitudes de compañeros de viaje entrantes y salientes",
+    "incoming": "Solicitudes Entrantes",
+    "outgoing": "Solicitudes Salientes",
+    "noIncoming": "No tienes solicitudes de viaje entrantes.",
+    "noOutgoing": "Aún no has enviado ninguna solicitud de viaje.",
+    "decline": "Rechazar",
+    "accept": "Aceptar",
+    "cancel": "Cancelar Solicitud",
+    "remove": "Eliminar",
+    "startChat": "Iniciar Chat",
+    "status": {
+      "pending": "Pendiente",
+      "accepted": "Aceptado",
+      "declined": "Rechazado"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "connectionsTitle": "Tus Conexiones",
+    "inputPlaceholder": "Escribe un mensaje...",
+    "noConnectionSelected": "Selecciona una conexión para comenzar a chatear",
+    "voiceHelp": "Chatea con tus conexiones en tiempo real. Envía mensajes, comparte imágenes y reacciona con emojis.",
+    "online": "En línea",
+    "lastSeen": "Visto recientemente",
+    "report": "Reportar",
+    "block": "Bloquear",
+    "sharedImage": "Imagen compartida",
+    "edited": "editado",
+    "read": "Leído",
+    "unread": "No leído",
+    "isTyping": "está escribiendo...",
+    "accessDenied": {
+      "title": "Acceso Denegado",
+      "description": "No tienes permiso para acceder a este chat."
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "subtitle": "Actualiza tu información personal",
+    "loading": "Cargando tu perfil...",
+    "name": "Nombre",
+    "password": "Contraseña",
+    "resetPassword": "Haz clic aquí para restablecer la contraseña",
+    "phoneNumber": "Número de Teléfono",
+    "phonePlaceholder": "(123) 456-7890",
+    "age": "Edad",
+    "referralCode": "Código de Referido",
+    "copy": "Copiar",
+    "photoUpload": {
+      "maxSize": "Tamaño máximo: 5MB"
+    },
+    "validation": {
+      "age": {
+        "min": "La edad debe ser al menos 0",
+        "max": "La edad debe ser menor a 120"
+      }
+    },
+    "copied": {
+      "title": "¡Copiado!",
+      "description": "Código de referido copiado al portapapeles"
+    }
   }
 }

@@ -7,23 +7,11 @@ import VoiceHelp from "@/components/VoiceHelp";
 import { useToast } from "@/hooks/use-toast";
 import { TravelMatch, fetchMatches, handleContactRequest } from "../features/matches"; 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-const matchTexts = {
-  en: {
-    title: "Potential Travel Companions",
-    subtitle: "These travelers have similar plans",
-    age: "Age",
-    route: "Route",
-    contactButton: "Request to Travel Together",
-    noMatches: "No matches found. Check back later!",
-    voiceHelp:
-      "This page shows potential travel companions matching your trip. Each card shows the traveler's name, age, and travel route. Click on 'Request to Travel Together' to connect with someone.",
-  },
-};
+import { useTranslation } from "react-i18next";
 
 const Matches = () => {
   const navigate = useNavigate();
-  const text = matchTexts.en;
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   const [matches, setMatches] = useState<TravelMatch[]>([]);
@@ -48,12 +36,12 @@ const Matches = () => {
 
       <main className="page-container">
         <div className="mb-8 text-center">
-          <h1 className="mb-2">{text.title}</h1>
-          <p className="text-gray-600">{text.subtitle}</p>
+          <h1 className="mb-2">{t('matches.title')}</h1>
+          <p className="text-gray-600">{t('matches.subtitle')}</p>
         </div>
 
         {loading ? (
-          <p className="text-center text-gray-500">Loading matches...</p>
+          <p className="text-center text-gray-500">{t('matches.loading')}</p>
         ) : matches.length > 0 ? (
           <div className="space-y-6">
             {matches.map((match) => (
@@ -76,7 +64,7 @@ const Matches = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-lg">
                       <div>
-                        <span className="font-medium">{text.age}:</span>{" "}
+                        <span className="font-medium">{t('matches.age')}:</span>{" "}
                         {match.age}
                       </div>
                     </div>
@@ -88,7 +76,7 @@ const Matches = () => {
                     className="large-button bg-saath-green hover:bg-saath-green/90 text-black flex gap-2 items-center"
                   >
                     <Send className="h-5 w-5" />
-                    {text.contactButton}
+                    {t('matches.contactButton')}
                   </Button>
                 </div>
               </Card>
@@ -96,11 +84,11 @@ const Matches = () => {
           </div>
         ) : (
           <Card className="bg-card p-8 rounded-3xl shadow-md border text-center">
-            <p className="text-xl text-gray-600">{text.noMatches}</p>
+            <p className="text-xl text-gray-600">{t('matches.noMatches')}</p>
           </Card>
         )}
 
-        <VoiceHelp text={text.voiceHelp} />
+        <VoiceHelp text={t('matches.voiceHelp')} />
       </main>
     </div>
   );
