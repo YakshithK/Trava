@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, User, Circle, MessageCircle, Sparkles } from "lucide-react";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { supabase } from "@/config/supabase";
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { usePresenceStore } from "@/store/presenceStore";
@@ -411,9 +410,6 @@ const Chat = () => {
           <NoConnection text={t('chat.noConnectionSelected')}/>
         )}
       </div>
-
-      {/* Voice Help */}
-      <VoiceHelpDiv text={t('chat.voiceHelp')} />
     </div>
   );
 };

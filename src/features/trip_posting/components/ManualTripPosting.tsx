@@ -15,7 +15,6 @@ import { format, set } from "date-fns";
 import { CalendarIcon, ArrowLeft, Plane, CalendarPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/config/supabase";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { fetchAirlines, fetchAirports, Airline, Airport } from "../index";
 import { handleAddToCalendar } from "../controllers/handleCalendar";
 import { toast } from "@/components/ui/use-toast";
@@ -243,7 +242,6 @@ const TripPosting = () => {
             </div>
           </form>
         </Card>
-        <VoiceHelpDiv text={t('tripPosting.voiceHelp')} />
       </main>
     </div>
   );

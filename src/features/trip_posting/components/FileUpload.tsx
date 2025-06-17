@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Upload, Camera, FileText } from "lucide-react";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { handleCameraCapture, handleContinue, handleFileUpload } from "@/features/trip_posting/index";
 import { useTranslation } from "react-i18next";
 
@@ -97,8 +96,6 @@ export const FileUpload = () => {
             )}
           </div>
         </Card>
-
-        <VoiceHelpDiv text={t(`fileUpload.${type}.voiceHelp`)} />
       </main>
     </div>
   );

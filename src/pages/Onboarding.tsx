@@ -5,12 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import VoiceHelp from "@/components/VoiceHelp";
 import { ArrowLeft, Camera, User } from "lucide-react";
 import { supabase } from "@/config/supabase";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { validateEmail, validatePhoneNumber} from "@/lib/validation";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { formatPhoneNumber, handleFileChange, handleSubmit, PhotoUpload, Password, ConfirmPassword } from "@/features/onboarding";
 
 const onboardingTexts = {
@@ -236,8 +234,6 @@ const Onboarding = () => {
             </div>
           </form>
         </Card>
-
-        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );

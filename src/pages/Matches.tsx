@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare, Send, User } from "lucide-react";
-import VoiceHelp from "@/components/VoiceHelp";
 import { useToast } from "@/hooks/use-toast";
 import { TravelMatch, fetchMatches, handleContactRequest } from "../features/matches"; 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -87,8 +86,6 @@ const Matches = () => {
             <p className="text-xl text-gray-600">{t('matches.noMatches')}</p>
           </Card>
         )}
-
-        <VoiceHelp text={t('matches.voiceHelp')} />
       </main>
     </div>
   );

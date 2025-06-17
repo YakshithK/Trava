@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Plane, Upload, Edit } from "lucide-react";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { useTranslation } from "react-i18next";
 
 const TripSelection = () => {
@@ -88,8 +87,6 @@ const TripSelection = () => {
             </div>
           </Card>
         </div>
-
-        <VoiceHelpDiv text={t('tripSelection.voiceHelp')} />
       </main>
     </div>
   );

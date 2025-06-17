@@ -4,8 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import VoiceHelp from "@/components/VoiceHelp";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { supabase } from "@/config/supabase";
 
 const welcomeTexts = {
@@ -69,8 +67,6 @@ const Welcome = () => {
             </Button>
           </div>
         </Card>
-
-        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );

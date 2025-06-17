@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { supabase } from "@/config/supabase";
-import VoiceHelpDiv from "@/components/VoiceHelpDiv";
 import { handleSubmit } from "@/features/login";
 
 const onboardingTexts = {
@@ -127,8 +126,6 @@ const Login = () => {
             </div>
           </form>
         </Card>
-
-        <VoiceHelpDiv text={text.voiceHelp} />
       </main>
     </div>
   );
