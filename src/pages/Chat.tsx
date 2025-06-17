@@ -10,6 +10,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { usePresenceStore } from "@/store/presenceStore";
 import { useToast } from "@/hooks/use-toast";
 import { notificationsService } from "@/features/notifications";
+import { useTranslation } from "react-i18next";
 import {Connection, 
   Message, 
   fetchConnections, 
@@ -23,17 +24,6 @@ import {Connection,
   FullConnections, 
   ChatHeader} from "@/features/chat/index"
 
-const chatTexts = {
-  en: {
-    title: "Messages",
-    inputPlaceholder: "Type your message here...",
-    sendButton: "Send",
-    noConnectionSelected: "Select a connection to start chatting",
-    connectionsTitle: "Your Connections",
-    voiceHelp: "This is your messaging center. Select a connection from the left sidebar to start chatting. Type your message in the text box at the bottom and press send.",
-  },
-};
-
 const Chat = () => {
   const [connections, setConnections] = useState<Connection[]>([]);
   const navigate = useNavigate();
@@ -46,7 +36,7 @@ const Chat = () => {
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const [imageUploadReset, setImageUploadReset] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const text = chatTexts.en;
+  const { t } = useTranslation();
 
   const onlineUserIds = usePresenceStore((s) => s.onlineUserIds);
   const setOnlineUserIds = usePresenceStore((s) => s.setOnlineUserIds);
@@ -187,8 +177,8 @@ const Chat = () => {
               if (error) {
                 if (error.code === 'PGRST301') {
                   toast({
-                    title: "Access Denied",
-                    description: "You can't access these messages. The user may have blocked you.",
+                    title: t('chat.accessDenied.title'),
+                    description: t('chat.accessDenied.description'),
                     variant: "destructive",
                   });
                 }
@@ -200,7 +190,7 @@ const Chat = () => {
     return () => {
       if (channel) supabase.removeChannel(channel);
     };
-  }, [selectedConnection?.id, user?.id, toast]);
+  }, [selectedConnection?.id, user?.id, toast, t]);
 
   useEffect(() => {
     // Mark as read when messages are loaded or updated
@@ -288,7 +278,7 @@ const Chat = () => {
         connection_id: selectedConnection.id,
         sender_id: user.id,
         receiver_id: selectedConnection.user_id,
-        text: messageText.trim() || (selectedImage ? "Shared an image" : ""),
+        text: messageText.trim() || (selectedImage ? t('chat.sharedImage') : ""),
         type: selectedImage ? "image" : "text",
         image_url: selectedImage,
         timestamp: new Date().toISOString()
@@ -333,13 +323,13 @@ const Chat = () => {
             <div className="p-2 rounded-lg bg-primary/10">
               <MessageCircle className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-foreground">{text.connectionsTitle}</h2>
+            <h2 className="text-xl font-bold text-foreground">{t('chat.connectionsTitle')}</h2>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">{connections.length} connections</p>
             <div className="flex items-center space-x-1">
               <Circle className="h-2 w-2 fill-green-500 text-green-500" />
-              <span className="text-xs text-muted-foreground">Online</span>
+              <span className="text-xs text-muted-foreground">{t('chat.online')}</span>
             </div>
           </div>
         </div>
@@ -402,7 +392,7 @@ const Chat = () => {
                         handleSendMessage(e)
                       }
                     }}
-                    placeholder={text.inputPlaceholder}
+                    placeholder={t('chat.inputPlaceholder')}
                     className="h-14 text-base rounded-xl border-2 border-border/30 bg-white/80 backdrop-blur-sm focus:bg-white focus:border-primary transition-all duration-200 pr-4 pl-6 shadow-sm"
                   />
                 </div>
@@ -418,12 +408,12 @@ const Chat = () => {
             </div>
           </>
         ) : (
-          <NoConnection text={text.noConnectionSelected}/>
+          <NoConnection text={t('chat.noConnectionSelected')}/>
         )}
       </div>
 
       {/* Voice Help */}
-      <VoiceHelpDiv text={text.voiceHelp} />
+      <VoiceHelpDiv text={t('chat.voiceHelp')} />
     </div>
   );
 };
