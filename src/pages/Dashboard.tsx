@@ -1,3 +1,4 @@
+
 import { useUserStore } from "@/store/userStore";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
-import { Request, fetchRequests, fetchTrips, formatDate, deleteTrip, FullRequests } from "@/features/dashboard";
+import { Request, fetchRequests, fetchTrips, formatDate, deleteTrip, FullRequests, Timeline } from "@/features/dashboard";
 import { supabase } from "@/config/supabase";
 import { useTranslation } from "react-i18next";
 
@@ -122,73 +123,82 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Upcoming Trips */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">{t('dashboard.upcomingTrips.title')}</h2>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/trip-posting">{t('dashboard.upcomingTrips.addTrip')}</Link>
-          </Button>
+      {/* Two-column layout for trips and timeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Upcoming Trips */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">{t('dashboard.upcomingTrips.title')}</h2>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/trip-posting">{t('dashboard.upcomingTrips.addTrip')}</Link>
+            </Button>
+          </div>
+
+          {trips.length > 0 ? (
+            <div className="space-y-4">
+              {trips.map((trip) => (
+                <Card key={trip.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>{trip.from} to {trip.to}</span>
+                      <div className="flex items-center gap-2">
+                        <Badge>{trip.language}</Badge>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('dashboard.upcomingTrips.deleteTrip.title')}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t('dashboard.upcomingTrips.deleteTrip.description', { destination: trip.to })}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('dashboard.upcomingTrips.deleteTrip.cancel')}</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDeleteTrip(trip.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                {t('dashboard.upcomingTrips.deleteTrip.confirm')}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(trip.date)}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to={`/matches?tripId=${trip.id}`}>
+                        {t('dashboard.upcomingTrips.findCompanions')}
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground mb-4">{t('dashboard.upcomingTrips.noTrips')}</p>
+              <Button asChild>
+                <Link to="/trip-posting">{t('dashboard.upcomingTrips.postFirstTrip')}</Link>
+              </Button>
+            </Card>
+          )}
         </div>
 
-        {trips.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {trips.map((trip) => (
-              <Card key={trip.id}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{trip.from} to {trip.to}</span>
-                    <div className="flex items-center gap-2">
-                      <Badge>{trip.language}</Badge>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t('dashboard.upcomingTrips.deleteTrip.title')}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t('dashboard.upcomingTrips.deleteTrip.description', { destination: trip.to })}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>{t('dashboard.upcomingTrips.deleteTrip.cancel')}</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => handleDeleteTrip(trip.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              {t('dashboard.upcomingTrips.deleteTrip.confirm')}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </CardTitle>
-                  <CardDescription className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>{formatDate(trip.date)}</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link to={`/matches?tripId=${trip.id}`}>
-                      {t('dashboard.upcomingTrips.findCompanions')}
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">{t('dashboard.upcomingTrips.noTrips')}</p>
-            <Button asChild>
-              <Link to="/trip-posting">{t('dashboard.upcomingTrips.postFirstTrip')}</Link>
-            </Button>
-          </Card>
-        )}
+        {/* Travel Timeline */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">Travel Timeline</h2>
+          <Timeline trips={trips} />
+        </div>
       </div>
 
       {/* Incoming Requests */}
