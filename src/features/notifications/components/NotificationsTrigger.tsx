@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,13 +54,13 @@ const NotificationsTrigger = () => {
         variant="ghost"
         size="icon"
         onClick={() => setIsOpen(true)}
-        className="relative hover:bg-accent/50 transition-colors"
+        className="relative hover:bg-accent/50 transition-all duration-200 border border-border/20 bg-background/80 backdrop-blur-sm shadow-sm hover:shadow-md"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <Badge 
             variant="destructive" 
-            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+            className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs font-semibold shadow-lg animate-pulse"
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </Badge>

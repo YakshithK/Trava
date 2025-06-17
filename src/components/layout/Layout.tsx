@@ -7,6 +7,7 @@ import { BreadcrumbNav } from "@/components/navigation/BreadcrumbNav";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import NotificationsTrigger from "@/features/notifications/components/NotificationsTrigger";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface LayoutProps {
   children: ReactNode;
@@ -45,7 +46,10 @@ const Layout = ({ children }: LayoutProps) => {
           <div className="container p-6 md:p-8 max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <BreadcrumbNav />
-              <NotificationsTrigger />
+              <div className="flex items-center gap-2">
+                <NotificationsTrigger />
+                <LanguageSwitcher />
+              </div>
             </div>
             <div className="animate-fade-in-up">
               {children}
