@@ -1,12 +1,13 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/config/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Luggage, Plus, Search, Filter, Loader2 } from 'lucide-react';
+import { Luggage, Plus, Search, Filter, Loader2, Lock } from 'lucide-react';
 import { fetchPackingList } from '../services/fetchPackingList';
 import { subscribeToUpdates } from '../controllers/subToUpdates';
 import { addItem } from '../utils/addItem';
@@ -17,7 +18,8 @@ export function PackingList({ connectionId }: { connectionId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [packingList, setPackingList] = useState<PackingListType | null>(null);
   const [newItem, setNewItem] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('Clothing');
+  const [filterCategory, setFilterCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -74,11 +76,15 @@ export function PackingList({ connectionId }: { connectionId: string }) {
     setIsAddingItem(true);
     try {
       await addItem(newItem, packingList, selectedCategory, setNewItem, connectionId, setPackingList);
+      toast({
+        title: "Success",
+        description: "Item added to packing list!",
+      });
     } catch (error) {
       console.error('Error adding item:', error);
       toast({
         title: "Error",
-        description: "Failed to add item. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to add item. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -88,7 +94,7 @@ export function PackingList({ connectionId }: { connectionId: string }) {
 
   const filteredItems = packingList?.items.filter(item => {
     const matchesSearch = item.item_name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -106,7 +112,10 @@ export function PackingList({ connectionId }: { connectionId: string }) {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Packing List</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Luggage className="h-5 w-5" />
+              Shared Packing List
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -117,16 +126,18 @@ export function PackingList({ connectionId }: { connectionId: string }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1"
               />
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <option value="all">All Categories</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
@@ -138,20 +149,21 @@ export function PackingList({ connectionId }: { connectionId: string }) {
               <div className="space-y-2 max-h-[400px] overflow-y-auto">
                 {filteredItems?.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    No items found. Add some items to get started!
+                    <Luggage className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No items found. Add some items to get started!</p>
                   </div>
                 ) : (
                   filteredItems?.map(item => (
                     <Card key={item.id} className="p-4">
                       <div className="flex items-center gap-4">
                         <Checkbox
-                          checked={Boolean(item.is_checked)}
+                          checked={item.is_checked}
                           onCheckedChange={(checked) => toggleItem(item.id, checked as boolean)}
                         />
-                        <span className={item.is_checked ? 'line-through text-muted-foreground' : ''}>
+                        <span className={item.is_checked ? 'line-through text-muted-foreground flex-1' : 'flex-1'}>
                           {item.item_name}
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm px-2 py-1 bg-secondary rounded-md text-muted-foreground">
                           {item.category}
                         </span>
                       </div>
@@ -161,7 +173,7 @@ export function PackingList({ connectionId }: { connectionId: string }) {
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 pt-4 border-t">
               <Input
                 placeholder="Add new item..."
                 value={newItem}
@@ -170,16 +182,17 @@ export function PackingList({ connectionId }: { connectionId: string }) {
                 className="flex-1"
                 disabled={isAddingItem}
               />
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-                disabled={isAddingItem}
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+              <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={isAddingItem}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
               <Button 
                 onClick={handleAddItem}

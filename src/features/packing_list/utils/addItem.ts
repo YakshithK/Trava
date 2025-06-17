@@ -1,3 +1,4 @@
+
 import { supabase } from "@/config/supabase";
 import { fetchPackingList } from "../services/fetchPackingList";
 import { PackingListType } from "../types";
@@ -18,7 +19,7 @@ export const addItem = async (
     throw new Error('Packing list not found');
   }
 
-  if (selectedCategory === 'all') {
+  if (!selectedCategory || selectedCategory === 'all') {
     throw new Error('Please select a category');
   }
 
