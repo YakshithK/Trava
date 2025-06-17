@@ -1,16 +1,19 @@
+import { Input } from "@/components/ui/input";
+
 export interface Message {
   id: string;
   text: string;
   sender: "user" | "match";
   timestamp: Date;
   read: boolean;
-  type: "text" | "image";
   imageUrl?: string;
   edited?: boolean;
   reactions?: {
     emoji: string;
     userId: string;
   }[];
+  type: "text" | "image" | "packing_list";
+  packingListId?: string;
 }
 
 export interface Connection {
@@ -22,3 +25,4 @@ export interface Connection {
   lastMessageTime?: Date;
   isOnline?: boolean;
 }
+

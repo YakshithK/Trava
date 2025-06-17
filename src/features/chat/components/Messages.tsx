@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { deleteMessage } from "../controllers/deleteMessage";
 import { handleReaction } from "../controllers/handleReaction";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { PackingList } from "@/features/packing_list";
 
 const COMMON_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏", "👏", "🔥"];
 
@@ -56,6 +57,13 @@ export const Messages = ({messages, messagesEndRef, isOtherTyping, selectedConne
                     : "bg-white/90 border border-border/30 text-gray-600 rounded-bl-lg"
                 }`}
               >
+
+                {message.type === "packing_list" && message.packingListId && (
+                  <div className="mt-2">
+                    <PackingList connectionId={selectedConnection.id} />
+                  </div>
+                )}
+
                 {message.type === "image" && message.imageUrl ? (
                   <div className="mb-2">
                     <img

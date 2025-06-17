@@ -22,6 +22,7 @@ import {Connection,
   Messages, 
   FullConnections, 
   ChatHeader} from "@/features/chat/index"
+import { PackingList } from "@/features/packing_list";
 
 const Chat = () => {
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -379,6 +380,9 @@ const Chat = () => {
                   disabled={!selectedConnection}
                   resetTrigger={imageUploadReset}
                 />
+                {selectedConnection && (
+                  <PackingList connectionId={selectedConnection.id} />
+                )}
                 <div className="flex-1 relative">
                   <Input
                     value={messageText}

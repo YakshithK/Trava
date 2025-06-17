@@ -10,7 +10,8 @@ export const handleSendMessage = async (
     user: SupabaseUser | null,
     toast?: any,
     type: "text" | "image" = "text",
-    imageUrl?: string
+    imageUrl?: string,
+    packingListId?: string
   ) => {
     e.preventDefault();
     if ((!messageText.trim() && !imageUrl) || !selectedConnection || !user) return;
@@ -23,6 +24,7 @@ export const handleSendMessage = async (
         text: messageText.trim() || (type === "image" ? "" : ""),
         type: type,
         image_url: imageUrl,
+        packing_list_id: packingListId,
         timestamp: new Date().toISOString()
       });
   
