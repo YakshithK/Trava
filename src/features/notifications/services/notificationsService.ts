@@ -3,7 +3,6 @@ import { Notification } from '../types';
 
 export const notificationsService = {
   async getNotifications(userId: string): Promise<Notification[]> {
-    console.log('Fetching notifications for user:', userId);
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
@@ -15,12 +14,10 @@ export const notificationsService = {
       throw error;
     }
 
-    console.log('Fetched notifications:', data);
     return data || [];
   },
 
   async markAsRead(notificationId: string): Promise<void> {
-    console.log('Marking notification as read:', notificationId);
     const { error } = await supabase
       .from('notifications')
       .update({ read_: true })
@@ -33,7 +30,6 @@ export const notificationsService = {
   },
 
   async markAllAsRead(userId: string): Promise<void> {
-    console.log('Marking all notifications as read for user:', userId);
     const { error } = await supabase
       .from('notifications')
       .update({ read_: true })
@@ -47,7 +43,6 @@ export const notificationsService = {
   },
 
   async createNotification(notification: Omit<Notification, 'id' | 'created_at'>): Promise<Notification> {
-    console.log('Creating new notification:', notification);
     const { data, error } = await supabase
       .from('notifications')
       .insert(notification)
@@ -59,12 +54,10 @@ export const notificationsService = {
       throw error;
     }
 
-    console.log('Created notification:', data);
     return data;
   },
 
   async deleteMessageNotifications(userId: string, chatId: string): Promise<void> {
-    console.log('Deleting message notifications for chat:', chatId);
     const { error } = await supabase
       .from('notifications')
       .delete()
@@ -91,7 +84,6 @@ export const notificationsService = {
   },
 
   async deleteRequestNotifications(userId: string): Promise<void> {
-    console.log('Deleting all request notifications for user:', userId);
     const { error } = await supabase
       .from('notifications')
       .delete()
@@ -117,7 +109,6 @@ export const notificationsService = {
   },
 
   async deleteNotification(notificationId: string): Promise<void> {
-    console.log('Deleting notification:', notificationId);
     const { error } = await supabase
       .from('notifications')
       .delete()
@@ -141,7 +132,6 @@ export const notificationsService = {
   },
 
   async markMessageNotificationsAsRead(userId: string, chatId: string): Promise<void> {
-    console.log('Marking message notifications as read for chat:', chatId);
     const { error } = await supabase
       .from('notifications')
       .update({ read_: true })
@@ -168,7 +158,6 @@ export const notificationsService = {
   },
 
   async markRequestNotificationsAsRead(userId: string): Promise<void> {
-    console.log('Marking all request notifications as read for user:', userId);
     const { error } = await supabase
       .from('notifications')
       .update({ read_: true })
@@ -194,7 +183,6 @@ export const notificationsService = {
   },
 
   async markNotificationAsRead(notificationId: string): Promise<void> {
-    console.log('Marking notification as read:', notificationId);
     const { error } = await supabase
       .from('notifications')
       .update({ read_: true })

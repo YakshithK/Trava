@@ -3,7 +3,6 @@ import { notificationsService } from './notificationsService';
 import { NotificationType } from '../types';
 
 export const setupNotificationsListener = (userId: string, onNotificationChange: (notifications: any[]) => void) => {
-  console.log('Setting up notifications listener for user:', userId);
 
   // Listen for notifications changes
   const notificationsSubscription = supabase
@@ -17,7 +16,6 @@ export const setupNotificationsListener = (userId: string, onNotificationChange:
         filter: `user_id=eq.${userId}`,
       },
       async (payload) => {
-        console.log('Notification change detected:', payload);
         // When any change occurs, fetch the latest notifications
         const { data, error } = await supabase
           .from('notifications')
@@ -30,7 +28,6 @@ export const setupNotificationsListener = (userId: string, onNotificationChange:
           return;
         }
 
-        console.log('Sending updated notifications:', data);
         onNotificationChange(data || []);
       }
     )
@@ -48,7 +45,6 @@ export const setupNotificationsListener = (userId: string, onNotificationChange:
         filter: `recipient_id=eq.${userId}`,
       },
       async (payload) => {
-        console.log('New message received:', payload);
         const message = payload.new;
         await notificationsService.createNotification({
           user_id: userId,
@@ -75,7 +71,6 @@ export const setupNotificationsListener = (userId: string, onNotificationChange:
         filter: `recipient_id=eq.${userId}`,
       },
       async (payload) => {
-        console.log('New request received:', payload);
         const request = payload.new;
         await notificationsService.createNotification({
           user_id: userId,
@@ -90,11 +85,8 @@ export const setupNotificationsListener = (userId: string, onNotificationChange:
     )
     .subscribe();
 
-  console.log('All subscriptions set up successfully');
-
   // Return cleanup function
   return () => {
-    console.log('Cleaning up notifications subscriptions');
     notificationsSubscription.unsubscribe();
     messagesSubscription.unsubscribe();
     requestsSubscription.unsubscribe();

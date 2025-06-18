@@ -64,13 +64,11 @@ export const ImageUpload = ({ onImageUpload, disabled, onImageSelect, resetTrigg
                 console.error("Upload error:", uploadError);
                 throw uploadError;
             }
-            console.log("Upload successful:", data);
 
             const { data: {publicUrl}} = supabase.storage
                 .from('chat-images')
                 .getPublicUrl(filePath)
                 
-            console.log("Public URL:", publicUrl);
             setUploadedImageUrl(publicUrl);
             onImageSelect?.(publicUrl);
         } catch (error) {
@@ -108,7 +106,6 @@ export const ImageUpload = ({ onImageUpload, disabled, onImageSelect, resetTrigg
                     disabled={disabled || isUploading}
                     className="relative"
                     onClick={() => {
-                        console.log("Button clicked");
                         document.getElementById('image-upload')?.click();
                     }}
                 >

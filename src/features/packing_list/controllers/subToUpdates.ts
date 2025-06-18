@@ -29,7 +29,6 @@ export const subscribeToUpdates = (
     )
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('Successfully subscribed to packing list updates');
       } else if (status === 'CHANNEL_ERROR') {
         console.error('Error subscribing to packing list updates');
       }

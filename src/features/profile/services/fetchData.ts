@@ -11,7 +11,6 @@ export const fetchData = async (
     setError(null);
     
     try {
-      console.log("Fetching user profile data...");
       
       const {
         data: { user },
@@ -35,8 +34,6 @@ export const fetchData = async (
         setError(`Failed to load profile data: ${error.message}`);
         return;
       }
-
-      console.log("User profile data loaded successfully");
       
       form.reset({
         name: userStats.name || "",

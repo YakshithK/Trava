@@ -29,7 +29,6 @@ export const onSubmit = async (data: ProfileFormValues,
     setSuccess(null);
     
     try {
-      console.log("Updating user profile...", data);
       
       const {
         data: { user },
@@ -98,8 +97,6 @@ export const onSubmit = async (data: ProfileFormValues,
         setError(`Failed to update profile: ${error.message}`);
         return;
       }
-
-      console.log("Profile updated successfully");
       setSuccess("Your profile has been updated successfully!");
       
       toast({

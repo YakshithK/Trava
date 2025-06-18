@@ -24,7 +24,6 @@ const NotificationsTrigger = () => {
 
     // Set up real-time subscription
     const cleanup = setupNotificationsListener(user.id, (newNotifications) => {
-      console.log('New notifications received:', newNotifications);
       setNotifications(newNotifications);
     });
 
@@ -35,7 +34,6 @@ const NotificationsTrigger = () => {
     if (!user?.id) return;
     try {
       const data = await notificationsService.getNotifications(user.id);
-      console.log('Initial notifications loaded:', data);
       setNotifications(data);
     } catch (error) {
       console.error('Failed to load notifications:', error);
@@ -44,8 +42,6 @@ const NotificationsTrigger = () => {
 
   // Debug log for unread count
   useEffect(() => {
-    console.log('Current notifications:', notifications);
-    console.log('Unread count:', unreadCount);
   }, [notifications, unreadCount]);
 
   return (

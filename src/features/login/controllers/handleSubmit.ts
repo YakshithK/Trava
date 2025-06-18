@@ -12,7 +12,6 @@ export const handleSubmit = async (e: React.FormEvent,
     setError(null);
 
     try {
-      console.log("Attempting to sign in user:", email);
 
       if (!email.trim() || !password.trim()) {
         setError("Please enter both email and password");
@@ -23,8 +22,6 @@ export const handleSubmit = async (e: React.FormEvent,
         email: email.trim(),
         password,
       });
-
-      console.log("Sign in response:", { data, error });
 
       if (error) {
         console.error("Sign in error:", error.message);
@@ -44,7 +41,6 @@ export const handleSubmit = async (e: React.FormEvent,
       }
 
       if (data.user) {
-        console.log("Login successful, redirecting to dashboard");
         navigate("/dashboard");
       } else {
         console.error("No user data received");

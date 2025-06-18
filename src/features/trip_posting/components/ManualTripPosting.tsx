@@ -31,7 +31,8 @@ const TripPosting = () => {
   const [airlineList, setAirlineList] = useState<Airline[]>([])
   const { t } = useTranslation();
 
-  const tripData = JSON.parse(localStorage.getItem("tripData")|| null)
+  const tripDataRaw = localStorage.getItem("tripData");
+  const tripData = tripDataRaw ? JSON.parse(tripDataRaw) : null;
 
   useEffect(() => {
     if (tripData) {
@@ -41,13 +42,6 @@ const TripPosting = () => {
       setDate(tripData.date ? new Date(tripData.date) : undefined);
       setFlightNumber(tripData.flightNumber || "");
       setNotes(tripData.notes || "");
-    }
-
-    if (tripData.date) {
-      const [year, month, day] = tripData.date.split('-').map(Number);
-      setDate(new Date(year, month - 1, day));
-    } else {
-      setDate(undefined);
     }
   }, []);
 
@@ -81,6 +75,8 @@ const TripPosting = () => {
       console.error("Error inserting trip:", insertError);
       return;
     }
+
+    localStorage.removeItem("tripData");
 
     navigate("/matches");
   };

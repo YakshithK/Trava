@@ -118,8 +118,6 @@ export const handleSubmit = async (e: React.FormEvent,
         return;
       }
 
-      console.log(refCode)
-
       if (refCode) {
         const { data: referrer, error: referrerError } = await supabase.from("users")
           .select("id")
@@ -127,7 +125,6 @@ export const handleSubmit = async (e: React.FormEvent,
           .single();
         
         if (referrerError) {
-          console.log("Error getting referrer data: ", referrerError)
           setError("Failed to get referrer information. Please try again.");
           return
         }
@@ -138,8 +135,7 @@ export const handleSubmit = async (e: React.FormEvent,
             referred_id: data.user.id,
         })
 
-        if (referError) {     
-          console.log("Error inserting refer data: ", referrerError)
+        if (referError) {
           setError("Failed to insert refer information. Please try again.");
           return
         } 
